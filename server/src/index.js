@@ -53,13 +53,14 @@ app.post("/signup", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, rememberMe } = req.body;
     const user = users[username];
     if (!user) return res.status(404).json({ message: "User not found." });
 
     const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
     if (passwordMatch) {
-      const token = jwt.sign({ username, userId: user.userId }, process.env.ACCESS_TOKEN_SECRET);
+      const tokenOptions = rememberMe ? {} : { expiresIn: '1h' };
+      const token = jwt.sign({ username, userId: user.userId }, process.env.ACCESS_TOKEN_SECRET, tokenOptions);
       return res.status(201).json({ token, username, userId: user.userId });
     }
 

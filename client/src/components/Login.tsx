@@ -11,11 +11,13 @@ const Login: React.FC<LoginProps> = ({ setIsAuth }) => {
 
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
 
   const logIn = () => {
     Axios.post(`${import.meta.env.VITE_API_URL}/login`, {
       username,
       password,
+      rememberMe,
     }).then((res) => {
       const { token, userId, username } = res.data;
       cookies.set("token", token);
@@ -33,6 +35,10 @@ const Login: React.FC<LoginProps> = ({ setIsAuth }) => {
     setPassword(event.target.value);
   };
 
+  const handleRememberMeChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setRememberMe(event.target.checked);
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <label>Login</label>
@@ -47,6 +53,14 @@ const Login: React.FC<LoginProps> = ({ setIsAuth }) => {
         onChange={handlePasswordChange}
         required
       />
+      <label>
+        <input
+          type="checkbox"
+          checked={rememberMe}
+          onChange={handleRememberMeChange}
+        />
+        Remember Me
+      </label>
       <button onClick={logIn}>Login</button>
     </div>
   );

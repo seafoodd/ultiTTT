@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Board from "./Board";
 
 interface GameProps {
@@ -17,7 +17,12 @@ interface GameState {
 
 const Game: React.FC<GameProps> = ({ socket, gameId }) => {
   const [playersJoined, setPlayersJoined] = useState<boolean>(false);
-  const [board, setBoard] = useState<string[]>(["", "", "", "", "", "", "", "", ""]);
+  // prettier-ignore
+  const [board, setBoard] = useState<string[]>([
+    "", "", "",
+    "", "", "",
+    "", "", ""
+  ]);
   const [player, setPlayer] = useState<string>("");
   const [turn, setTurn] = useState<string>("X");
   const [victoryMessage, setVictoryMessage] = useState<string>("");
@@ -26,7 +31,9 @@ const Game: React.FC<GameProps> = ({ socket, gameId }) => {
     const handleGameState = (gameState: GameState) => {
       setBoard(gameState.board);
       setTurn(gameState.turn);
-      const currentPlayer = gameState.players.find((p: any) => p.id === socket.id);
+      const currentPlayer = gameState.players.find(
+        (p: any) => p.id === socket.id,
+      );
       if (currentPlayer) {
         setPlayer(currentPlayer.symbol);
       }
@@ -34,7 +41,7 @@ const Game: React.FC<GameProps> = ({ socket, gameId }) => {
 
     const handleGameResult = (result: any) => {
       setVictoryMessage(
-        result.state === "Won" ? `Player ${result.winner} wins!` : "Game tied!"
+        result.state === "Won" ? `Player ${result.winner} wins!` : "Game tied!",
       );
     };
 

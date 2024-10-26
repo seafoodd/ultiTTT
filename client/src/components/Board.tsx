@@ -9,7 +9,13 @@ interface BoardProps {
   chooseSquare: (index: number) => void;
 }
 
-const Board: React.FC<BoardProps> = ({ board, turn, player, victoryMessage, chooseSquare }) => {
+const Board: React.FC<BoardProps> = ({
+  board,
+  turn,
+  player,
+  victoryMessage,
+  chooseSquare,
+}) => {
   return (
     <div className="relative flex flex-col w-[500px] h-[500px]">
       {victoryMessage && (
