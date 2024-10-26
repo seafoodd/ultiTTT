@@ -46,7 +46,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div className="mt-36 flex justify-center items-center gap-24">
+      <div className="mt-12 flex justify-center items-center gap-24">
         {isAuth ? (
           <div className="flex flex-col gap-16">
             <JoinGame />
