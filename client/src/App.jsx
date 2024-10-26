@@ -4,17 +4,32 @@ import Login from "./components/Login.jsx";
 import Cookies from "universal-cookie";
 import { useEffect, useState } from "react";
 import JoinGame from "./components/JoinGame.jsx";
+import axios from "axios";
 
 function App() {
   const cookies = new Cookies();
-
   const token = cookies.get("token");
-
   const [isAuth, setIsAuth] = useState(false);
 
   useEffect(() => {
+    const verifyToken = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/verifyToken`, {
+          headers: {
+            Authorization: token,
+          },
+        });
+        if (response.status === 200) {
+          setIsAuth(true);
+        }
+      } catch (error) {
+        console.error("Token verification failed:", error);
+        setIsAuth(false);
+      }
+    };
+
     if (token) {
-      setIsAuth(true);
+      verifyToken();
     }
   }, [token]);
 
@@ -23,7 +38,6 @@ function App() {
     cookies.remove("userId");
     cookies.remove("username");
     cookies.remove("hashedPassword");
-    // socket.disconnect();
     setIsAuth(false);
   };
 
