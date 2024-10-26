@@ -7,9 +7,10 @@ interface GameProps {
 }
 
 interface GameState {
-  board: string[];
+  board: { subWinner: string; squares: string[] }[];
   player: string;
   turn: string;
+  currentSubBoard: number | null;
   victoryMessage: string;
   playersJoined: boolean;
   players: { id: string; symbol: string }[];
@@ -17,20 +18,25 @@ interface GameState {
 
 const Game: React.FC<GameProps> = ({ socket, gameId }) => {
   const [playersJoined, setPlayersJoined] = useState<boolean>(false);
+
   // prettier-ignore
-  const [board, setBoard] = useState<string[]>([
-    "", "", "",
-    "", "", "",
-    "", "", ""
-  ]);
+  const [board, setBoard] = useState<{ subWinner: string; squares: string[] }[]>(
+    Array.from({ length: 9 }, () => ({
+      subWinner: "",
+      squares: Array(9).fill(""),
+    }))
+  );
   const [player, setPlayer] = useState<string>("");
   const [turn, setTurn] = useState<string>("X");
+  const [currentSubBoard, setCurrentSubBoard] = useState<number | null>(null);
   const [victoryMessage, setVictoryMessage] = useState<string>("");
 
   useEffect(() => {
     const handleGameState = (gameState: GameState) => {
+      console.log(gameState.board);
       setBoard(gameState.board);
       setTurn(gameState.turn);
+      setCurrentSubBoard(gameState.currentSubBoard);
       const currentPlayer = gameState.players.find(
         (p: any) => p.id === socket.id,
       );
@@ -59,9 +65,10 @@ const Game: React.FC<GameProps> = ({ socket, gameId }) => {
     };
   }, [socket, playersJoined]);
 
-  const chooseSquare = (square: number) => {
-    if (turn === player && board[square] === "") {
-      socket.emit("makeMove", { gameId, square, player });
+  const chooseSquare = (subBoardIndex: number, squareIndex: number) => {
+    if (turn === player && board[subBoardIndex].squares[squareIndex] === "") {
+      console.log(`played the move ${subBoardIndex} ${squareIndex}`);
+      socket.emit("makeMove", { gameId, subBoardIndex, squareIndex, player });
     }
   };
 
@@ -71,13 +78,21 @@ const Game: React.FC<GameProps> = ({ socket, gameId }) => {
 
   return (
     <>
-      <Board
-        board={board}
-        turn={turn}
-        player={player}
-        chooseSquare={chooseSquare}
-        victoryMessage={victoryMessage}
-      />
+      <div className="ml-36 w-full flex items-center justify-between">
+        <Board
+          board={board}
+          turn={turn}
+          player={player}
+          chooseSquare={chooseSquare}
+          victoryMessage={victoryMessage}
+          currentSubBoard={currentSubBoard}
+        />
+        <div className="flex flex-col gap-4 ">
+          <div>Turn: {turn}</div>
+          <div>Current subBoard: {currentSubBoard}</div>
+          <div>Playing as {player}</div>
+        </div>
+      </div>
       {/*CHAT*/}
       {/*LEAVE GAME BUTTON*/}
     </>

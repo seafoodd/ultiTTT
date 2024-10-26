@@ -23,8 +23,8 @@ const users = {};
 const games = {};
 
 const authenticateToken = (req, res, next) => {
-  console.log(users)
-  const token = req.headers['authorization'];
+  console.log(users);
+  const token = req.headers["authorization"];
   if (!token) return res.sendStatus(401);
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
@@ -42,7 +42,10 @@ app.post("/signup", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     users[username] = { userId, username, hashedPassword };
-    const token = jwt.sign({ username, userId }, process.env.ACCESS_TOKEN_SECRET);
+    const token = jwt.sign(
+      { username, userId },
+      process.env.ACCESS_TOKEN_SECRET,
+    );
 
     res.status(201).json({ token, userId, username, hashedPassword });
   } catch (e) {
@@ -59,8 +62,12 @@ app.post("/login", async (req, res) => {
 
     const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
     if (passwordMatch) {
-      const tokenOptions = rememberMe ? {} : { expiresIn: '1h' };
-      const token = jwt.sign({ username, userId: user.userId }, process.env.ACCESS_TOKEN_SECRET, tokenOptions);
+      const tokenOptions = rememberMe ? {} : { expiresIn: "1h" };
+      const token = jwt.sign(
+        { username, userId: user.userId },
+        process.env.ACCESS_TOKEN_SECRET,
+        tokenOptions,
+      );
       return res.status(201).json({ token, username, userId: user.userId });
     }
 
@@ -81,11 +88,19 @@ io.on("connection", (socket) => {
   socket.on("joinGame", (gameId) => {
     console.log("joined game with Id ", gameId);
     if (!games[gameId]) {
-      games[gameId] = { board: Array(9).fill(""), players: [], turn: "X" };
+      games[gameId] = {
+        board: Array.from({ length: 9 }, () => ({
+          subWinner: "",
+          squares: Array(9).fill(""),
+        })),
+        players: [],
+        turn: "X",
+        currentSubBoard: null,
+      };
+      console.log("created game: ", games[gameId]);
     }
 
     if (games[gameId].players.some((player) => player.id === socket.id)) {
-      console.log("You're already in game");
       io.to(gameId).emit("gameState", games[gameId]);
       return;
     }
@@ -99,24 +114,25 @@ io.on("connection", (socket) => {
         games[gameId].players[0].symbol = playerSymbol;
         games[gameId].players[1].symbol = playerSymbol === "X" ? "O" : "X";
         io.to(gameId).emit("gameState", games[gameId]);
-        // console.log(games[gameId]);
       }
     }
   });
 
-
-  socket.on("makeMove", ({ gameId, square, player }) => {
+  socket.on("makeMove", ({ gameId, subBoardIndex, squareIndex, player }) => {
     const game = games[gameId];
-    if (game && game.board[square] === "" && game.turn === player) {
-      game.board[square] = player;
-      game.turn = player === "X" ? "O" : "X";
-      io.to(gameId).emit("gameState", game);
+    if (
+      game &&
+      game.board[subBoardIndex].subWinner === "" &&
+      (game.currentSubBoard === null || subBoardIndex === game.currentSubBoard) &&
+      game.board[subBoardIndex].squares[squareIndex] === "" &&
+      game.turn === player
+    ) {
+      handleMove(game, subBoardIndex, squareIndex, player);
+      handleOverallWin(game, gameId);
+      updateCurrentSubBoard(game, squareIndex);
 
-      if (checkWin(game.board)) {
-        io.to(gameId).emit("gameResult", { winner: player, state: "Won" });
-      } else if (checkTie(game.board)) {
-        io.to(gameId).emit("gameResult", { winner: "none", state: "Tie" });
-      }
+      console.log(JSON.stringify(game, null, 2));
+      io.to(gameId).emit("gameState", game);
     }
   });
 
@@ -128,18 +144,49 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 });
-const checkWin = (board) => {
-  const Patterns = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
 
+const handleMove = (game, subBoardIndex, squareIndex, player) => {
+  game.board[subBoardIndex].squares[squareIndex] = player;
+  game.turn = player === "X" ? "O" : "X";
+
+  if (checkWin(game.board[subBoardIndex].squares)) {
+    console.log(`subBoard ${subBoardIndex} won by ${player}`);
+    game.board[subBoardIndex].subWinner = player;
+  } else if (checkTie(game.board[subBoardIndex].squares)) {
+    console.log(`subBoard ${subBoardIndex} tied`);
+    game.board[subBoardIndex].subWinner = "tie";
+  }
+};
+
+const handleOverallWin = (game, gameId) => {
+  const overallWinner = checkOverallWin(game.board);
+  if (overallWinner) {
+    io.to(gameId).emit("gameResult", {
+      winner: overallWinner,
+      state: "Won",
+    });
+  } else if (game.board.every((subBoard) => subBoard.subWinner !== "")) {
+    io.to(gameId).emit("gameResult", { winner: "none", state: "Tie" });
+  }
+};
+
+const updateCurrentSubBoard = (game, squareIndex) => {
+  game.currentSubBoard = squareIndex;
+  if (game.board[squareIndex].subWinner !== "") game.currentSubBoard = null;
+};
+
+const Patterns = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+];
+
+const checkWin = (board) => {
   for (let i = 0; i < Patterns.length; i++) {
     const [a, b, c] = Patterns[i];
     if (board[a] && board[a] === board[b] && board[a] === board[c]) {
@@ -151,6 +198,20 @@ const checkWin = (board) => {
 
 const checkTie = (board) => {
   return board.every((square) => square !== "");
+};
+
+const checkOverallWin = (board) => {
+  for (let i = 0; i < Patterns.length; i++) {
+    const [a, b, c] = Patterns[i];
+    if (
+      board[a].subWinner &&
+      board[a].subWinner === board[b].subWinner &&
+      board[a].subWinner === board[c].subWinner
+    ) {
+      return board[a].subWinner;
+    }
+  }
+  return null;
 };
 
 server.listen(5000, () => {
