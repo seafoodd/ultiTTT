@@ -1,13 +1,13 @@
-import { useState } from "react";
-import Game from "./Game.jsx";
-import { io } from "socket.io-client";
+import { useState, ChangeEvent } from "react";
+import Game from "./Game";
+import { io, Socket } from "socket.io-client";
 
-const socket = io(import.meta.env.VITE_API_URL);
+const socket: Socket = io(import.meta.env.VITE_API_URL);
 
-const JoinGame = () => {
-  const [rivalUsername, setRivalUsername] = useState("");
-  const [gameId, setGameId] = useState("");
-  const [isGameCreated, setIsGameCreated] = useState(false);
+const JoinGame: React.FC = () => {
+  const [rivalUsername, setRivalUsername] = useState<string>("");
+  const [gameId, setGameId] = useState<string>("");
+  const [isGameCreated, setIsGameCreated] = useState<boolean>(false);
 
   const createGame = () => {
     const newGameId = `${rivalUsername}-${Date.now()}`;
@@ -24,6 +24,14 @@ const JoinGame = () => {
     socket.emit("joinGame", gameId);
   };
 
+  const handleRivalUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setRivalUsername(event.target.value);
+  };
+
+  const handleGameIdChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setGameId(event.target.value);
+  };
+
   return (
     <>
       {gameId && isGameCreated ? (
@@ -33,16 +41,12 @@ const JoinGame = () => {
           <h4>Create or Join Game</h4>
           <input
             placeholder="username of rival..."
-            onChange={(event) => {
-              setRivalUsername(event.target.value);
-            }}
+            onChange={handleRivalUsernameChange}
           />
           <button onClick={createGame}>Create Game</button>
           <input
             placeholder="game ID..."
-            onChange={(event) => {
-              setGameId(event.target.value);
-            }}
+            onChange={handleGameIdChange}
           />
           <button onClick={joinGame}>Join Game</button>
         </div>

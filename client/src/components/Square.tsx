@@ -1,4 +1,12 @@
-const Square = ({ chooseSquare, val, isYourTurn }) => {
+import React from "react";
+
+interface SquareProps {
+  chooseSquare: () => void;
+  val: string;
+  isYourTurn: boolean;
+}
+
+const Square: React.FC<SquareProps> = ({ chooseSquare, val, isYourTurn }) => {
   return (
     <div
       className={`border-[1px] border-black flex-[33%]

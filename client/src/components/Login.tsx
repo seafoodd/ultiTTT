@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import Axios from "axios";
 import Cookies from "universal-cookie";
 
-const Login = ({ setIsAuth }) => {
+interface LoginProps {
+  setIsAuth: (isAuth: boolean) => void;
+}
+
+const Login: React.FC<LoginProps> = ({ setIsAuth }) => {
   const cookies = new Cookies();
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
   const logIn = () => {
     Axios.post(`${import.meta.env.VITE_API_URL}/login`, {
@@ -21,18 +25,26 @@ const Login = ({ setIsAuth }) => {
     });
   };
 
+  const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setUsername(event.target.value);
+  };
+
+  const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value);
+  };
+
   return (
-    <div className="flex flex-col gap-4 ">
+    <div className="flex flex-col gap-4">
       <label>Login</label>
       <input
         placeholder="Username"
-        onChange={(event) => setUsername(event.target.value)}
+        onChange={handleUsernameChange}
         required
       />
       <input
         placeholder="Password"
         type="password"
-        onChange={(event) => setPassword(event.target.value)}
+        onChange={handlePasswordChange}
         required
       />
       <button onClick={logIn}>Login</button>

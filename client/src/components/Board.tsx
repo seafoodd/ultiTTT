@@ -1,6 +1,15 @@
-import Square from "./Square.jsx";
+import React from "react";
+import Square from "./Square";
 
-const Board = ({ board, turn, player, victoryMessage, chooseSquare }) => {
+interface BoardProps {
+  board: string[];
+  turn: string;
+  player: string;
+  victoryMessage: string;
+  chooseSquare: (index: number) => void;
+}
+
+const Board: React.FC<BoardProps> = ({ board, turn, player, victoryMessage, chooseSquare }) => {
   return (
     <div className="relative flex flex-col w-[500px] h-[500px]">
       {victoryMessage && (
@@ -67,6 +76,5 @@ const Board = ({ board, turn, player, victoryMessage, chooseSquare }) => {
     </div>
   );
 };
-
 
 export default Board;
