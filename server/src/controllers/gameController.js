@@ -5,6 +5,7 @@ export const handleMove = (game, subBoardIndex, squareIndex, player) => {
   game.turn = player === "X" ? "O" : "X";
 
   game.moveHistory.push({ subBoardIndex, squareIndex, player });
+  console.log(game.moveHistory)
 
   if (checkWin(game.board[subBoardIndex].squares)) {
     game.board[subBoardIndex].subWinner = player;

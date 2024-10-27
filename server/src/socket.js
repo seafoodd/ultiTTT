@@ -27,7 +27,7 @@ export const initializeSocket = (io) => {
             O: 600,
           },
         };
-        console.log("created game: ", games[gameId]);
+        // console.log("created game: ", games[gameId]);
       }
       const game = games[gameId];
 

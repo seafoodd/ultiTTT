@@ -46,17 +46,17 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div className="mt-12 flex justify-center items-center gap-24">
+      <div className="w-full h-full mt-12 flex justify-center items-center gap-24">
         {isAuth ? (
           <div className="flex flex-col gap-16">
             <JoinGame />
             <button onClick={logOut}>Log Out</button>
           </div>
         ) : (
-          <>
+          <div className='flex flex-col md:flex-row gap-16 lg:gap-32 justify-center mt-16 lg:mt-64'>
             <SignUp setIsAuth={setIsAuth} />
             <Login setIsAuth={setIsAuth} />
-          </>
+          </div>
         )}
       </div>
     </>

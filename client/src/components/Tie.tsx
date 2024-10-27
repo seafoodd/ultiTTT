@@ -1,7 +1,7 @@
 import React from "react";
 
 interface TieProps {
-  size: number;
+  size?: number;
 }
 
 const Tie: React.FC<TieProps> = ({ size }) => {

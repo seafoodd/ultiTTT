@@ -1,11 +1,12 @@
 import React from "react";
 
 interface CircleProps {
-  size: number;
+  size?: number;
   transparent?: boolean;
+  className?: string;
 }
 
-const Circle: React.FC<CircleProps> = ({ size, transparent }) => {
+const Circle: React.FC<CircleProps> = ({ size, transparent, className }) => {
   return (
     <svg
       width={size}
@@ -17,7 +18,7 @@ const Circle: React.FC<CircleProps> = ({ size, transparent }) => {
         cx="50"
         cy="50"
         r="42"
-        className={transparent ? "stroke-white/20" : "stroke-color-2"}
+        className={`${className} ${transparent ? "stroke-white/20" : "stroke-color-2"}`}
         strokeWidth="12"
         fill="none"
       />
