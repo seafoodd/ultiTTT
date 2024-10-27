@@ -10,7 +10,7 @@ const JoinGame: React.FC = () => {
   const [isGameCreated, setIsGameCreated] = useState<boolean>(false);
 
   const createGame = () => {
-    const newGameId = `${rivalUsername}-${Date.now()}`;
+    const newGameId = `${rivalUsername}`;
     console.log("created the game with id: ", newGameId);
     setGameId(newGameId);
     setIsGameCreated(true);

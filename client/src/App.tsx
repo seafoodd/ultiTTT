@@ -15,7 +15,7 @@ const App: React.FC = () => {
     const verifyToken = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/verifyToken`,
+          `${import.meta.env.VITE_API_URL}/auth/verifyToken`,
           {
             headers: {
               Authorization: token,

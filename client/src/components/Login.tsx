@@ -14,7 +14,7 @@ const Login: React.FC<LoginProps> = ({ setIsAuth }) => {
   const [rememberMe, setRememberMe] = useState<boolean>(false);
 
   const logIn = () => {
-    Axios.post(`${import.meta.env.VITE_API_URL}/login`, {
+    Axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
       username,
       password,
       rememberMe,

@@ -16,7 +16,7 @@ const SignUp: React.FC<SignUpProps> = ({ setIsAuth }) => {
   const [user, setUser] = useState<User>({ username: "", password: "" });
 
   const signUp = () => {
-    Axios.post(`${import.meta.env.VITE_API_URL}/signup`, user).then((res) => {
+    Axios.post(`${import.meta.env.VITE_API_URL}/auth/signup`, user).then((res) => {
       const { token, userId, username, hashedPassword } = res.data;
 
       cookies.set("token", token);

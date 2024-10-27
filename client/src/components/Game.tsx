@@ -26,6 +26,7 @@ const Game: React.FC<GameProps> = ({ socket, gameId }) => {
       squares: Array(9).fill(""),
     }))
   );
+  const [timers, setTimers] = useState<{ X: number; O: number }>({ X: 600, O: 600 });
   const [player, setPlayer] = useState<string>("");
   const [turn, setTurn] = useState<string>("X");
   const [currentSubBoard, setCurrentSubBoard] = useState<number | null>(null);
@@ -51,6 +52,10 @@ const Game: React.FC<GameProps> = ({ socket, gameId }) => {
       );
     };
 
+    const handleTimerUpdate = (updatedTimers: { X: number; O: number }) => {
+      setTimers(updatedTimers);
+    };
+
     socket.on("gameState", (gameState: GameState) => {
       if (!playersJoined && gameState.players.length === 2) {
         setPlayersJoined(true);
@@ -58,10 +63,13 @@ const Game: React.FC<GameProps> = ({ socket, gameId }) => {
       handleGameState(gameState);
     });
     socket.on("gameResult", handleGameResult);
+    socket.on("timerUpdate", handleTimerUpdate);
 
     return () => {
       socket.off("gameState", handleGameState);
       socket.off("gameResult", handleGameResult);
+      socket.off("timerUpdate", handleTimerUpdate);
+
     };
   }, [socket, playersJoined]);
 
@@ -91,6 +99,8 @@ const Game: React.FC<GameProps> = ({ socket, gameId }) => {
           <div>Turn: {turn}</div>
           <div>Current subBoard: {currentSubBoard}</div>
           <div>Playing as {player}</div>
+          <div>Timer X: {timers.X} seconds</div>
+          <div>Timer O: {timers.O} seconds</div>
         </div>
       </div>
       {/*CHAT*/}
