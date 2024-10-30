@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import Board from "./Board";
 import {
   FaBackwardStep,
   FaForwardStep,
   FaBackwardFast,
   FaForwardFast,
 } from "react-icons/fa6";
+import BoardRework from "./BoardRework";
 
 interface GameProps {
   socket: any;
@@ -120,16 +120,26 @@ const Game: React.FC<GameProps> = ({ socket, gameId }) => {
   return (
     <>
       <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-4 lg:h-[640px]">
-        <Board
-          lastMove={moveHistory[currentMoveIndex - 1]}
-          currentMoveSelected={currentMoveIndex === moveHistory.length}
-          board={board}
-          turn={turn}
-          player={player}
-          chooseSquare={chooseSquare}
-          victoryMessage={victoryMessage}
-          currentSubBoard={currentSubBoard}
-        />
+          {/*<Board*/}
+          {/*  lastMove={moveHistory[currentMoveIndex - 1]}*/}
+          {/*  currentMoveSelected={currentMoveIndex === moveHistory.length}*/}
+          {/*  board={board}*/}
+          {/*  turn={turn}*/}
+          {/*  player={player}*/}
+          {/*  chooseSquare={chooseSquare}*/}
+          {/*  victoryMessage={victoryMessage}*/}
+          {/*  currentSubBoard={currentSubBoard}*/}
+          {/*/>*/}
+          <BoardRework
+            lastMove={moveHistory[currentMoveIndex - 1]}
+            currentMoveSelected={currentMoveIndex === moveHistory.length}
+            board={board}
+            turn={turn}
+            player={player}
+            chooseSquare={chooseSquare}
+            victoryMessage={victoryMessage}
+            currentSubBoard={currentSubBoard}
+            />
         <div className="flex flex-col w-full lg:w-80 h-full">
           <div className="flex flex-col w-full h-full rounded-xl overflow-hidden">
             <div className="h-8 bg-white/15 border-b border-white/10">
@@ -174,7 +184,7 @@ const Game: React.FC<GameProps> = ({ socket, gameId }) => {
                             setCurrentMoveIndex(pairIndex * 2 + index + 1)
                           }
                         >
-                          <div className='w-8'>
+                          <div className="w-8">
                             {move.subBoardIndex + 1}-{move.squareIndex + 1}
                           </div>
                         </div>
