@@ -37,22 +37,25 @@ const JoinGame: React.FC = () => {
       {gameId && isGameCreated ? (
         <Game socket={socket} gameId={gameId} />
       ) : (
-        <div className="flex flex-col mt-32">
-          <h4>Create or Join Game</h4>
-          <div className="flex flex-col gap-4 mt-16">
-            <div className="flex gap-4">
-              <input
-                placeholder="username of rival..."
-                onChange={handleRivalUsernameChange}
-              />
-              <button onClick={createGame}>Create Game</button>
-            </div>
-            <div className="flex gap-4">
-              <input placeholder="game ID..." onChange={handleGameIdChange} />
-              <button onClick={joinGame}>Join Game</button>
+        <>
+          <div className="flex flex-col mt-32">
+            <h4>Create or Join Game</h4>
+            <div className="flex flex-col gap-4 mt-16">
+              <div className="flex gap-4">
+                <input
+                  placeholder="username of rival..."
+                  onChange={handleRivalUsernameChange}
+                />
+                <button onClick={createGame}>Create Game</button>
+              </div>
+              <div className="flex gap-4">
+                <input placeholder="game ID..." onChange={handleGameIdChange} />
+                <button onClick={joinGame}>Join Game</button>
+              </div>
             </div>
           </div>
-        </div>
+          {/*<BoardRework />*/}
+        </>
       )}
     </>
   );

@@ -24,10 +24,7 @@ const Board: React.FC<BoardProps> = ({
 }) => {
   return (
     <div className="relative flex flex-col
-
-     h-[320px] w-[320px]
-     sm:h-[640px] sm:w-[640px]
-     md:h-[640px] md:w-[640px]
+     w-full h-full
      overflow-hidden md:rounded-lg">
       {victoryMessage && (
         <div

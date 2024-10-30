@@ -53,7 +53,9 @@ const SubBoard: React.FC<SubBoardProps> = ({
           <div className="w-full h-full p-2">{renderIcon[subWinner]}</div>
         </div>
       )}
-      <div className="flex flex-[33%]">
+
+      {/*FIRST LINE*/}
+      <div className="flex flex-1/3">
         <Square
           chooseSquare={() => chooseSquare(0)}
           val={board[0]}
@@ -89,6 +91,8 @@ const SubBoard: React.FC<SubBoardProps> = ({
           }
         />
       </div>
+
+      {/*SECOND LINE*/}
       <div className="flex flex-1/3 border-t border-b border-gray-500">
         <Square
           chooseSquare={() => chooseSquare(3)}
@@ -125,6 +129,8 @@ const SubBoard: React.FC<SubBoardProps> = ({
           }
         />
       </div>
+
+      {/*THIRD LINE*/}
       <div className="flex flex-1/3">
         <Square
           chooseSquare={() => chooseSquare(6)}
