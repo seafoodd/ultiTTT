@@ -6,10 +6,10 @@ import verifyToken from "../utils/verifyToken";
 const socket: Socket = io(import.meta.env.VITE_API_URL);
 
 interface JoinGameProps {
-  username: string;
+  token: string;
 }
 
-const JoinGame: React.FC<JoinGameProps> = ({ username }) => {
+const JoinGame: React.FC<JoinGameProps> = ({ token }) => {
   const [gameId, setGameId] = useState<string>("");
   const [isGameCreated, setIsGameCreated] = useState<boolean>(false);
 
@@ -23,7 +23,7 @@ const JoinGame: React.FC<JoinGameProps> = ({ username }) => {
     try {
       setGameId(gameId);
       setIsGameCreated(true);
-      socket.emit("joinGame", gameId, username);
+      socket.emit("joinGame", gameId, token);
       console.log("joined the game with id: ", gameId);
     } catch (e) {
       console.error("Failed to join the game:", e);
