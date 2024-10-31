@@ -49,7 +49,7 @@ const App: React.FC = () => {
       <div className="w-full h-full mt-12 flex justify-center items-center gap-24">
         {isAuth ? (
           <div className="flex flex-col gap-16 w-full">
-            <JoinGame />
+            <JoinGame username={cookies.get("username")}/>
             <button onClick={logOut}>Log Out</button>
           </div>
         ) : (

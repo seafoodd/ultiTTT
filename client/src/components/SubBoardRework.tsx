@@ -64,7 +64,7 @@ const SubBoardRework: React.FC<SubBoardProps> = ({
         isYourTurn={turn === player}
         key={i}
         highlightCurrent={highlightCurrent && subWinner === ""}
-        className={`${(i === 1 || i === 4 || i === 7) && "border-x"} ${(i === 3 || i === 4 || i === 5) && "border-y"}`}
+        className={`${[1,4,7].includes(i) && "border-x"} ${[3,4,5].includes(i) && "border-y"}`}
         value={square}
         turn={turn}
         lastMove={

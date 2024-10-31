@@ -14,7 +14,7 @@ export const signup = async (req, res) => {
       { username, userId },
       process.env.ACCESS_TOKEN_SECRET,
     );
-
+    console.log(users)
     res.status(201).json({ token, userId, username, hashedPassword });
   } catch (e) {
     console.log(e);

@@ -10,7 +10,7 @@ export const initializeSocket = (io) => {
   io.on("connection", (socket) => {
     console.log("a user connected");
 
-    socket.on("joinGame", (gameId) => {
+    socket.on("joinGame", (gameId, username) => {
       console.log("joined game with Id ", gameId);
       if (!games[gameId]) {
         games[gameId] = {
@@ -31,14 +31,15 @@ export const initializeSocket = (io) => {
       }
       const game = games[gameId];
 
-      if (game.players.some((player) => player.id === socket.id)) {
+      if (game.players.some((player) => player.username === username)) {
         // io.to(gameId).emit("gameState", game);
+        console.log("player already in game");
         return;
       }
 
       if (game.players.length < 2) {
         socket.join(gameId);
-        game.players.push({ id: socket.id });
+        game.players.push({ id: socket.id, username });
 
         if (game.players.length === 2) {
           const playerSymbol = Math.random() < 0.5 ? "X" : "O";
@@ -67,23 +68,22 @@ export const initializeSocket = (io) => {
         game.turn === player
       ) {
         handleMove(game, subBoardIndex, squareIndex, player);
-        handleOverallWin(io, game, gameId);
         updateCurrentSubBoard(game, squareIndex);
 
-        console.log(
-          "Emitting gameState:",
-          JSON.stringify(
-            {
-              board: game.board,
-              turn: game.turn,
-              moveHistory: game.moveHistory,
-              currentSubBoard: game.currentSubBoard,
-              players: game.players,
-            },
-            null,
-            2,
-          ),
-        );
+        // console.log(
+        //   "Emitting gameState:",
+        //   JSON.stringify(
+        //     {
+        //       board: game.board,
+        //       turn: game.turn,
+        //       moveHistory: game.moveHistory,
+        //       currentSubBoard: game.currentSubBoard,
+        //       players: game.players,
+        //     },
+        //     null,
+        //     2,
+        //   ),
+        // );
 
         io.to(gameId).emit("gameState", {
           board: game.board,
@@ -92,6 +92,7 @@ export const initializeSocket = (io) => {
           currentSubBoard: game.currentSubBoard,
           players: game.players,
         });
+        handleOverallWin(io, game, gameId);
       }
     });
 
