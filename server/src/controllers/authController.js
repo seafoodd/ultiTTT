@@ -94,4 +94,5 @@ export const login = async (req, res) => {
 
 export const verifyToken = (req, res) => {
   res.status(200).json({ message: "Token is valid", user: req.user });
+  return req.user.username;
 };

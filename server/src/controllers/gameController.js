@@ -7,7 +7,7 @@ export const handleMove = (game, subBoardIndex, squareIndex, player) => {
   game.turn = player === "X" ? "O" : "X";
 
   game.moveHistory.push({ subBoardIndex, squareIndex, player });
-  console.log(game.moveHistory)
+  // console.log(game.moveHistory)
 
   if (checkWin(game.board[subBoardIndex].squares)) {
     game.board[subBoardIndex].subWinner = player;
@@ -38,6 +38,7 @@ export const handleOverallWin = (io, game, gameId) => {
         console.log(user);
       } else {
         console.error(`Player with username ${player.username} not found in users object.`);
+        console.log(gameResult)
       }
     }
 
