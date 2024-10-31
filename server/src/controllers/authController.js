@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import users from "../models/userModel.js";
 import prisma from "../../prisma/prismaClient.js";
 
 export const register = async (req, res) => {
@@ -41,7 +40,13 @@ export const register = async (req, res) => {
       },
     });
 
-    res.status(201).json(user);
+    const token = jwt.sign(
+      { username, userId: user.userId },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "1h" },
+    );
+
+    res.status(201).json({ ...user, token });
   } catch (e) {
     console.log(e);
     res.status(500).json({ error: "Something went wrong." });
@@ -81,28 +86,6 @@ export const login = async (req, res) => {
     );
 
     res.status(200).json({ token });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ error: "Something went wrong." });
-  }
-
-  try {
-    const { username, password, rememberMe } = req.body;
-    const user = users[username];
-    if (!user) return res.status(404).json({ message: "User not found." });
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (passwordMatch) {
-      const tokenOptions = rememberMe ? {} : { expiresIn: "1h" };
-      const token = jwt.sign(
-        { username, userId: user.userId },
-        process.env.ACCESS_TOKEN_SECRET,
-        tokenOptions,
-      );
-      return res.status(201).json({ token, username, userId: user.userId });
-    }
-
-    res.status(401).json({ error: "Wrong credentials." });
   } catch (e) {
     console.log(e);
     res.status(500).json({ error: "Something went wrong." });

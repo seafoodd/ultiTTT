@@ -19,10 +19,10 @@ const Login: React.FC<LoginProps> = ({ setIsAuth }) => {
       password,
       rememberMe,
     }).then((res) => {
-      const { token, userId, username } = res.data;
+      const { token } = res.data;
       cookies.set("token", token);
-      cookies.set("userId", userId);
-      cookies.set("username", username);
+      // cookies.set("userId", userId);
+      // cookies.set("username", username);
       setIsAuth(true);
     });
   };
