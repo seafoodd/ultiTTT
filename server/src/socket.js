@@ -5,19 +5,24 @@ import {
   updateCurrentSubBoard,
 } from "./controllers/gameController.js";
 import games from "./models/gameModel.js";
-import {getUserByToken} from "./utils/authUtils.js";
+import { getUserByToken } from "./utils/authUtils.js";
 
 export const initializeSocket = (io) => {
   io.on("connection", (socket) => {
     console.log("a user connected");
 
     socket.on("joinGame", async (gameId, token) => {
+      if (!token) {
+        console.error("No token provided");
+        socket.emit("error", "No token provided");
+        return;
+      }
+
       try {
         const user = await getUserByToken(token);
-        const username = user.username
-        console.log(username)
+        const username = user.username;
+        console.log(`${username} joined game with Id ${gameId}`);
 
-        console.log("joined game with Id ", gameId);
         if (!games[gameId]) {
           games[gameId] = {
             board: Array.from({ length: 9 }, () => ({
@@ -33,13 +38,23 @@ export const initializeSocket = (io) => {
               O: 600,
             },
           };
-          // console.log("created game: ", games[gameId]);
         }
         const game = games[gameId];
 
-        if (game.players.some((player) => player.username === username)) {
-          // io.to(gameId).emit("gameState", game);
+        const existingPlayer = game.players.find((player) => player.username === username);
+        if (existingPlayer) {
           console.log("player already in game");
+          socket.leave(existingPlayer.id);
+          existingPlayer.id = socket.id;
+          socket.join(gameId);
+          socket.emit("gameState", {
+            board: game.board,
+            turn: game.turn,
+            moveHistory: game.moveHistory,
+            currentSubBoard: game.currentSubBoard,
+            players: game.players,
+            timers: game.timers,
+          });
           return;
         }
 
@@ -52,17 +67,20 @@ export const initializeSocket = (io) => {
             game.players[0].symbol = playerSymbol;
             game.players[1].symbol = playerSymbol === "X" ? "O" : "X";
             startTimer(io, game, gameId);
-            io.to(gameId).emit("gameState", {
-              board: game.board,
-              turn: game.turn,
-              moveHistory: game.moveHistory,
-              currentSubBoard: game.currentSubBoard,
-              players: game.players,
-            });
           }
+
+          io.to(gameId).emit("gameState", {
+            board: game.board,
+            turn: game.turn,
+            moveHistory: game.moveHistory,
+            currentSubBoard: game.currentSubBoard,
+            players: game.players,
+            timers: game.timers,
+          });
         }
       } catch (e) {
         console.error("Token verification failed:", e.message);
+        socket.emit("error", "Token verification failed");
       }
     });
 
@@ -79,27 +97,13 @@ export const initializeSocket = (io) => {
         handleMove(game, subBoardIndex, squareIndex, player);
         updateCurrentSubBoard(game, squareIndex);
 
-        // console.log(
-        //   "Emitting gameState:",
-        //   JSON.stringify(
-        //     {
-        //       board: game.board,
-        //       turn: game.turn,
-        //       moveHistory: game.moveHistory,
-        //       currentSubBoard: game.currentSubBoard,
-        //       players: game.players,
-        //     },
-        //     null,
-        //     2,
-        //   ),
-        // );
-
         io.to(gameId).emit("gameState", {
           board: game.board,
           turn: game.turn,
           moveHistory: game.moveHistory,
           currentSubBoard: game.currentSubBoard,
           players: game.players,
+          timers: game.timers,
         });
         handleOverallWin(io, game, gameId);
       }

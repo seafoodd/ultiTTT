@@ -1,17 +1,10 @@
 import { useState, ChangeEvent } from "react";
-import Game from "./Game";
-import { io, Socket } from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 import verifyToken from "../utils/verifyToken";
 
-const socket: Socket = io(import.meta.env.VITE_API_URL);
-
-interface JoinGameProps {
-  token: string | null;
-}
-
-const JoinGame: React.FC<JoinGameProps> = ({ token }) => {
+const JoinGame = () => {
   const [gameId, setGameId] = useState<string>("");
-  const [isGameCreated, setIsGameCreated] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const joinGame = async () => {
     const isAuth = await verifyToken();
@@ -21,10 +14,7 @@ const JoinGame: React.FC<JoinGameProps> = ({ token }) => {
     }
 
     try {
-      setGameId(gameId);
-      setIsGameCreated(true);
-      socket.emit("joinGame", gameId, token);
-      console.log("joined the game with id: ", gameId);
+      navigate(`/${gameId}`);
     } catch (e) {
       console.error("Failed to join the game:", e);
     }
@@ -35,21 +25,13 @@ const JoinGame: React.FC<JoinGameProps> = ({ token }) => {
   };
 
   return (
-    <>
-      {gameId && isGameCreated ? (
-        <Game socket={socket} gameId={gameId} />
-      ) : (
-        <>
-          <div className="flex flex-col mt-32 gap-8 items-center">
-            <h4>Create or Join Game</h4>
-            <div className="flex gap-4">
-              <input placeholder="game ID..." onChange={handleGameIdChange} />
-              <button onClick={joinGame}>Join Game</button>
-            </div>
-          </div>
-        </>
-      )}
-    </>
+    <div className="flex flex-col mt-32 gap-8 items-center">
+      <h4>Create or Join Game</h4>
+      <div className="flex gap-4">
+        <input placeholder="game ID..." onChange={handleGameIdChange} />
+        <button onClick={joinGame}>Join Game</button>
+      </div>
+    </div>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import BoardPreview from "./BoardPreview";
 
 const resultMessages = {
@@ -7,10 +7,16 @@ const resultMessages = {
   tie: <div className="text-yellow-800">Tie!</div>,
 };
 
-const fetchGameHistory = async (username: string, setGameHistory: Function) => {
+const fetchGameHistory = async (
+  username: string,
+  page: number,
+  limit: number,
+  setGameHistory: Function,
+  append: boolean,
+) => {
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/users/username/${username}/games`,
+      `${import.meta.env.VITE_API_URL}/users/username/${username}/games?page=${page}&limit=${limit}`,
     );
     if (!response.ok) {
       console.error("Failed to fetch game history");
@@ -18,7 +24,7 @@ const fetchGameHistory = async (username: string, setGameHistory: Function) => {
     const data = await response.json();
 
     const gamesWithPlayers = await Promise.all(
-      data.map(async (game: any) => {
+      data.games.map(async (game: any) => {
         let player1Response = null;
         let player2Response = null;
 
@@ -40,7 +46,9 @@ const fetchGameHistory = async (username: string, setGameHistory: Function) => {
       }),
     );
 
-    setGameHistory(gamesWithPlayers);
+    setGameHistory((prevGames: any[]) =>
+      append ? [...prevGames, ...gamesWithPlayers] : gamesWithPlayers,
+    );
   } catch (error) {
     console.error("Error fetching game history:", error);
   }
@@ -48,16 +56,33 @@ const fetchGameHistory = async (username: string, setGameHistory: Function) => {
 
 const GameHistory: React.FC<{ username: string }> = ({ username }) => {
   const [gameHistory, setGameHistory] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore] = useState(true);
+  const observer = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    fetchGameHistory(username, setGameHistory);
-  }, [username]);
+    fetchGameHistory(username, page, 5, setGameHistory, page > 1);
+  }, [username, page]);
+
+  const lastGameElementRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [hasMore],
+  );
 
   return (
     <div className="flex items-center flex-col w-full">
       {gameHistory.map((game, index) => (
         <div
           key={index}
+          ref={index === gameHistory.length - 1 ? lastGameElementRef : null}
           className="flex flex-col sm:flex-row items-center gap-4 sm:gap-32 border border-white/20 p-4 w-full max-w-[720px]"
         >
           <div className="flex-none">
