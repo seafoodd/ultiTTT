@@ -72,6 +72,9 @@ export const getById = async (req, res) => {
 
 export const getGameHistory = async (req, res) => {
   const { username } = req.params;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
 
   try {
     const user = await prisma.user.findUnique({
@@ -97,7 +100,14 @@ export const getGameHistory = async (req, res) => {
       },
     ).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    res.status(200).json(combinedGames);
+    const paginatedGames = combinedGames.slice(offset, offset + limit);
+
+    res.status(200).json({
+      games: paginatedGames,
+      currentPage: page,
+      totalPages: Math.ceil(combinedGames.length / limit),
+      totalGames: combinedGames.length,
+    });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Something went wrong." });
