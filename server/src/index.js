@@ -5,6 +5,7 @@ import { Server } from "socket.io";
 import http from "http";
 import { initializeSocket } from "./socket.js";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 configDotenv();
 
@@ -20,6 +21,7 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
 // app.use("/game", gameRoutes);
 
 initializeSocket(io);

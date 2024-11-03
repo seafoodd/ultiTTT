@@ -6,7 +6,7 @@ import verifyToken from "../utils/verifyToken";
 const socket: Socket = io(import.meta.env.VITE_API_URL);
 
 interface JoinGameProps {
-  token: string;
+  token: string | null;
 }
 
 const JoinGame: React.FC<JoinGameProps> = ({ token }) => {
@@ -40,13 +40,11 @@ const JoinGame: React.FC<JoinGameProps> = ({ token }) => {
         <Game socket={socket} gameId={gameId} />
       ) : (
         <>
-          <div className="flex flex-col mt-32">
+          <div className="flex flex-col mt-32 gap-8 items-center">
             <h4>Create or Join Game</h4>
-            <div className="flex flex-col gap-4 mt-16">
-              <div className="flex gap-4">
-                <input placeholder="game ID..." onChange={handleGameIdChange} />
-                <button onClick={joinGame}>Join Game</button>
-              </div>
+            <div className="flex gap-4">
+              <input placeholder="game ID..." onChange={handleGameIdChange} />
+              <button onClick={joinGame}>Join Game</button>
             </div>
           </div>
         </>

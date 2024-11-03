@@ -43,38 +43,40 @@ const SubBoardRework: React.FC<SubBoardProps> = ({
   turn,
   lastMove,
   subBoardIndex,
-  player
-}) => (
-  <div
-    className={`grid grid-cols-3 relative aspect-square w-full h-full border-gray-400`}
-  >
+  player,
+}) => {
+  return (
     <div
-      className={`${className} absolute border-gray-400 w-full h-full z-10 pointer-events-none`}
-    ></div>
-    {subWinner && (
+      className={`grid grid-cols-3 relative aspect-square w-full h-full border-gray-400`}
+    >
       <div
-        className={`absolute w-full h-full p-2 z-30
+        className={`${className} absolute border-gray-400 w-full h-full z-30 pointer-events-none`}
+      ></div>
+      {subWinner && (
+        <div
+          className={`absolute w-full h-full p-2 z-20
       ${getBackgroundColorClass(subWinner)}`}
-      >
-        {renderSubWinner[subWinner]}
-      </div>
-    )}
-    {squares.map((square: string, i: number) => (
-      <SquareRework
-        isYourTurn={turn === player}
-        key={i}
-        highlightCurrent={highlightCurrent && subWinner === ""}
-        className={`${[1,4,7].includes(i) && "border-x"} ${[3,4,5].includes(i) && "border-y"}`}
-        value={square}
-        turn={turn}
-        lastMove={
-          lastMove?.subBoardIndex === subBoardIndex &&
-          lastMove?.squareIndex === i
-        }
-        onClick={() => onClick(i)}
-      />
-    ))}
-  </div>
-);
+        >
+          {renderSubWinner[subWinner]}
+        </div>
+      )}
+      {squares.map((square: string, i: number) => (
+        <SquareRework
+          isYourTurn={turn === player}
+          key={i}
+          highlightCurrent={highlightCurrent && subWinner === ""}
+          className={`${[1, 4, 7].includes(i) && "border-x"} ${[3, 4, 5].includes(i) && "border-y"}`}
+          value={square}
+          turn={turn}
+          lastMove={
+            lastMove?.subBoardIndex === subBoardIndex &&
+            lastMove?.squareIndex === i
+          }
+          onClick={() => onClick(i)}
+        />
+      ))}
+    </div>
+  );
+};
 
 export default SubBoardRework;
