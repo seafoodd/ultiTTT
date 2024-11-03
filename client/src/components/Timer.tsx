@@ -9,14 +9,15 @@ const formatTime = (seconds: number) => {
 interface TimerProps {
   seconds: number;
   isCompact?: boolean;
+  className?: string;
 }
 
-const Timer: React.FC<TimerProps> = ({ seconds, isCompact }) => {
+const Timer: React.FC<TimerProps> = ({ seconds, isCompact, className }) => {
   if (isCompact) {
     return (
       <div
-        className="flex lg:hidden h-8 bg-color-1/20
-       justify-center items-center text-2xl font-semibold p-4"
+        className={`${className ? className : ""} flex lg:hidden h-8 bg-color-1/20
+       justify-center items-center text-2xl font-semibold p-4`}
       >
         {formatTime(seconds)}
       </div>
@@ -25,8 +26,8 @@ const Timer: React.FC<TimerProps> = ({ seconds, isCompact }) => {
 
   return (
     <div
-      className="hidden lg:flex h-8 bg-gray-800
-       justify-center items-center text-2xl font-semibold p-4"
+      className={`${className ? className : ""} hidden lg:flex h-12 bg-gray-800
+       justify-center items-center text-3xl font-semibold p-4`}
     >
       {formatTime(seconds)}
     </div>
