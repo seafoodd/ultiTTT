@@ -174,43 +174,45 @@ const Game: React.FC<GameProps> = () => {
             className="rounded-t-md shadow-2xl w-32"
           />
         </div>
-        <div className="flex flex-col w-full rounded-r-md bg-gray-800 lg:max-h-[600px]">
-          <div className="hidden lg:flex border-b px-4 items-center font-medium">{opponentUsername}</div>
-            <div className="h-full overflow-x-scroll overflow-y-hidden lg:overflow-y-scroll lg:overflow-x-hidden">
-              <div
-                className="flex sm:max-w-[640px]
-             flex-wrap flex-row lg:flex-col  max-h-fit
+        <div className="flex flex-col w-full rounded-r-md bg-gray-800 lg:h-[600px]">
+          <div className="hidden lg:flex border-b px-4 items-center font-medium">
+            {opponentUsername}
+          </div>
+          <div className="h-full overflow-x-scroll overflow-y-hidden lg:overflow-y-scroll lg:overflow-x-hidden">
+            <div
+              className="flex sm:max-w-[640px]
+             flex-wrap flex-row lg:flex-col max-h-fit
               lg:overflow-x-hidden lg:w-80"
-              >
-                {moveHistory
-                  .reduce(
-                    (acc, move, index) => {
-                      const movePairIndex = Math.floor(index / 2);
-                      if (!acc[movePairIndex]) {
-                        acc[movePairIndex] = [];
-                      }
-                      acc[movePairIndex].push(move);
-                      return acc;
-                    },
-                    [] as {
-                      subBoardIndex: number;
-                      squareIndex: number;
-                      player: string;
-                    }[][],
-                  )
-                  .map((movePair, pairIndex) => (
-                    <div key={pairIndex} className="flex items-center">
-                      <div
-                        className="border-r border-l lg:border-l-0
+            >
+              {moveHistory
+                .reduce(
+                  (acc, move, index) => {
+                    const movePairIndex = Math.floor(index / 2);
+                    if (!acc[movePairIndex]) {
+                      acc[movePairIndex] = [];
+                    }
+                    acc[movePairIndex].push(move);
+                    return acc;
+                  },
+                  [] as {
+                    subBoardIndex: number;
+                    squareIndex: number;
+                    player: string;
+                  }[][],
+                )
+                .map((movePair, pairIndex) => (
+                  <div key={pairIndex} className="flex items-center">
+                    <div
+                      className="border-r border-l lg:border-l-0
                      border-white/10 bg-white/5 text-white/40 min-w-12"
-                      >
-                        {pairIndex + 1}
-                      </div>
-                      <div className="flex flex-row bg-gray-800 w-full justify-start">
-                        {movePair.map((move, index) => (
-                          <div
-                            key={index}
-                            className={`flex flex-1 max-w-[120px] justify-between cursor-pointer
+                    >
+                      {pairIndex + 1}
+                    </div>
+                    <div className="flex flex-row bg-gray-800 w-full justify-start">
+                      {movePair.map((move, index) => (
+                        <div
+                          key={index}
+                          className={`flex flex-1 max-w-[120px] justify-between cursor-pointer
                         pr-8 lg:pr-12 hover:bg-white/10 items-center text-[16px]
                         ${move.player === "X" ? "text-color-1" : "text-color-2"}
                         ${
@@ -218,19 +220,19 @@ const Game: React.FC<GameProps> = () => {
                             ? "bg-white/25 font-bold"
                             : "font-medium"
                         }`}
-                            onClick={() =>
-                              setCurrentMoveIndex(pairIndex * 2 + index + 1)
-                            }
-                          >
-                            <div className="w-8">
-                              {move.subBoardIndex + 1}-{move.squareIndex + 1}
-                            </div>
+                          onClick={() =>
+                            setCurrentMoveIndex(pairIndex * 2 + index + 1)
+                          }
+                        >
+                          <div className="w-8">
+                            {move.subBoardIndex + 1}-{move.squareIndex + 1}
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-              </div>
+                  </div>
+                ))}
+            </div>
           </div>
           <div className="flex justify-center gap-8 items-center py-2">
             <button
@@ -262,7 +264,9 @@ const Game: React.FC<GameProps> = () => {
               <FaForwardFast />
             </button>
           </div>
-          <div className="hidden lg:flex border-t px-4 items-center font-medium">{currentUsername}</div>
+          <div className="hidden lg:flex border-t px-4 items-center font-medium">
+            {currentUsername}
+          </div>
         </div>
         <Timer
           seconds={player === "X" ? timers.X : timers.O}
