@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import NavItem from "./NavItem";
 import {IoMenu} from "react-icons/io5";
 import {IoPersonCircleOutline} from "react-icons/io5";
+import {useAuth} from "../context/AuthContext";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { currentUser } = useAuth();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -51,7 +53,11 @@ const Header = () => {
       </div>
       <div className="flex justify-center h-full">
         {/*<NavItem href="/friends" text="friends" />*/}
-        <NavItem href="/@/seafood" icon={<IoPersonCircleOutline size={40}/>} />
+        <NavItem
+          href={`/@/${currentUser?.username}`}
+          text={currentUser?.username}
+          icon={<IoPersonCircleOutline size={40} />}
+        />
       </div>
     </div>
   );

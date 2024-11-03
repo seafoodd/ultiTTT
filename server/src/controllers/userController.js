@@ -1,6 +1,6 @@
 import prisma from "../../prisma/prismaClient.js";
 
-export const getUserByUsername = async (req, res) => {
+export const getByUsername = async (req, res) => {
   const { username } = req.params;
 
   try {
@@ -35,7 +35,7 @@ export const getUserByUsername = async (req, res) => {
   }
 };
 
-export const getUserById = async (req, res) => {
+export const getById = async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -70,7 +70,7 @@ export const getUserById = async (req, res) => {
   }
 };
 
-export const getUserGameHistory = async (req, res) => {
+export const getGameHistory = async (req, res) => {
   const { username } = req.params;
 
   try {
