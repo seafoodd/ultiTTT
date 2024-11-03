@@ -18,7 +18,9 @@ model User {
   avatarUrl              String          @default("/media/default_images/default-avatar.png")
   createdAt              DateTime        @default(now())
   updatedAt              DateTime        @updatedAt
-  elo                    Int             @default(1000)
+  elo                    Float           @default(1000)
+  rd                     Float           @default(200)
+  vol                    Float           @default(0.06)
   gameHistory1           Game[]          @relation("Player1Games")
   gameHistory2           Game[]          @relation("Player2Games")
   friendships1           Friend[]        @relation("User1Friends")
@@ -50,7 +52,8 @@ model FriendRequest {
 model Game {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
   board            Json
-  winner           String
+  winner           String?
+  winnerId         String?  @db.ObjectId
   moveHistory      Json
   createdAt        DateTime @default(now())
   player1          User?    @relation("Player1Games", fields: [player1Id], references: [id], onDelete: SetNull)

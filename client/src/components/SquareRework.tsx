@@ -30,7 +30,7 @@ const SquareRework: React.FC<SquareProps> = ({
   const highlight = highlightCurrent && value === "";
   return (
     <button
-      className={`relative aspect-square w-full h-full flex items-center justify-center 
+      className={`relative aspect-square w-full h-full flex items-center justify-center
      ${
        highlight && isYourTurn
          ? `cursor-pointer ${turn === "X" ? "hover:bg-color-1/60" : "hover:bg-color-2/60"} transition-colors duration-75`
@@ -43,11 +43,11 @@ const SquareRework: React.FC<SquareProps> = ({
     ${highlight && (turn === "X" ? "bg-blue-900/50" : "bg-red-900/50")}`}
       ></div>
       <div
-        className={`absolute inset-0 top-0 left-0 flex z-20
+        className={`absolute inset-0 justify-center items-center flex z-10
      ${lastMove && value !== "" && "border-4"}
      ${value === "X" ? "border-color-1" : "border-color-2"}`}
       ></div>
-      <div className="w-full h-full p-2.5">{renderIcon[value]}</div>
+      <div className="w-full h-full p-1.5 sm:p-2 md:p-2.5">{renderIcon[value]}</div>
     </button>
   );
 };
