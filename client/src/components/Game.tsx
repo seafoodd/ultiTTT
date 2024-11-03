@@ -9,7 +9,7 @@ import {
 } from "react-icons/fa6";
 import BoardRework from "./BoardRework";
 import Timer from "./Timer";
-import {useAuth} from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 interface GameProps {}
 
@@ -21,7 +21,7 @@ interface GameState {
   victoryMessage: string;
   playersJoined: boolean;
   moveHistory: { subBoardIndex: number; squareIndex: number; player: string }[];
-  players: { id: string; symbol: string }[];
+  players: { id: string; symbol: string; username: string }[];
   timers: { X: number; O: number };
 }
 
@@ -30,7 +30,7 @@ const socket: Socket = io(import.meta.env.VITE_API_URL);
 const Game: React.FC<GameProps> = () => {
   const [playersJoined, setPlayersJoined] = useState<boolean>(false);
   const { gameId } = useParams();
-  const location = useLocation()
+  const location = useLocation();
   const { token } = useAuth();
 
   const [board, setBoard] = useState<
@@ -51,6 +51,8 @@ const Game: React.FC<GameProps> = () => {
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
 
   const [player, setPlayer] = useState<string>("");
+  const [opponentUsername, setOpponentUsername] = useState<string>("");
+  const [currentUsername, setCurrentUsername] = useState<string>("");
   const [turn, setTurn] = useState<string>("X");
   const [currentSubBoard, setCurrentSubBoard] = useState<number | null>(null);
   const [victoryMessage, setVictoryMessage] = useState<string>("");
@@ -71,10 +73,16 @@ const Game: React.FC<GameProps> = () => {
       );
       if (currentPlayer) {
         setPlayer(currentPlayer.symbol);
+        setCurrentUsername(currentPlayer.username);
       }
       if (gameState.players.length === 2) {
         setPlayersJoined(true);
       }
+
+      setOpponentUsername(
+        gameState.players.find((p) => p.id !== socket.id)?.username ||
+          "Opponent",
+      );
     };
 
     const handleGameResult = (result: any) => {
@@ -140,114 +148,126 @@ const Game: React.FC<GameProps> = () => {
   return (
     <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-4 md:w-[640px] lg:h-[640px]">
       <div className="flex lg:hidden items-center justify-between w-full px-4">
-        <div>Seafood</div>
+        <div>{opponentUsername}</div>
         <Timer seconds={player === "X" ? timers.O : timers.X} isCompact />
       </div>
-      <BoardRework
-        lastMove={moveHistory[currentMoveIndex - 1]}
-        currentMoveSelected={currentMoveIndex === moveHistory.length}
-        board={board}
-        turn={turn}
-        player={player}
-        chooseSquare={chooseSquare}
-        victoryMessage={victoryMessage}
-        currentSubBoard={currentSubBoard}
-      />
+      <div className="w-full">
+        <BoardRework
+          lastMove={moveHistory[currentMoveIndex - 1]}
+          currentMoveSelected={currentMoveIndex === moveHistory.length}
+          board={board}
+          turn={turn}
+          player={player}
+          chooseSquare={chooseSquare}
+          victoryMessage={victoryMessage}
+          currentSubBoard={currentSubBoard}
+        />
+      </div>
       <div className="flex lg:hidden items-center justify-between w-full px-4">
-        <div>Seafood</div>
+        <div>{currentUsername}</div>
         <Timer seconds={player === "X" ? timers.X : timers.O} isCompact />
       </div>
       <div className="flex flex-col w-full md:w-[640px] lg:w-80 h-full">
-        <Timer seconds={player === "X" ? timers.O : timers.X} />
-        <div className="flex flex-col w-full h-full rounded-xl overflow-hidden">
-          <div className="h-full bg-gray-800">
-            <div
-              className="flex sm:max-w-[640px]
-             flex-wrap lg:flex-col lg:overflow-y-auto
+        <div className="hidden lg:flex flex-col ">
+          <Timer
+            seconds={player === "X" ? timers.O : timers.X}
+            className="rounded-t-md shadow-2xl w-32"
+          />
+        </div>
+        <div className="flex flex-col w-full rounded-r-md bg-gray-800 lg:max-h-[600px]">
+          <div className="hidden lg:flex border-b px-4 items-center font-medium">{opponentUsername}</div>
+            <div className="h-full overflow-x-scroll overflow-y-hidden lg:overflow-y-scroll lg:overflow-x-hidden">
+              <div
+                className="flex sm:max-w-[640px]
+             flex-wrap flex-row lg:flex-col  max-h-fit
               lg:overflow-x-hidden lg:w-80"
-            >
-              {moveHistory
-                .reduce(
-                  (acc, move, index) => {
-                    const movePairIndex = Math.floor(index / 2);
-                    if (!acc[movePairIndex]) {
-                      acc[movePairIndex] = [];
-                    }
-                    acc[movePairIndex].push(move);
-                    return acc;
-                  },
-                  [] as {
-                    subBoardIndex: number;
-                    squareIndex: number;
-                    player: string;
-                  }[][],
-                )
-                .map((movePair, pairIndex) => (
-                  <div key={pairIndex} className="flex items-center">
-                    <div
-                      className="border-r border-l lg:border-l-0
+              >
+                {moveHistory
+                  .reduce(
+                    (acc, move, index) => {
+                      const movePairIndex = Math.floor(index / 2);
+                      if (!acc[movePairIndex]) {
+                        acc[movePairIndex] = [];
+                      }
+                      acc[movePairIndex].push(move);
+                      return acc;
+                    },
+                    [] as {
+                      subBoardIndex: number;
+                      squareIndex: number;
+                      player: string;
+                    }[][],
+                  )
+                  .map((movePair, pairIndex) => (
+                    <div key={pairIndex} className="flex items-center">
+                      <div
+                        className="border-r border-l lg:border-l-0
                      border-white/10 bg-white/5 text-white/40 min-w-12"
-                    >
-                      {pairIndex + 1}
-                    </div>
-                    <div className="flex flex-row bg-gray-800 w-full justify-start">
-                      {movePair.map((move, index) => (
-                        <div
-                          key={index}
-                          className={`flex flex-1 max-w-[107px] justify-between cursor-pointer
-                        px-1.5 hover:bg-white/10 items-center text-[16px]
+                      >
+                        {pairIndex + 1}
+                      </div>
+                      <div className="flex flex-row bg-gray-800 w-full justify-start">
+                        {movePair.map((move, index) => (
+                          <div
+                            key={index}
+                            className={`flex flex-1 max-w-[120px] justify-between cursor-pointer
+                        pr-8 lg:pr-12 hover:bg-white/10 items-center text-[16px]
                         ${move.player === "X" ? "text-color-1" : "text-color-2"}
                         ${
                           pairIndex * 2 + index + 1 === currentMoveIndex
                             ? "bg-white/25 font-bold"
                             : "font-medium"
                         }`}
-                          onClick={() =>
-                            setCurrentMoveIndex(pairIndex * 2 + index + 1)
-                          }
-                        >
-                          <div className="w-8">
-                            {move.subBoardIndex + 1}-{move.squareIndex + 1}
+                            onClick={() =>
+                              setCurrentMoveIndex(pairIndex * 2 + index + 1)
+                            }
+                          >
+                            <div className="w-8">
+                              {move.subBoardIndex + 1}-{move.squareIndex + 1}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
-            </div>
+                  ))}
+              </div>
           </div>
+          <div className="flex justify-center gap-8 items-center py-2">
+            <button
+              className="disabled:text-white/30"
+              onClick={() => setCurrentMoveIndex(0)}
+              disabled={currentMoveIndex <= 0}
+            >
+              <FaBackwardFast />
+            </button>
+            <button
+              className="disabled:text-white/30"
+              onClick={() => setCurrentMoveIndex(currentMoveIndex - 1)}
+              disabled={currentMoveIndex <= 0}
+            >
+              <FaBackwardStep />
+            </button>
+            <button
+              className="disabled:text-white/30"
+              onClick={() => setCurrentMoveIndex(currentMoveIndex + 1)}
+              disabled={currentMoveIndex >= moveHistory.length}
+            >
+              <FaForwardStep />
+            </button>
+            <button
+              className="disabled:text-white/30"
+              onClick={() => setCurrentMoveIndex(moveHistory.length)}
+              disabled={currentMoveIndex >= moveHistory.length}
+            >
+              <FaForwardFast />
+            </button>
+          </div>
+          <div className="hidden lg:flex border-t px-4 items-center font-medium">{currentUsername}</div>
         </div>
-        <Timer seconds={player === "X" ? timers.X : timers.O} />
-        <div className="flex justify-center gap-8 items-center py-2 -mb-8">
-          <button
-            className="disabled:text-white/30"
-            onClick={() => setCurrentMoveIndex(0)}
-            disabled={currentMoveIndex <= 0}
-          >
-            <FaBackwardFast />
-          </button>
-          <button
-            className="disabled:text-white/30"
-            onClick={() => setCurrentMoveIndex(currentMoveIndex - 1)}
-            disabled={currentMoveIndex <= 0}
-          >
-            <FaBackwardStep />
-          </button>
-          <button
-            className="disabled:text-white/30"
-            onClick={() => setCurrentMoveIndex(currentMoveIndex + 1)}
-            disabled={currentMoveIndex >= moveHistory.length}
-          >
-            <FaForwardStep />
-          </button>
-          <button
-            className="disabled:text-white/30"
-            onClick={() => setCurrentMoveIndex(moveHistory.length)}
-            disabled={currentMoveIndex >= moveHistory.length}
-          >
-            <FaForwardFast />
-          </button>
-        </div>
+        <Timer
+          seconds={player === "X" ? timers.X : timers.O}
+          className="rounded-b-md shadow-2xl w-32"
+        />
       </div>
     </div>
   );
