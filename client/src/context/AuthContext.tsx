@@ -13,6 +13,7 @@ interface AuthContextType {
   token: string | null;
   logOut: () => void;
   setIsAuth: React.Dispatch<SetStateAction<boolean>>;
+  currentUser: any;
 }
 
 interface AuthProviderType {
@@ -25,6 +26,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
   const cookies = new Cookies();
   const [isAuth, setIsAuth] = useState<boolean>(false);
   const token = cookies.get("token");
+  const [currentUser, setCurrentUser] = useState<any>(null)
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -39,6 +41,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
         );
         if (response.status === 200) {
           setIsAuth(true);
+          setCurrentUser(response.data.user)
         }
       } catch (error) {
         setIsAuth(false);
@@ -59,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuth, token, logOut, setIsAuth }}>
+    <AuthContext.Provider value={{ isAuth, token, logOut, setIsAuth, currentUser }}>
       {children}
     </AuthContext.Provider>
   );
