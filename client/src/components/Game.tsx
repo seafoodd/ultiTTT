@@ -124,16 +124,20 @@ const Game: React.FC<GameProps> = () => {
       subWinner: "",
       squares: Array(9).fill(""),
     }));
-    moveHistory.slice(0, moveIndex).forEach((move) => {
-      newBoard[move.subBoardIndex].squares[move.squareIndex] = move.player;
-      if (checkWin(newBoard[move.subBoardIndex].squares)) {
-        newBoard[move.subBoardIndex].subWinner = move.player;
-      } else if (
-        newBoard[move.subBoardIndex].squares.every((square) => square !== "")
-      ) {
-        newBoard[move.subBoardIndex].subWinner = "tie";
-      }
-    });
+
+    if (moveHistory) {
+      moveHistory.slice(0, moveIndex).forEach((move) => {
+        newBoard[move.subBoardIndex].squares[move.squareIndex] = move.player;
+        if (checkWin(newBoard[move.subBoardIndex].squares)) {
+          newBoard[move.subBoardIndex].subWinner = move.player;
+        } else if (
+          newBoard[move.subBoardIndex].squares.every((square) => square !== "")
+        ) {
+          newBoard[move.subBoardIndex].subWinner = "tie";
+        }
+      });
+    }
+
     return newBoard;
   };
 
