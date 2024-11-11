@@ -44,6 +44,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
           setCurrentUser(response.data.user)
         }
       } catch (error) {
+        console.log("verify token error:", error)
         setIsAuth(false);
       }
     };

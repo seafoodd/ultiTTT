@@ -1,3 +1,6 @@
+/**
+ * All the possible winning patterns
+ */
 const Patterns = [
   [0, 1, 2],
   [3, 4, 5],
@@ -9,6 +12,10 @@ const Patterns = [
   [2, 4, 6],
 ];
 
+/**
+ * Checks if there's a winning
+ * position on a sub-board
+ */
 export const checkWin = (board) => {
   for (let i = 0; i < Patterns.length; i++) {
     const [a, b, c] = Patterns[i];
@@ -19,10 +26,18 @@ export const checkWin = (board) => {
   return false;
 };
 
+/**
+ * Checks if there's a tie on a sub-board
+ */
 export const checkTie = (board) => {
   return board.every((square) => square !== "");
 };
 
+/**
+ * Checks if there's a winning position
+ * on the whole board. If there's no winner,
+ * returns null (null is a tie)
+ */
 export const checkOverallWin = (board) => {
   for (let i = 0; i < Patterns.length; i++) {
     const [a, b, c] = Patterns[i];
@@ -35,4 +50,25 @@ export const checkOverallWin = (board) => {
     }
   }
   return null;
+};
+
+/**
+ * Validates if the move is allowed.
+ */
+export const isValidMove = (game, subBoardIndex, squareIndex, player) => {
+  return (
+    game.board[subBoardIndex].subWinner === "" &&
+    (game.currentSubBoard === null || subBoardIndex === game.currentSubBoard) &&
+    game.board[subBoardIndex].squares[squareIndex] === "" &&
+    game.turn === player
+  );
+};
+
+/**
+ * Assigns symbols to players randomly.
+ */
+export const assignPlayerSymbols = (game) => {
+  const playerSymbol = Math.random() < 0.5 ? "X" : "O";
+  game.players[0].symbol = playerSymbol;
+  game.players[1].symbol = playerSymbol === "X" ? "O" : "X";
 };

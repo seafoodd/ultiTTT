@@ -6,12 +6,18 @@ import http from "http";
 import { initializeSocket } from "./socket.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import {createClient} from "redis";
 
 configDotenv();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
+
+export const redisClient = createClient();
+redisClient.on("error", (err) => console.error("Redis Client Error", err));
+await redisClient.connect();
+
+export const io = new Server(server, {
   cors: {
     origin: "*",
   },

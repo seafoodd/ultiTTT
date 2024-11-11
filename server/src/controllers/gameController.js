@@ -34,6 +34,7 @@ export const handleMove = async (
     players: game.players,
     timers: game.timers,
   });
+  console.log("handleMove");
 
   await redisClient.set(`game:${gameId}`, JSON.stringify(game));
   await handleOverallWin(io, game, gameId, redisClient);
@@ -159,6 +160,7 @@ export const finishGame = async (
 ) => {
   await saveGameResult(game, winnerSymbol);
   clearInterval(game.timerInterval);
+  console.log("deleted the game with id:", gameId);
   await redisClient.del(`game:${gameId}`);
 };
 
@@ -175,7 +177,7 @@ export const updateCurrentSubBoard = (game, squareIndex) => {
  * The code is very confusing because of how timerIntervals are stored.
  * TODO: fix this shit
  */
-export const startTimer = (io, game, gameId, redisClient) => {
+export const startTimer = async (io, game, gameId, redisClient) => {
   game.timerInterval = setInterval(async () => {
     const redisGame = JSON.parse(await redisClient.get(`game:${gameId}`));
     if (redisGame && redisGame.timers && redisGame.turn !== undefined) {
@@ -191,7 +193,7 @@ export const startTimer = (io, game, gameId, redisClient) => {
             winner: redisGame.turn === "X" ? "O" : "X",
             state: "Won",
           });
-          clearInterval(game.timerInterval);
+          // clearInterval(game.timerInterval);
           await finishGame(
             io,
             redisGame,
@@ -233,7 +235,10 @@ const calculateEloChange = (
       E(playerElo, opponentElo, opponentRd) *
       (1 - E(playerElo, opponentElo, opponentRd)));
   const newVol = Math.min(800, Math.sqrt(playerVol * playerVol + d2));
-  const newRd = Math.max(120, 1 / Math.sqrt(1 / (playerRd * playerRd) + 1 / d2));
+  const newRd = Math.max(
+    120,
+    1 / Math.sqrt(1 / (playerRd * playerRd) + 1 / d2),
+  );
   const newRating =
     playerElo +
     (q / (1 / (playerRd * playerRd) + 1 / d2)) *
