@@ -1,20 +1,9 @@
-name: Create TODO Issues
-
-on:
-  push:
-    branches:
-      - master
-  workflow_dispatch:
-
+name: "Run TODO to Issue"
+on: [ "push" ]
 jobs:
-  create-todo-issues:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: "ubuntu-latest"
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Scan for TODOs and create issues
-        uses: alstr/todo-to-issue-action@v5
-        with:
-          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LABEL: "todo"
+      - uses: "actions/checkout@v4"
+      - name: "TODO to Issue"
+        uses: "alstr/todo-to-issue-action@v5"
