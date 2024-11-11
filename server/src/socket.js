@@ -173,7 +173,7 @@ export const initializeSocket = () => {
 /**
  * Creates a new game object with initial state.
  * takes gameType as props
- * TODO: add isRanked and stuff like this
+ * TODO: add isRanked and stuff like this.
  */
 const createNewGame = (gameType) => {
   let time = 300;

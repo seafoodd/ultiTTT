@@ -17,7 +17,7 @@ export const register = async (req, res) => {
     if (existingEmail) {
       return res.status(400).json({ error: "Email is already taken." });
     }
-    // TODO: email verification
+    // TODO: add email verification.
 
     const existingUsername = await prisma.user.findUnique({
       where: { username },

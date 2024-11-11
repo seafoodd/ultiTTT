@@ -175,7 +175,7 @@ export const updateCurrentSubBoard = (game, squareIndex) => {
 /**
  * Starts the game timer and handles timer updates.
  * The code is very confusing because of how timerIntervals are stored.
- * TODO: fix this shit
+ * TODO: fix this shit.
  */
 export const startTimer = async (io, game, gameId, redisClient) => {
   game.timerInterval = setInterval(async () => {
@@ -210,7 +210,7 @@ export const startTimer = async (io, game, gameId, redisClient) => {
 /**
  * Calculates the ELO change for a player based on the game outcome.
  * I tried making something similar to glicko-2 but i'm too stupid for it
- * TODO: Actually implement glicko-2 elo system
+ * TODO: Actually implement glicko-2 elo system.
  */
 const calculateEloChange = (
   playerElo,
