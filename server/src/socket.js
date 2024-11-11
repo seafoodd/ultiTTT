@@ -1,17 +1,18 @@
-import { createClient } from "redis";
 import { getUserByToken } from "./utils/authUtils.js";
 import { handleMove, startTimer } from "./controllers/gameController.js";
-
-const redisClient = createClient();
-
-redisClient.on("error", (err) => console.error("Redis Client Error", err));
-
-await redisClient.connect();
+import { io, redisClient } from "./index.js";
+import {
+  addPlayerToQueue,
+  findMatch,
+  Player,
+  removePlayerFromQueue,
+} from "./utils/matchmakingUtils.js";
+import { assignPlayerSymbols, isValidMove } from "./utils/gameUtils.js";
 
 /**
  * Initializes the socket.io connection and sets up event handlers.
  */
-export const initializeSocket = (io) => {
+export const initializeSocket = () => {
   io.on("connection", (socket) => {
     // Handle user joining a game
     socket.on("joinGame", async (gameId, token) => {
@@ -28,12 +29,9 @@ export const initializeSocket = (io) => {
         let game = JSON.parse(await redisClient.get(`game:${gameId}`));
 
         if (!game) {
-          game = createNewGame();
-          await saveGameToRedis(gameId, game);
-        }
-
-        if (!game.players) {
-          game.players = [];
+          console.log("No game found");
+          socket.emit("error", "No Game found");
+          return;
         }
 
         const existingPlayer = game.players.find(
@@ -46,11 +44,105 @@ export const initializeSocket = (io) => {
         }
 
         if (game.players.length < 2) {
-          await addNewPlayerToGame(socket, gameId, username, game, io);
+          await addNewPlayerToGame(socket, gameId, username, game);
+          assignPlayerSymbols(game);
+          await startTimer(io, game, gameId, redisClient);
+          await saveGameToRedis(gameId, game);
+          emitGameState(io, gameId, game);
         }
       } catch (e) {
         console.error("Token verification failed:", e.message);
         socket.emit("error", "Token verification failed");
+      }
+    });
+
+    // Handle search cancel
+    socket.on("cancelSearch", async (token) => {
+      const user = await getUserByToken(token);
+      await removePlayerFromQueue(socket.id, user.gameType);
+      socket.emit("searchCancelled");
+    });
+
+    // Handle searching the match
+    socket.on("searchMatch", async (token, gameType) => {
+      const user = await getUserByToken(token);
+      const player = new Player(socket.id, user.username, user.elo, gameType);
+      await addPlayerToQueue(player);
+
+      const match = await findMatch(player, gameType);
+      if (match) {
+        const [player1, player2] = match;
+        const gameId = Date.now().toString();
+        const existingGame = JSON.parse(
+          await redisClient.get(`game:${gameId}`),
+        );
+
+        if (existingGame) {
+          socket.emit("error", "The game already exists");
+          console.log("the game already exists");
+          return;
+        }
+
+        const game = createNewGame(gameType);
+        await saveGameToRedis(gameId, game);
+
+        await addNewPlayerToGame(socket, gameId, player1.username, game);
+        await addNewPlayerToGame(socket, gameId, player2.username, game);
+
+        assignPlayerSymbols(game);
+        await startTimer(io, game, gameId, redisClient);
+
+        await saveGameToRedis(gameId, game);
+        emitGameState(io, gameId, game);
+
+        io.to(player1.id).emit("matchFound", gameId);
+        io.to(player2.id).emit("matchFound", gameId);
+      }
+    });
+
+    // Handle creating a friendly game
+    socket.on("createFriendlyGame", async (token, gameType) => {
+      const user = await getUserByToken(token);
+
+      const player = new Player(socket.id, user.username, user.elo, gameType);
+      const gameId = `${user.username}-${Date.now()}`;
+
+      const existingGame = JSON.parse(await redisClient.get(`game:${gameId}`));
+      if (existingGame) {
+        socket.emit("error", "The game already exists");
+        console.log("the game already exists");
+        return;
+      }
+
+      const game = createNewGame(gameType);
+      await saveGameToRedis(gameId, game);
+
+      await addNewPlayerToGame(socket, gameId, player.username, game);
+
+      await saveGameToRedis(gameId, game);
+      io.to(socket.id).emit("friendlyGameCreated", gameId); // Send the game ID to the player
+    });
+
+    // Handle joining a friendly game
+    socket.on("joinFriendlyGame", async (gameId, token) => {
+      const user = await getUserByToken(token);
+      const username = user.username;
+
+      let game = JSON.parse(await redisClient.get(`game:${gameId}`));
+      if (!game) {
+        socket.emit("error", "No Game found");
+        return;
+      }
+
+      if (game.players.length < 2) {
+        await addNewPlayerToGame(socket, gameId, username, game);
+        assignPlayerSymbols(game);
+        await startTimer(io, game, gameId, redisClient);
+
+        await saveGameToRedis(gameId, game);
+        emitGameState(io, gameId, game);
+      } else {
+        socket.emit("error", "Game is full");
       }
     });
 
@@ -75,36 +167,42 @@ export const initializeSocket = (io) => {
         }
       },
     );
-
-    // Handle sending a message in the game
-    socket.on("sendMessage", ({ gameId, message }) => {
-      io.to(gameId).emit("message", message);
-    });
-
-    // Handle user disconnecting
-    socket.on("disconnect", () => {
-      // User disconnected
-    });
   });
 };
 
 /**
  * Creates a new game object with initial state.
+ * takes gameType as props
+ * TODO: add isRanked and stuff like this
  */
-const createNewGame = () => ({
-  board: Array.from({ length: 9 }, () => ({
-    subWinner: "",
-    squares: Array(9).fill(""),
-  })),
-  players: [],
-  moveHistory: [],
-  turn: "X",
-  currentSubBoard: null,
-  timers: {
-    X: 300,
-    O: 300,
-  },
-});
+const createNewGame = (gameType) => {
+  let time = 300;
+  if (gameType === "0") {
+    time = 3;
+  }
+  if (gameType === "5") {
+    time = 300;
+  } else if (gameType === "10") {
+    time = 600;
+  } else if (gameType === "15") {
+    time = 900;
+  }
+
+  return {
+    board: Array.from({ length: 9 }, () => ({
+      subWinner: "",
+      squares: Array(9).fill(""),
+    })),
+    players: [],
+    moveHistory: [],
+    turn: "X",
+    currentSubBoard: null,
+    timers: {
+      X: time,
+      O: time,
+    },
+  };
+};
 
 /**
  * Saves the game state to Redis.
@@ -124,41 +222,9 @@ const saveGameToRedis = async (gameId, game) => {
 };
 
 /**
- * Rejoins an existing player to the game.
+ * Emits the current game state to all players in the game.
  */
-const rejoinExistingPlayer = async (
-  socket,
-  gameId,
-  existingPlayer,
-  game,
-) => {
-  socket.leave(existingPlayer.id);
-  existingPlayer.id = socket.id;
-  socket.join(gameId);
-  socket.emit("gameState", {
-    board: game.board,
-    turn: game.turn,
-    moveHistory: game.moveHistory,
-    currentSubBoard: game.currentSubBoard,
-    players: game.players,
-    timers: game.timers,
-  });
-  await saveGameToRedis(gameId, game);
-};
-
-/**
- * Adds a new player to the game.
- */
-const addNewPlayerToGame = async (socket, gameId, username, game, io) => {
-  socket.join(gameId);
-  game.players.push({ id: socket.id, username });
-
-  if (game.players.length === 2) {
-    assignPlayerSymbols(game);
-    startTimer(io, game, gameId, redisClient);
-  }
-
-  await saveGameToRedis(gameId, game);
+const emitGameState = (io, gameId, game) => {
   io.to(gameId).emit("gameState", {
     board: game.board,
     turn: game.turn,
@@ -170,22 +236,22 @@ const addNewPlayerToGame = async (socket, gameId, username, game, io) => {
 };
 
 /**
- * Assigns symbols to players randomly.
+ * Rejoins an existing player to the game.
  */
-const assignPlayerSymbols = (game) => {
-  const playerSymbol = Math.random() < 0.5 ? "X" : "O";
-  game.players[0].symbol = playerSymbol;
-  game.players[1].symbol = playerSymbol === "X" ? "O" : "X";
+const rejoinExistingPlayer = async (socket, gameId, existingPlayer, game) => {
+  socket.leave(existingPlayer.id);
+  existingPlayer.id = socket.id;
+  socket.join(gameId);
+
+  emitGameState(io, gameId, game);
+  await saveGameToRedis(gameId, game);
 };
 
 /**
- * Validates if the move is allowed.
+ * Adds a new player to the game.
  */
-const isValidMove = (game, subBoardIndex, squareIndex, player) => {
-  return (
-    game.board[subBoardIndex].subWinner === "" &&
-    (game.currentSubBoard === null || subBoardIndex === game.currentSubBoard) &&
-    game.board[subBoardIndex].squares[squareIndex] === "" &&
-    game.turn === player
-  );
+const addNewPlayerToGame = async (socket, gameId, username, game) => {
+  socket.join(gameId);
+  console.log(socket.id);
+  game.players.push({ id: socket.id, username });
 };

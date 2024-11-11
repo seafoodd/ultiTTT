@@ -6,7 +6,7 @@ import {useAuth} from "../context/AuthContext";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { currentUser } = useAuth();
+  const { currentUser, logOut, isAuth } = useAuth();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -51,14 +51,18 @@ const Header = () => {
         <NavItem href="/rules" text="rules" />
         <NavItem href="/donate" text="donate" className="text-yellow-500" />
       </div>
-      <div className="flex justify-center h-full">
+      {
+        isAuth &&
+      <div className="flex justify-center h-full items-center">
         {/*<NavItem href="/friends" text="friends" />*/}
         <NavItem
           href={`/@/${currentUser?.username}`}
           text={currentUser?.username}
-          icon={<IoPersonCircleOutline size={40} />}
+          icon={<IoPersonCircleOutline size={40}/>}
         />
+        <button onClick={logOut} className='h-8'>Log Out</button>
       </div>
+      }
     </div>
   );
 };

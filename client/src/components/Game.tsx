@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { io, Socket } from "socket.io-client";
 import {
   FaBackwardStep,
   FaForwardStep,
@@ -10,8 +9,11 @@ import {
 import BoardRework from "./BoardRework";
 import Timer from "./Timer";
 import { useAuth } from "../context/AuthContext";
+import {Socket} from "socket.io-client";
 
-interface GameProps {}
+interface GameProps {
+  socket: Socket;
+}
 
 interface GameState {
   board: { subWinner: string; squares: string[] }[];
@@ -25,9 +27,7 @@ interface GameState {
   timers: { X: number; O: number };
 }
 
-const socket: Socket = io(import.meta.env.VITE_API_URL);
-
-const Game: React.FC<GameProps> = () => {
+const Game: React.FC<GameProps> = ({socket}) => {
   const [playersJoined, setPlayersJoined] = useState<boolean>(false);
   const { gameId } = useParams();
   const location = useLocation();
@@ -95,6 +95,7 @@ const Game: React.FC<GameProps> = () => {
 
     const handleTimerUpdate = (updatedTimers: { X: number; O: number }) => {
       setTimers(updatedTimers);
+      console.log("handleTimers");
     };
 
     socket.on("gameState", handleGameState);
@@ -112,6 +113,7 @@ const Game: React.FC<GameProps> = () => {
       socket.off("timerUpdate", handleTimerUpdate);
     };
   }, [gameId, token, socket, location]);
+
 
   const chooseSquare = (subBoardIndex: number, squareIndex: number) => {
     if (turn === player && board[subBoardIndex].squares[squareIndex] === "") {
