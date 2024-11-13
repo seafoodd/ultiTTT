@@ -45,6 +45,7 @@ const addPlayerToQueue = async (player) => {
  */
 const removePlayerFromQueue = async (playerId, gameType) => {
   const players = await redisClient.zRange(`matchmaking:${gameType}`, 0, -1);
+  console.log(await redisClient.zRange(`matchmaking:${gameType}`, 0, -1));
   for (const player of players) {
     const parsedPlayer = JSON.parse(player);
     if (parsedPlayer.id === playerId) {
@@ -52,6 +53,7 @@ const removePlayerFromQueue = async (playerId, gameType) => {
       break;
     }
   }
+  console.log(await redisClient.zRange(`matchmaking:${gameType}`, 0, -1));
 };
 
 /**

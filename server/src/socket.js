@@ -16,12 +16,6 @@ export const initializeSocket = () => {
   io.on("connection", (socket) => {
     // Handle user joining a game
     socket.on("joinGame", async (gameId, token) => {
-      if (!token) {
-        console.error("No token provided");
-        socket.emit("error", "No token provided");
-        return;
-      }
-
       try {
         const user = await getUserByToken(token);
         const username = user.username;
@@ -57,46 +51,63 @@ export const initializeSocket = () => {
     });
 
     // Handle search cancel
-    socket.on("cancelSearch", async (token) => {
-      const user = await getUserByToken(token);
-      await removePlayerFromQueue(socket.id, user.gameType);
-      socket.emit("searchCancelled");
+    socket.on("cancelSearch", async (token, gameType) => {
+      try {
+        // throws an error if the user is not found
+        await getUserByToken(token);
+
+        await removePlayerFromQueue(socket.id, gameType);
+        socket.emit("searchCancelled");
+      } catch (e) {
+        console.error("Token verification failed:", e.message);
+        socket.emit("error", "Token verification failed");
+      }
     });
 
     // Handle searching the match
     socket.on("searchMatch", async (token, gameType) => {
-      const user = await getUserByToken(token);
-      const player = new Player(socket.id, user.username, user.elo, gameType);
-      await addPlayerToQueue(player);
+      try {
+        // throws an error if the user is not found
+        const user = await getUserByToken(token);
 
-      const match = await findMatch(player, gameType);
-      if (match) {
-        const [player1, player2] = match;
-        const gameId = Date.now().toString();
-        const existingGame = JSON.parse(
-          await redisClient.get(`game:${gameId}`),
-        );
-
-        if (existingGame) {
-          socket.emit("error", "The game already exists");
-          console.log("the game already exists");
-          return;
+        if (!user) {
+          socket.emit("error", "Token verification failed");
         }
+        const player = new Player(socket.id, user.username, user.elo, gameType);
+        await addPlayerToQueue(player);
 
-        const game = createNewGame(gameType);
-        await saveGameToRedis(gameId, game);
+        const match = await findMatch(player, gameType);
+        if (match) {
+          const [player1, player2] = match;
+          const gameId = Date.now().toString();
+          const existingGame = JSON.parse(
+            await redisClient.get(`game:${gameId}`),
+          );
 
-        await addNewPlayerToGame(socket, gameId, player1.username, game);
-        await addNewPlayerToGame(socket, gameId, player2.username, game);
+          if (existingGame) {
+            socket.emit("error", "The game already exists");
+            console.log("the game already exists");
+            return;
+          }
 
-        assignPlayerSymbols(game);
-        await startTimer(io, game, gameId, redisClient);
+          const game = createNewGame(gameType);
+          await saveGameToRedis(gameId, game);
 
-        await saveGameToRedis(gameId, game);
-        emitGameState(io, gameId, game);
+          await addNewPlayerToGame(socket, gameId, player1.username, game);
+          await addNewPlayerToGame(socket, gameId, player2.username, game);
 
-        io.to(player1.id).emit("matchFound", gameId);
-        io.to(player2.id).emit("matchFound", gameId);
+          assignPlayerSymbols(game);
+          await startTimer(io, game, gameId, redisClient);
+
+          await saveGameToRedis(gameId, game);
+          emitGameState(io, gameId, game);
+
+          io.to(player1.id).emit("matchFound", gameId);
+          io.to(player2.id).emit("matchFound", gameId);
+        }
+      } catch (e) {
+        console.error("Token verification failed:", e.message);
+        socket.emit("error", "Token verification failed");
       }
     });
 

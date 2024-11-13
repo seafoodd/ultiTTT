@@ -11,6 +11,7 @@ const JoinGame = () => {
   const navigate = useNavigate();
   const { token } = useAuth();
   const [searching, setSearching] = useState<boolean>();
+  const [gameType, setGameType] = useState<string>("");
 
   const searchMatch = async (gameType: string) => {
     const isAuth = await verifyToken();
@@ -20,6 +21,7 @@ const JoinGame = () => {
     }
 
     try {
+      setGameType(gameType)
       socket.emit("searchMatch", token, gameType);
       setSearching(true)
       socket.on("matchFound", (gameId) => {
@@ -50,7 +52,7 @@ const JoinGame = () => {
   };
 
   const cancelSearch = async () => {
-    socket.emit("cancelSearch", token);
+    socket.emit("cancelSearch", token, gameType);
     socket.on("searchCancelled", () => {
       setSearching(false)
     });
