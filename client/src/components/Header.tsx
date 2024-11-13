@@ -1,68 +1,68 @@
-import React, { useState } from "react";
 import NavItem from "./NavItem";
-import {IoMenu} from "react-icons/io5";
-import {IoPersonCircleOutline} from "react-icons/io5";
-import {useAuth} from "../context/AuthContext";
+import { IoPersonCircleOutline } from "react-icons/io5";
+import { useAuth } from "../context/AuthContext";
+import BurgerMenu from "./BurgerMenu";
 
 const Header = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const { currentUser, logOut, isAuth } = useAuth();
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
-
   return (
-    <div className="bg-color-3/20 w-full h-16 sticky left-0 top-0 flex items-center justify-between gap-16 md:px-24 z-20">
-      <button className="block md:hidden p-2" onClick={toggleMenu}>
-        <IoMenu size={40} />
-        {isOpen && (
-          <div className="absolute top-16 left-0 w-full bg-color-3/40 shadow-md z-10">
-            <NavItem
-              href="/home"
-              text="home"
-              className="py-6 hover:bg-white/30"
-              onClick={toggleMenu}
-            />
-            <NavItem
-              href="/blog"
-              text="blog"
-              className="py-6 hover:bg-white/30"
-              onClick={toggleMenu}
-            />
-            <NavItem
-              href="/rules"
-              text="rules"
-              className="py-6 hover:bg-white/30"
-              onClick={toggleMenu}
-            />
-            <NavItem
-              href="/donate"
-              text="donate"
-              className="text-yellow-500 py-6 hover:bg-white/30"
-              onClick={toggleMenu}
-            />
-          </div>
-        )}
-      </button>
-      <div className="hidden md:flex justify-center gap-4 h-full">
-        <NavItem href="/home" text="home" />
-        <NavItem href="/blog" text="blog" />
-        <NavItem href="/rules" text="rules" />
-        <NavItem href="/donate" text="donate" className="text-yellow-500" />
-      </div>
-      {
-        isAuth &&
-      <div className="flex justify-center h-full items-center">
-        {/*<NavItem href="/friends" text="friends" />*/}
+    <div
+      className="bg-color-gray-1/80 w-full h-16 sticky left-0 top-0 flex
+      items-center justify-center pr-4 2xl:px-24 z-20 backdrop-blur-sm"
+    >
+      <BurgerMenu />
+      <div className='flex justify-center h-full'>
+        <div className="hidden md:flex">
+          <NavItem
+            href="/home"
+            text="HOME"
+            className="hover:bg-color-1/20 px-4"
+          />
+          <NavItem
+            href="/blog"
+            text="BLOG"
+            className="hover:bg-color-1/20 px-4"
+          />
+          <NavItem
+            href="/rules"
+            text="RULES"
+            className="hover:bg-color-1/20 px-4"
+          />
+        </div>
         <NavItem
-          href={`/@/${currentUser?.username}`}
-          text={currentUser?.username}
-          icon={<IoPersonCircleOutline size={40}/>}
+          href="/donate"
+          text="DONATE"
+          className="text-yellow-500 hover:text-yellow-100 px-4"
         />
-        <button onClick={logOut} className='h-8'>Log Out</button>
       </div>
-      }
+      {isAuth ? (
+        <div className="flex justify-center h-full items-center ml-auto">
+          {/*<NavItem href="/friends" text="friends" />*/}
+          <NavItem
+            href={`/@/${currentUser?.username}`}
+            text={currentUser?.username}
+            icon={<IoPersonCircleOutline size={32} />}
+            flipped
+          />
+          {/*<button onClick={logOut} className="h-8">*/}
+          {/*  Log Out*/}
+          {/*</button>*/}
+        </div>
+      ) : (
+        <div className="flex justify-center gap-4 ml-auto">
+          <NavItem
+            href="/login"
+            text="Log In"
+            className="text-blue-500 hover:text-blue-400 text-lg"
+          />
+          <NavItem
+            href="/signup"
+            text="Sign Up"
+            className="text-gray-400 hover:text-gray-300 text-lg"
+          />
+        </div>
+      )}
     </div>
   );
 };
