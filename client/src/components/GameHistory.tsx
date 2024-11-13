@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import BoardPreview from "./BoardPreview";
 
 const resultMessages = {
@@ -61,6 +61,7 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
   const observer = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
+    console.log("refetch");
     fetchGameHistory(username, page, 5, setGameHistory, page > 1);
   }, [username, page]);
 
@@ -113,24 +114,31 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
   );
 };
 
-const PlayerInfo: React.FC<{ player: any; elo: number; eloChange: number }> = ({
-  player,
-  elo,
-  eloChange,
-}) => (
-  <div className="flex flex-col justify-center items-center">
-    <div className={`text-xl font-bold ${player ? "" : "text-white/70"}`}>
-      {player ? player.username : "deleted"}
+const PlayerInfo: React.FC<{
+  player: any;
+  elo: number;
+  eloChange: number;
+}> = ({ player, elo, eloChange }) => {
+  return (
+    <div className="flex flex-col justify-center items-center">
+      {/* Maybe I should've used something like navigate from react-router-dom,
+          but it keeps the game history from a previous page, so I just used <a> for now. */}
+      <a
+        className={`text-xl font-bold ${player ? "" : "text-white/70 pointer-events-none"}`}
+        href={`/@/${player?.username}`}
+      >
+        {player ? player.username : "deleted"}
+      </a>
+      <div className="text-gray-400 font-normal text-md">
+        ({elo}{" "}
+        <span className={eloChange >= 0 ? "text-green-700" : "text-red-700"}>
+          {eloChange > 0 && "+"}
+          {eloChange}
+        </span>
+        )
+      </div>
     </div>
-    <div className="text-gray-400 font-normal text-md">
-      ({elo}{" "}
-      <span className={eloChange >= 0 ? "text-green-700" : "text-red-700"}>
-        {eloChange > 0 && "+"}
-        {eloChange}
-      </span>
-      )
-    </div>
-  </div>
-);
+  );
+};
 
 export default GameHistory;

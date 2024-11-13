@@ -13,6 +13,8 @@ import Rules from "./pages/Rules";
 import Donate from "./pages/Donate";
 import Game from "./components/Game";
 import {io, Socket} from "socket.io-client";
+import LogIn from "./pages/LogIn";
+import SignUp from "./pages/SignUp";
 
 const socket: Socket = io(import.meta.env.VITE_API_URL);
 
@@ -30,6 +32,8 @@ const router = createBrowserRouter(
         { path: "/rules", element: <Rules /> },
         { path: "/donate", element: <Donate /> },
         { path: "/friends", element: <Friends /> },
+        { path: "/login", element: <LogIn /> },
+        { path: "/signup", element: <SignUp /> },
         { path: "/@/:username", element: <Profile /> },
       ],
     },
