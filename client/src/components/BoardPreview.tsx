@@ -8,6 +8,7 @@ interface BoardPreviewProps {
     subWinner: string;
     squares: string[];
   }[];
+  size?: number;
 }
 
 const renderSubWinner: { [key: string]: JSX.Element | string } = {
@@ -61,8 +62,11 @@ const SquarePreview: React.FC<{ value: string; className: string }> = ({ value, 
   </button>
 );
 
-const BoardPreview: React.FC<BoardPreviewProps> = ({ board }) => (
-  <div className="relative grid grid-cols-3 gap-0 w-[216px] aspect-square rounded-md overflow-hidden">
+const BoardPreview: React.FC<BoardPreviewProps> = ({ board, size = 216 }) => (
+  <div
+    className={`relative grid grid-cols-3 gap-0 rounded-md overflow-hidden`}
+    style={{ width: `${size}px`, height: `${size}px` }}
+  >
     {board.map((subBoard, i) => (
       <SubBoardPreview
         key={i}

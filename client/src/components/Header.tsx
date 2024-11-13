@@ -9,10 +9,11 @@ const Header = () => {
   return (
     <div
       className="bg-color-gray-1/80 w-full h-16 sticky left-0 top-0 flex
-      items-center justify-center pr-4 2xl:px-24 z-20 backdrop-blur-sm"
+      items-center justify-center pr-4 md:px-16 lg:px-32 xl:px-48 z-20
+      backdrop-blur-sm"
     >
       <BurgerMenu />
-      <div className='flex justify-center h-full'>
+      <div className="flex justify-center h-full">
         <div className="hidden md:flex">
           <NavItem
             href="/home"
