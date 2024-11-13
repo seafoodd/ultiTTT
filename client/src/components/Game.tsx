@@ -9,7 +9,8 @@ import {
 import BoardRework from "./BoardRework";
 import Timer from "./Timer";
 import { useAuth } from "../context/AuthContext";
-import {Socket} from "socket.io-client";
+import { Socket } from "socket.io-client";
+import { checkSubWinner } from "../utils/gameUtils";
 
 interface GameProps {
   socket: Socket;
@@ -27,7 +28,7 @@ interface GameState {
   timers: { X: number; O: number };
 }
 
-const Game: React.FC<GameProps> = ({socket}) => {
+const Game: React.FC<GameProps> = ({ socket }) => {
   const [playersJoined, setPlayersJoined] = useState<boolean>(false);
   const { gameId } = useParams();
   const location = useLocation();
@@ -114,7 +115,6 @@ const Game: React.FC<GameProps> = ({socket}) => {
     };
   }, [gameId, token, socket, location]);
 
-
   const chooseSquare = (subBoardIndex: number, squareIndex: number) => {
     if (turn === player && board[subBoardIndex].squares[squareIndex] === "") {
       socket.emit("makeMove", { gameId, subBoardIndex, squareIndex, player });
@@ -130,13 +130,9 @@ const Game: React.FC<GameProps> = ({socket}) => {
     if (moveHistory) {
       moveHistory.slice(0, moveIndex).forEach((move) => {
         newBoard[move.subBoardIndex].squares[move.squareIndex] = move.player;
-        if (checkWin(newBoard[move.subBoardIndex].squares)) {
-          newBoard[move.subBoardIndex].subWinner = move.player;
-        } else if (
-          newBoard[move.subBoardIndex].squares.every((square) => square !== "")
-        ) {
-          newBoard[move.subBoardIndex].subWinner = "tie";
-        }
+        newBoard[move.subBoardIndex].subWinner = checkSubWinner(
+          newBoard[move.subBoardIndex].squares,
+        );
       });
     }
 
@@ -284,24 +280,3 @@ const Game: React.FC<GameProps> = ({socket}) => {
 };
 
 export default Game;
-
-const checkWin = (board: string[]) => {
-  const Patterns = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-
-  for (let i = 0; i < Patterns.length; i++) {
-    const [a, b, c] = Patterns[i];
-    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-      return true;
-    }
-  }
-  return false;
-};
