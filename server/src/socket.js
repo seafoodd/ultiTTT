@@ -8,12 +8,42 @@ import {
   removePlayerFromQueue,
 } from "./utils/matchmakingUtils.js";
 import { assignPlayerSymbols, isValidMove } from "./utils/gameUtils.js";
+new Set();
 
 /**
  * Initializes the socket.io connection and sets up event handlers.
  */
 export const initializeSocket = () => {
   io.on("connection", (socket) => {
+    // Handle user joining
+    socket.on("join", async (token) => {
+      try {
+        const user = await getUserByToken(token);
+        await redisClient.sadd("onlineUsers", user.username);
+        socket.username = user.username;
+        io.emit("userOnline", user.username); // Notify all clients
+        console.log(`${socket.username} has connected`);
+      } catch (e) {
+        console.error("Token verification failed:", e.message);
+        socket.emit("error", "Token verification failed");
+      }
+    });
+
+    // Handle user disconnection
+    socket.on("disconnect", async () => {
+      if (socket.username) {
+        console.log(`${socket.username} has disconnected`);
+        await redisClient.srem("onlineUsers", socket.username);
+        io.emit("userOffline", socket.username); // Notify all clients
+      }
+    });
+
+    // Handle checking if a user is online
+    socket.on("isUserOnline", async (username, callback) => {
+      const isOnline = await redisClient.sismember("onlineUsers", username);
+      callback(isOnline);
+    });
+
     // Handle user joining a game
     socket.on("joinGame", async (gameId, token) => {
       try {

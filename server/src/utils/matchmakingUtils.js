@@ -17,7 +17,7 @@ class Player {
  * If the player is already in the queue, updates their ID.
  */
 const addPlayerToQueue = async (player) => {
-  const players = await redisClient.zRange(
+  const players = await redisClient.zrange(
     `matchmaking:${player.gameType}`,
     0,
     -1,
@@ -25,35 +25,37 @@ const addPlayerToQueue = async (player) => {
   for (const existingPlayer of players) {
     const parsedPlayer = JSON.parse(existingPlayer);
     if (parsedPlayer.username === player.username) {
-      await redisClient.zRem(`matchmaking:${player.gameType}`, existingPlayer);
+      await redisClient.zrem(`matchmaking:${player.gameType}`, existingPlayer);
       parsedPlayer.id = player.id;
-      await redisClient.zAdd(`matchmaking:${player.gameType}`, {
-        score: parsedPlayer.rank,
-        value: JSON.stringify(parsedPlayer),
-      });
+      await redisClient.zadd(
+        `matchmaking:${player.gameType}`,
+        parsedPlayer.rank,
+        JSON.stringify(parsedPlayer),
+      );
       return;
     }
   }
-  await redisClient.zAdd(`matchmaking:${player.gameType}`, {
-    score: player.rank,
-    value: JSON.stringify(player),
-  });
+  await redisClient.zadd(
+    `matchmaking:${player.gameType}`,
+    player.rank,
+    JSON.stringify(player),
+  );
 };
 
 /**
  * Removes a player from the matchmaking queue.
  */
 const removePlayerFromQueue = async (playerId, gameType) => {
-  const players = await redisClient.zRange(`matchmaking:${gameType}`, 0, -1);
-  console.log(await redisClient.zRange(`matchmaking:${gameType}`, 0, -1));
+  const players = await redisClient.zrange(`matchmaking:${gameType}`, 0, -1);
+  console.log(await redisClient.zrange(`matchmaking:${gameType}`, 0, -1));
   for (const player of players) {
     const parsedPlayer = JSON.parse(player);
     if (parsedPlayer.id === playerId) {
-      await redisClient.zRem(`matchmaking:${gameType}`, player);
+      await redisClient.zrem(`matchmaking:${gameType}`, player);
       break;
     }
   }
-  console.log(await redisClient.zRange(`matchmaking:${gameType}`, 0, -1));
+  console.log(await redisClient.zrange(`matchmaking:${gameType}`, 0, -1));
 };
 
 /**
@@ -74,7 +76,7 @@ const findMatch = async (
   while (gap <= maxGap) {
     const minRank = player.rank - gap;
     const maxRank = player.rank + gap;
-    const players = await redisClient.zRangeByScore(
+    const players = await redisClient.zrangebyscore(
       `matchmaking:${gameType}`,
       minRank,
       maxRank,
@@ -85,8 +87,8 @@ const findMatch = async (
       for (let j = i + 1; j < players.length; j++) {
         const player2 = JSON.parse(players[j]);
         if (player1.username !== player2.username) {
-          await redisClient.zRem(`matchmaking:${gameType}`, players[i]);
-          await redisClient.zRem(`matchmaking:${gameType}`, players[j]);
+          await redisClient.zrem(`matchmaking:${gameType}`, players[i]);
+          await redisClient.zrem(`matchmaking:${gameType}`, players[j]);
           return [player1, player2];
         }
       }

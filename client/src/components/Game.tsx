@@ -6,7 +6,7 @@ import {
   FaBackwardFast,
   FaForwardFast,
 } from "react-icons/fa6";
-import BoardRework from "./BoardRework";
+import Board from "./Board";
 import Timer from "./Timer";
 import { useAuth } from "../context/AuthContext";
 import { Socket } from "socket.io-client";
@@ -154,7 +154,7 @@ const Game: React.FC<GameProps> = ({ socket }) => {
         <Timer seconds={player === "X" ? timers.O : timers.X} isCompact />
       </div>
       <div className="w-full">
-        <BoardRework
+        <Board
           lastMove={moveHistory[currentMoveIndex - 1]}
           currentMoveSelected={currentMoveIndex === moveHistory.length}
           board={board}
@@ -216,7 +216,7 @@ const Game: React.FC<GameProps> = ({ socket }) => {
                           key={index}
                           className={`flex flex-1 max-w-[120px] justify-between cursor-pointer
                         pr-8 lg:pr-12 hover:bg-white/10 items-center text-[16px]
-                        ${move.player === "X" ? "text-color-1" : "text-color-2"}
+                        ${move.player === "X" ? "text-color-symbols-x" : "text-color-symbols-o"}
                         ${
                           pairIndex * 2 + index + 1 === currentMoveIndex
                             ? "bg-white/25 font-bold"

@@ -16,8 +16,8 @@ const Timer: React.FC<TimerProps> = ({ seconds, isCompact, className }) => {
   if (isCompact) {
     return (
       <div
-        className={`${className ? className : ""} flex lg:hidden h-8 bg-color-1/20
-       justify-center items-center text-2xl font-semibold p-4`}
+        className={`${className ? className : ""} flex lg:hidden h-8 bg-color-gray-3/40
+       justify-center items-center text-2xl font-semibold p-4 rounded-sm w-20`}
       >
         {formatTime(seconds)}
       </div>

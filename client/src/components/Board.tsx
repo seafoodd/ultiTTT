@@ -1,5 +1,5 @@
 import React from "react";
-import SubBoardRework from "./SubBoardRework";
+import SubBoard from "./SubBoard";
 
 interface BoardReworkProps {
   board: { subWinner: string; squares: string[] }[];
@@ -12,7 +12,7 @@ interface BoardReworkProps {
   lastMove: { subBoardIndex: number; squareIndex: number };
 }
 
-const BoardRework: React.FC<BoardReworkProps> = ({
+const Board: React.FC<BoardReworkProps> = ({
   chooseSquare,
   board,
   currentSubBoard,
@@ -34,7 +34,7 @@ const BoardRework: React.FC<BoardReworkProps> = ({
 
   const renderSubBoards = () =>
     board.map((subBoard, i) => (
-      <SubBoardRework
+      <SubBoard
         key={i}
         player={player}
         subWinner={subBoard.subWinner}
@@ -52,11 +52,11 @@ const BoardRework: React.FC<BoardReworkProps> = ({
     ));
 
   return (
-    <div className="relative grid grid-cols-3 gap-0 w-full md:w-[640px] aspect-square md:rounded-lg">
+    <div className="relative grid grid-cols-3 gap-0 w-full md:w-[640px] aspect-square md:rounded-lg overflow-hidden">
       {victoryMessage && currentMoveSelected && renderVictoryMessage()}
       {renderSubBoards()}
     </div>
   );
 };
 
-export default BoardRework;
+export default Board;

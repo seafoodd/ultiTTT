@@ -18,24 +18,24 @@ const BurgerMenu = () => {
       <div
         className={`${isOpen ? "scale-x-100" : "scale-x-0"} h-fit transform
         transition-transform origin-left absolute top-16 left-0 w-[75%]
-        bg-color-gray-2/80 pl-16 shadow-md backdrop-blur-sm z-10`}
+        bg-color-gray-2/80 box-content shadow-md backdrop-blur-sm z-10`}
       >
         <NavItem
           href="/home"
           text="HOME"
-          className="py-6 px-4"
+          className="py-6 pl-20"
           onClick={toggleMenu}
         />
         <NavItem
           href="/blog"
           text="BLOG"
-          className="py-6 px-4"
+          className="py-6 pl-20"
           onClick={toggleMenu}
         />
         <NavItem
           href="/rules"
           text="RULES"
-          className="py-6 px-4"
+          className="py-6 pl-20"
           onClick={toggleMenu}
         />
       </div>

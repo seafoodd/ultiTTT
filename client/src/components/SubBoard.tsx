@@ -1,5 +1,5 @@
 import React from "react";
-import SquareRework from "./SquareRework";
+import Square from "./Square";
 import Cross from "./Cross";
 import Circle from "./Circle";
 import Tie from "./Tie";
@@ -25,16 +25,16 @@ const renderSubWinner: { [key: string]: JSX.Element | string } = {
 const getBackgroundColorClass = (subWinner: string) => {
   switch (subWinner) {
     case "X":
-      return "bg-color-1/60";
+      return "bg-color-symbols-x/60";
     case "O":
-      return "bg-color-2/60";
+      return "bg-color-symbols-o/60";
     case "tie":
-      return "bg-color-3/60";
+      return "bg-color-symbols-tie/60";
     default:
       return "";
   }
 };
-const SubBoardRework: React.FC<SubBoardProps> = ({
+const SubBoard: React.FC<SubBoardProps> = ({
   squares,
   onClick,
   className,
@@ -61,7 +61,7 @@ const SubBoardRework: React.FC<SubBoardProps> = ({
         </div>
       )}
       {squares.map((square: string, i: number) => (
-        <SquareRework
+        <Square
           isYourTurn={turn === player}
           key={i}
           highlightCurrent={highlightCurrent && subWinner === ""}
@@ -79,4 +79,4 @@ const SubBoardRework: React.FC<SubBoardProps> = ({
   );
 };
 
-export default SubBoardRework;
+export default SubBoard;
