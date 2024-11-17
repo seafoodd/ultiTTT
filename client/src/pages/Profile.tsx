@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import GameHistory from "../components/GameHistory";
 import { Socket } from "socket.io-client";
 import { GrStatusGoodSmall } from "react-icons/gr";
+import { MdLocationOn } from "react-icons/md";
+import { FaBirthdayCake } from "react-icons/fa";
 
 interface ProfileProps {
   socket: Socket;
@@ -90,17 +92,31 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
 
   return (
     <div className="flex flex-col w-full">
-      <div className="text-xl">
-        <div className="flex items-center justify-center gap-1">
-          <GrStatusGoodSmall
-            className={`mt-1.5 ${isOnline ? "text-color-green-1" : "stroke-color-gray-4 stroke-2 p-0.5 fill-transparent"}`}
+      <div className="text-xl mx-auto flex flex-col justify-center items-center gap-4 mt-8">
+        <div className="flex justify-start gap-24 sm:gap-32 md:gap-48 lg:gap-72 w-full">
+          <div className="flex items-center justify-center gap-1 mr-auto">
+            <GrStatusGoodSmall
+              className={`mt-1.5 ${isOnline ? "text-color-green-1" : "stroke-color-gray-4 stroke-2 p-0.5 fill-transparent"}`}
+            />
+            <p className="font-semibold">{userData!.username}</p>
+          </div>
 
-          />
-          <p className="font-semibold">{userData!.username}</p>
+          <p className="font-medium">Elo: {userData!.elo}</p>
         </div>
-        {userData!.location && <p>Location: {userData!.location}</p>}
-        {userData!.dateOfBirth && <p>Date of birth: {dateOfBirthFormatted}</p>}
-        <p>Elo: {userData!.elo}</p>
+        <div className="text-[18px] text-white/95 flex justify-start w-full flex-col items-start">
+          {userData!.location && (
+            <p className="flex items-center justify-start">
+              <MdLocationOn className="fill-color-gray-4" />{" "}
+              {userData!.location}
+            </p>
+          )}
+          {userData!.dateOfBirth && (
+            <p className="flex items-center justify-start">
+              <FaBirthdayCake className="fill-color-gray-4" />{" "}
+              {dateOfBirthFormatted}
+            </p>
+          )}
+        </div>
       </div>
       <div className="mt-24 w-full">
         <GameHistory username={username!} />
