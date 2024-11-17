@@ -25,17 +25,17 @@ const Header = () => {
           <NavItem
             href="/home"
             text="HOME"
-            className="hover:bg-color-blue-1/20 px-4"
+            className="hover:bg-color-blue-2/80 px-4"
           />
           <NavItem
             href="/blog"
             text="BLOG"
-            className="hover:bg-color-blue-1/20 px-4"
+            className="hover:bg-color-blue-2/80 px-4"
           />
           <NavItem
             href="/rules"
             text="RULES"
-            className="hover:bg-color-blue-1/20 px-4"
+            className="hover:bg-color-blue-2/80 px-4"
           />
         </div>
         <NavItem

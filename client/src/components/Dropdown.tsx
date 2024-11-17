@@ -43,7 +43,8 @@ const Dropdown: React.FC<DropdownProps> = ({ trigger, options, currentMenu, setC
           {options.map((option, index) => (
             <div
               key={index}
-              className="flex items-center px-4 py-2 text-sm hover:bg-color-blue-2 font-medium cursor-pointer"
+              className="flex items-center px-4 py-2 text-sm transition-colors
+               duration-75 hover:bg-color-blue-2 font-medium cursor-pointer"
               onClick={() => handleOptionClick(option.onClick)}
             >
               {option.icon}

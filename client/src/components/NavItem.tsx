@@ -23,7 +23,7 @@ const NavItem: React.FC<NavItemProps> = ({
       onClick={onClick}
       to={href}
       className={`${className ? className : ""}
-       ${flipped ? "flex-row-reverse" : "flex-row"} gap-1 transition-colors flex items-center font-medium`}
+       ${flipped ? "flex-row-reverse" : "flex-row"} gap-1 transition-colors duration-75 flex items-center font-medium`}
     >
       {icon && icon}
       {text && text}
