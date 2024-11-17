@@ -11,7 +11,8 @@ const BurgerMenu = () => {
 
   return (
     <button
-      className={`flex md:hidden px-3 justify-center items-center h-full w-16 transition-colors ${isOpen ? "bg-color-gray-2/100" : ""}`}
+      className={`flex md:hidden px-3 justify-center items-center h-full w-16
+       transition-colors ${isOpen ? "bg-color-gray-2/100" : ""}`}
       onClick={toggleMenu}
     >
       <IoMenu size={40} />
