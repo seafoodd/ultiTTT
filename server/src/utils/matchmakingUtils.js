@@ -65,9 +65,9 @@ const removePlayerFromQueue = async (playerId, gameType) => {
 const findMatch = async (
   player,
   gameType,
-  initialGap = 50,
-  maxGap = 200,
-  step = 50,
+  initialGap = 40,
+  maxGap = 400,
+  step = 40,
   timeout = 3000,
 ) => {
   let gap = initialGap;
