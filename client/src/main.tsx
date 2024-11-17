@@ -16,6 +16,7 @@ import {io, Socket} from "socket.io-client";
 import LogIn from "./pages/LogIn";
 import SignUp from "./pages/SignUp";
 import Cookies from "universal-cookie";
+import Settings from "./pages/Settings";
 
 const socket: Socket = io(import.meta.env.VITE_API_URL);
 
@@ -42,6 +43,7 @@ const router = createBrowserRouter(
         { path: "/login", element: <LogIn /> },
         { path: "/signup", element: <SignUp /> },
         { path: "/@/:username", element: <Profile socket={socket}/> },
+        { path: "/settings", element: <Settings /> },
       ],
     },
   ],

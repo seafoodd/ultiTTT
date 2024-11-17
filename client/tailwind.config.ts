@@ -12,6 +12,7 @@ export default {
           },
           blue: {
             1: "#1D4ED8",
+            2: "#2e5ad6",
           },
           red: {
             1: "#B91C1C",

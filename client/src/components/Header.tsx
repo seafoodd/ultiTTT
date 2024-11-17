@@ -2,17 +2,24 @@ import NavItem from "./NavItem";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { useAuth } from "../context/AuthContext";
 import BurgerMenu from "./BurgerMenu";
+import Dropdown from "./Dropdown";
+import { FaUser } from "react-icons/fa6";
+import { FaCog, FaSignOutAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const Header = () => {
   const { currentUser, logOut, isAuth } = useAuth();
+  const navigate = useNavigate();
+  const [currentMenu, setCurrentMenu] = useState<string>("");
 
   return (
     <div
       className="bg-color-gray-1/80 w-full h-16 sticky left-0 top-0 flex
-      items-center justify-center pr-4 md:px-16 lg:px-32 xl:px-48 z-50
+      items-center justify-center md:px-16 lg:px-32 xl:px-48 z-50
       backdrop-blur-sm"
     >
-      <BurgerMenu />
+      <BurgerMenu currentMenu={currentMenu} setCurrentMenu={setCurrentMenu} />
       <div className="flex justify-center h-full">
         <div className="hidden md:flex">
           <NavItem
@@ -40,18 +47,42 @@ const Header = () => {
       {isAuth ? (
         <div className="flex justify-center h-full items-center ml-auto">
           {/*<NavItem href="/friends" text="friends" />*/}
-          <NavItem
-            href={`/@/${currentUser?.username}`}
-            text={currentUser?.username}
-            icon={<IoPersonCircleOutline size={32} />}
-            flipped
+          <Dropdown
+            currentMenu={currentMenu}
+            setCurrentMenu={setCurrentMenu}
+            trigger={
+              <div className="flex justify-center items-center gap-1 cursor-pointer h-full">
+                <p className="font-medium">{currentUser?.username}</p>
+                <IoPersonCircleOutline size={32} />
+              </div>
+            }
+            options={[
+              {
+                name: "Profile",
+                icon: <FaUser />,
+                onClick: () => navigate(`/@/${currentUser?.username}`),
+              },
+              {
+                name: "Settings",
+                icon: <FaCog />,
+                onClick: () => navigate(`settings`),
+              },
+              {
+                name: "Log Out",
+                icon: <FaSignOutAlt />,
+                onClick: () => {
+                  logOut()
+                  navigate("");
+                },
+              },
+            ]}
           />
           {/*<button onClick={logOut} className="h-8">*/}
           {/*  Log Out*/}
           {/*</button>*/}
         </div>
       ) : (
-        <div className="flex justify-center gap-4 ml-auto">
+        <div className="flex justify-center gap-4 ml-auto pr-4 md:pr-0">
           <NavItem
             href="/login"
             text="Log In"
