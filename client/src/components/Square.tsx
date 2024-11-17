@@ -18,7 +18,7 @@ interface SquareProps {
   onClick: () => void;
 }
 
-const SquareRework: React.FC<SquareProps> = ({
+const Square: React.FC<SquareProps> = ({
   onClick,
   value,
   className,
@@ -33,7 +33,12 @@ const SquareRework: React.FC<SquareProps> = ({
       className={`relative aspect-square w-full h-full flex items-center justify-center
      ${
        highlight && isYourTurn
-         ? `cursor-pointer ${turn === "X" ? "hover:bg-color-1/60" : "hover:bg-color-2/60"} transition-colors duration-75`
+         ? `cursor-pointer ${
+             turn === "X"
+               ? "hover:bg-color-symbols-x/60"
+               : "hover:bg-color-symbols-o/60"
+           } 
+           transition-colors duration-75`
          : "cursor-default"
      }`}
       onClick={highlight ? onClick : () => {}}
@@ -45,11 +50,13 @@ const SquareRework: React.FC<SquareProps> = ({
       <div
         className={`absolute inset-0 justify-center items-center flex z-10
      ${lastMove && value !== "" && "border-4"}
-     ${value === "X" ? "border-color-1" : "border-color-2"}`}
+     ${value === "X" ? "border-color-symbols-x" : "border-color-symbols-o"}`}
       ></div>
-      <div className="w-full h-full p-1.5 sm:p-2 md:p-2.5">{renderIcon[value]}</div>
+      <div className="w-full h-full p-1.5 sm:p-2 md:p-2.5">
+        {renderIcon[value]}
+      </div>
     </button>
   );
 };
 
-export default SquareRework;
+export default Square;

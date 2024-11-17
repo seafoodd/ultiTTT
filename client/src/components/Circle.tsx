@@ -18,7 +18,7 @@ const Circle: React.FC<CircleProps> = ({ size, transparent, className }) => {
         cx="50"
         cy="50"
         r="42"
-        className={`${className} ${transparent ? "stroke-white/20" : "stroke-color-2"}`}
+        className={`${className} ${transparent ? "stroke-white/20" : "stroke-color-symbols-o"}`}
         strokeWidth="12"
         fill="none"
       />

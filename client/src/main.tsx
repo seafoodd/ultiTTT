@@ -15,9 +15,16 @@ import Game from "./components/Game";
 import {io, Socket} from "socket.io-client";
 import LogIn from "./pages/LogIn";
 import SignUp from "./pages/SignUp";
+import Cookies from "universal-cookie";
 
 const socket: Socket = io(import.meta.env.VITE_API_URL);
 
+const cookies = new Cookies();
+
+const token = cookies.get("token");
+if (token) {
+  socket.emit("join", token);
+}
 const router = createBrowserRouter(
   [
     {
@@ -34,7 +41,7 @@ const router = createBrowserRouter(
         { path: "/friends", element: <Friends /> },
         { path: "/login", element: <LogIn /> },
         { path: "/signup", element: <SignUp /> },
-        { path: "/@/:username", element: <Profile /> },
+        { path: "/@/:username", element: <Profile socket={socket}/> },
       ],
     },
   ],

@@ -21,11 +21,11 @@ const renderSubWinner: { [key: string]: JSX.Element | string } = {
 const getBackgroundColorClass = (subWinner: string) => {
   switch (subWinner) {
     case "X":
-      return "bg-color-1/60";
+      return "bg-color-symbols-x/60";
     case "O":
-      return "bg-color-2/60";
+      return "bg-color-symbols-o/60";
     case "tie":
-      return "bg-color-3/60";
+      return "bg-color-symbols-tie/60";
     default:
       return "";
   }
