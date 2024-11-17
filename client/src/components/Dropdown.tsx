@@ -36,7 +36,7 @@ const Dropdown: React.FC<DropdownProps> = ({ trigger, options, currentMenu, setC
 
       <div
         className={`${currentMenu === "profile" ? "scale-y-100" : "scale-y-0"} h-fit transform
-        transition-transform origin-top absolute top-16 right-0 w-60
+        transition-transform origin-top absolute top-16 right-0 w-60 
         bg-color-gray-2/80 box-content shadow-md backdrop-blur-sm z-10`}
       >
         <div className="py-1">

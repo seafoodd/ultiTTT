@@ -93,8 +93,8 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
       <div className="text-xl">
         <div className="flex items-center justify-center gap-1">
           <GrStatusGoodSmall
-            className={`mt-1.5 ${isOnline ? "text-color-green-1" : "text-color-gray-3"}`}
-            // color={isOnline ? "#00d652" : "#9c9c9c"}
+            className={`mt-1.5 ${isOnline ? "text-color-green-1" : "stroke-color-gray-4 stroke-2 p-0.5 fill-transparent"}`}
+
           />
           <p className="font-semibold">{userData!.username}</p>
         </div>

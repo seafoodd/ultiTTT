@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import BoardPreview from "./BoardPreview";
 
 const resultMessages = {
-  win: <div className="text-green-500">Victory!</div>,
-  loss: <div className="text-red-500">Defeat!</div>,
-  tie: <div className="text-yellow-800">Tie!</div>,
+  win: <div className="text-color-green-1">Victory!</div>,
+  loss: <div className="text-color-red-1">Defeat!</div>,
+  tie: <div className="text-color-gray-3">Tie!</div>,
 };
 
 const fetchGameHistory = async (
@@ -131,7 +131,7 @@ const PlayerInfo: React.FC<{
       </a>
       <div className="text-gray-400 font-normal text-md">
         ({elo}{" "}
-        <span className={eloChange >= 0 ? "text-green-700" : "text-red-700"}>
+        <span className={eloChange >= 0 ? "text-color-green-1" : "text-color-red-1"}>
           {eloChange > 0 && "+"}
           {eloChange}
         </span>
