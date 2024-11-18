@@ -13,7 +13,9 @@ configDotenv();
 const app = express();
 const server = http.createServer(app);
 
-export const redisClient = new Redis();
+export const redisClient = new Redis({
+  host: "redis",
+});
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
 // await redisClient.connect();
 
