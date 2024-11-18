@@ -1,0 +1,40 @@
+version: '3'
+services:
+  server:
+    build: .
+    ports:
+      - '5000:5000'
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+#    volumes:
+#      - ./media:/app/media
+  db:
+    image: prismagraphql/mongo-single-replica:5.0.3
+    ports:
+      - '27017:27017'
+    env_file:
+      - .env
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+  client:
+    build:
+      context: ../client
+      args:
+#        VITE_API_URL: "http://192.168.0.100:5000"
+        VITE_API_URL: "http://13.60.158.88:5000"
+    ports:
+      - '80:80'
+#      - '443:443'
+#    volumes:
+#      - ./client/nginx.conf:/etc/nginx/conf.d
+#      - ./client/nginx-selfsigned.crt:/etc/ssl/certs
+#      - ./client/nginx-selfsigned.key:/etc/ssl/private
+#    depends_on:
+#      - server
+volumes:
+  client:
