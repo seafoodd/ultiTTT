@@ -32,7 +32,7 @@ app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 // app.use("/game", gameRoutes);
 
-initializeSocket(io);
+initializeSocket();
 
 server.listen(5000, () => {
   console.log("The server is running on port 5000");

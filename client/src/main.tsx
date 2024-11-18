@@ -25,10 +25,14 @@ if (!token) {
   console.error("No token found");
 }
 
-const socket = io(import.meta.env.VITE_API_URL, {
+const apiUrl = import.meta.env.VITE_API_URL;
+const socketUrl = apiUrl.endsWith('/api') ? `${apiUrl.replace('/api', '')}` : `${apiUrl}`;
+
+const socket = io(socketUrl, {
   auth: {
     token: token,
   },
+  path: "/sockets/socket.io",
 });
 
 socket.on("connect_error", (err) => {
