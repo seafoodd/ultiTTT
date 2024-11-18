@@ -84,7 +84,7 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
         <div
           key={index}
           ref={index === gameHistory.length - 1 ? lastGameElementRef : null}
-          className="flex flex-col sm:flex-row items-center gap-4 sm:gap-32 border border-white/20 p-4 w-full max-w-[720px]"
+          className="flex flex-col sm:flex-row items-center gap-4 sm:gap-32 border border-white/20 p-4 w-full"
         >
           <div className="flex-none">
             <BoardPreview board={game.board} />

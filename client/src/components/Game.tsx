@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   FaBackwardStep,
   FaForwardStep,
@@ -11,6 +11,8 @@ import Timer from "./Timer";
 import { useAuth } from "../context/AuthContext";
 import { Socket } from "socket.io-client";
 import { checkSubWinner } from "../utils/gameUtils";
+import Button from "./Button";
+import { BiHome } from "react-icons/bi";
 
 interface GameProps {
   socket: Socket;
@@ -26,6 +28,7 @@ interface GameState {
   moveHistory: { subBoardIndex: number; squareIndex: number; player: string }[];
   players: { id: string; symbol: string; username: string }[];
   timers: { X: number; O: number };
+  opponentUsername: string;
 }
 
 const Game: React.FC<GameProps> = ({ socket }) => {
@@ -33,6 +36,7 @@ const Game: React.FC<GameProps> = ({ socket }) => {
   const { gameId } = useParams();
   const location = useLocation();
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   const [board, setBoard] = useState<
     { subWinner: string; squares: string[] }[]
@@ -57,10 +61,19 @@ const Game: React.FC<GameProps> = ({ socket }) => {
   const [turn, setTurn] = useState<string>("X");
   const [currentSubBoard, setCurrentSubBoard] = useState<number | null>(null);
   const [victoryMessage, setVictoryMessage] = useState<string>("");
+  const [isDeclined, setIsDeclined] = useState<boolean>(false);
+  const [gameNotFound, setGameNotFound] = useState<boolean>(false);
 
   useEffect(() => {
-    socket.emit("joinGame", gameId, token);
-    console.log("joined the game with id: ", gameId);
+    socket.emit("joinGame", gameId);
+
+    socket.on("challengeDeclined", () => {
+      setIsDeclined(true);
+    });
+
+    const handleError = () => {
+      setGameNotFound(true);
+    }
 
     const handleGameState = (gameState: GameState) => {
       setBoard(gameState.board);
@@ -68,6 +81,7 @@ const Game: React.FC<GameProps> = ({ socket }) => {
       setMoveHistory(gameState.moveHistory);
       setCurrentMoveIndex(gameState.moveHistory.length);
       setCurrentSubBoard(gameState.currentSubBoard);
+      setOpponentUsername(gameState.opponentUsername);
       setTimers(gameState.timers);
       const currentPlayer = gameState.players.find(
         (p: any) => p.id === socket.id,
@@ -79,11 +93,6 @@ const Game: React.FC<GameProps> = ({ socket }) => {
       if (gameState.players.length === 2) {
         setPlayersJoined(true);
       }
-
-      setOpponentUsername(
-        gameState.players.find((p) => p.id !== socket.id)?.username ||
-          "Opponent",
-      );
     };
 
     const handleGameResult = (result: any) => {
@@ -96,17 +105,12 @@ const Game: React.FC<GameProps> = ({ socket }) => {
 
     const handleTimerUpdate = (updatedTimers: { X: number; O: number }) => {
       setTimers(updatedTimers);
-      console.log("handleTimers");
     };
 
     socket.on("gameState", handleGameState);
+    socket.on("error", handleError);
     socket.on("gameResult", handleGameResult);
     socket.on("timerUpdate", handleTimerUpdate);
-
-    // Fetch the current game state on component mount
-    socket.emit("getGameState", gameId, (gameState: GameState) => {
-      handleGameState(gameState);
-    });
 
     return () => {
       socket.off("gameState", handleGameState);
@@ -143,8 +147,26 @@ const Game: React.FC<GameProps> = ({ socket }) => {
     setBoard(getBoardAtMove(currentMoveIndex));
   }, [currentMoveIndex, moveHistory]);
 
+  if (gameNotFound) {
+    return (
+      <div className="mt-8 flex flex-col justify-center items-center">
+        <h1 className="font-semibold text-xl">404 - Game Not Found</h1>
+        <Button text="Home" icon={<BiHome />} onClick={() => navigate("")} className="bg-color-blue-2 px-2 py-2 mt-2" />
+      </div>
+    );
+  }
+
   if (!playersJoined) {
-    return <div>Waiting for other player to join...</div>;
+    return isDeclined ? (
+      <div className="mt-8 flex flex-col justify-center items-center">
+        <h1 className="font-semibold text-xl">{opponentUsername} declined the challenge</h1>
+        <Button text="Home" icon={<BiHome />} onClick={() => navigate("")} className="bg-color-blue-2 px-2 py-2 mt-2" />
+      </div>
+    ) : (
+      <div>
+        <h1>Waiting for {opponentUsername ? opponentUsername : "opponent"} to join...</h1>
+      </div>
+    );
   }
 
   return (

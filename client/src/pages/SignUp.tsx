@@ -2,7 +2,7 @@ import React, { ChangeEvent, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import Cookies from "universal-cookie";
 import Axios from "axios";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   username: string;
@@ -13,7 +13,7 @@ interface User {
 const LogIn = () => {
   const { setIsAuth } = useAuth();
   const cookies = new Cookies();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [user, setUser] = useState<User>({
     email: "",
@@ -27,12 +27,12 @@ const LogIn = () => {
       (res) => {
         const { token } = res.data;
 
-        cookies.set("token", token);
-        // cookies.set("userId", userId);
+        cookies.set("token", token, { path: "/" });
         // cookies.set("username", username);
         // cookies.set("password", password);
         setIsAuth(true);
-        navigate("/home")
+        navigate("/home");
+        location.reload();
       },
     );
   };
@@ -83,7 +83,8 @@ const LogIn = () => {
           className="text-[14px] font-medium text-white/70 transition-colors hover:text-white/80"
           onClick={() => navigate("/login")}
         >
-          Already have an account? <span className='text-white/80 font-semibold'>Log In</span>
+          Already have an account?{" "}
+          <span className="text-white/80 font-semibold">Log In</span>
         </button>
       </form>
     </div>

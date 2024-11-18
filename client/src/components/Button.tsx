@@ -11,11 +11,11 @@ const Button: React.FC<ButtonProps> = ({ onClick, className, text, icon }) => {
   return (
     <button
       className={`${className ? className : ""} font-semibold flex justify-center 
-      items-center gap-2 rounded-md h-fit py-4 text-xl shadow-md transition-colors`}
+      items-center gap-1 rounded-md h-fit text-xl shadow-md transition-colors text-nowrap`}
       onClick={onClick}
     >
-      {text && text}
       {icon && icon}
+      {text && text}
     </button>
   );
 };

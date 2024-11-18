@@ -4,7 +4,7 @@ import NavItem from "./NavItem";
 
 interface BurgerMenuProps {
   currentMenu: string;
-  setCurrentMenu: React.Dispatch<string>;
+  setCurrentMenu: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const BurgerMenu: React.FC<BurgerMenuProps> = ({

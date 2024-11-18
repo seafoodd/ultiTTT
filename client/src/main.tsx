@@ -12,29 +12,38 @@ import Blog from "./pages/Blog";
 import Rules from "./pages/Rules";
 import Donate from "./pages/Donate";
 import Game from "./components/Game";
-import {io, Socket} from "socket.io-client";
+import { io } from "socket.io-client";
 import LogIn from "./pages/LogIn";
 import SignUp from "./pages/SignUp";
 import Cookies from "universal-cookie";
 import Settings from "./pages/Settings";
 
-const socket: Socket = io(import.meta.env.VITE_API_URL);
-
 const cookies = new Cookies();
-
 const token = cookies.get("token");
-if (token) {
-  socket.emit("join", token);
+
+if (!token) {
+  console.error("No token found");
 }
+
+const socket = io(import.meta.env.VITE_API_URL, {
+  auth: {
+    token: token,
+  },
+});
+
+socket.on("connect_error", (err) => {
+  console.error("Connection error:", err.message);
+});
+
 const router = createBrowserRouter(
   [
     {
       path: "",
-      element: <App />,
+      element: <App socket={socket} />,
       children: [
-        { path: "", element: <Home /> },
-        { path: "/:gameId", element: <Game socket={socket}/> },
-        { path: "/home", element: <Home /> },
+        { path: "", element: <Home socket={socket} /> },
+        { path: "/:gameId", element: <Game socket={socket} /> },
+        { path: "/home", element: <Home socket={socket} /> },
         { path: "/about", element: <About /> },
         { path: "/blog", element: <Blog /> },
         { path: "/rules", element: <Rules /> },
@@ -42,7 +51,7 @@ const router = createBrowserRouter(
         { path: "/friends", element: <Friends /> },
         { path: "/login", element: <LogIn /> },
         { path: "/signup", element: <SignUp /> },
-        { path: "/@/:username", element: <Profile socket={socket}/> },
+        { path: "/@/:username", element: <Profile socket={socket} /> },
         { path: "/settings", element: <Settings /> },
       ],
     },
@@ -56,9 +65,9 @@ const rootElement = document.getElementById("root");
 if (rootElement) {
   createRoot(rootElement).render(
     // <StrictMode>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>,
     // </StrictMode>,
   );
 }

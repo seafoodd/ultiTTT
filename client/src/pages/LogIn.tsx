@@ -2,12 +2,12 @@ import React, { ChangeEvent, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import Cookies from "universal-cookie";
 import Axios from "axios";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const LogIn = () => {
   const { setIsAuth } = useAuth();
   const cookies = new Cookies();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -21,11 +21,11 @@ const LogIn = () => {
       rememberMe,
     }).then((res) => {
       const { token } = res.data;
-      cookies.set("token", token);
-      // cookies.set("userId", userId);
+      cookies.set("token", token, { path: "/" });
       // cookies.set("username", username);
       setIsAuth(true);
-      navigate("/home")
+      navigate("/home");
+      location.reload();
     });
   };
 
@@ -63,8 +63,7 @@ const LogIn = () => {
           required
         />
         <div className="flex justify-between">
-          <label
-            className="text-[14px] cursor-pointer font-medium text-white/90 gap-1 flex items-center justify-center">
+          <label className="text-[14px] cursor-pointer font-medium text-white/90 gap-1 flex items-center justify-center">
             <input
               className="cursor-pointer"
               type="checkbox"
@@ -90,7 +89,8 @@ const LogIn = () => {
           className="text-[14px] font-medium text-white/70 transition-colors hover:text-white/80"
           onClick={() => navigate("/signup")}
         >
-          Don't have an account? <span className='text-white/80 font-semibold'>Sign Up</span>
+          Don't have an account?{" "}
+          <span className="text-white/80 font-semibold">Sign Up</span>
         </button>
       </form>
     </div>
