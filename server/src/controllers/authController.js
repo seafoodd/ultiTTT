@@ -43,7 +43,7 @@ export const register = async (req, res) => {
     const token = jwt.sign(
       { username, userId: user.userId },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1h" },
+      { expiresIn: "24h" },
     );
 
     res.status(201).json({ ...user, token });
@@ -78,7 +78,7 @@ export const login = async (req, res) => {
       return res.status(401).json({ error: "Wrong password!" });
     }
 
-    const tokenOptions = rememberMe ? {} : { expiresIn: "1h" };
+    const tokenOptions = rememberMe ? {} : { expiresIn: "24h" };
     const token = jwt.sign(
       { username, userId: user.userId },
       process.env.ACCESS_TOKEN_SECRET,

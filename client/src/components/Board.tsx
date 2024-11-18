@@ -25,7 +25,7 @@ const Board: React.FC<BoardReworkProps> = ({
   const renderVictoryMessage = () => (
     <div
       className="flex items-center justify-center
-      absolute inset-0 top-0 left-0 z-40 text-6xl
+      absolute inset-0 top-0 left-0 z-30 text-6xl
       font-bold bg-white/20 backdrop-blur-sm"
     >
       {victoryMessage}

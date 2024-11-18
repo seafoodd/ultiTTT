@@ -10,10 +10,15 @@ interface DropdownProps {
   trigger: JSX.Element;
   options: Option[];
   currentMenu: string;
-  setCurrentMenu: React.Dispatch<string>;
+  setCurrentMenu: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ trigger, options, currentMenu, setCurrentMenu }) => {
+const Dropdown: React.FC<DropdownProps> = ({
+  trigger,
+  options,
+  currentMenu,
+  setCurrentMenu,
+}) => {
   const handleTriggerClick = () => {
     if (currentMenu === "profile") {
       setCurrentMenu("");
@@ -29,8 +34,11 @@ const Dropdown: React.FC<DropdownProps> = ({ trigger, options, currentMenu, setC
 
   return (
     <div className="inline-block text-left h-full relative">
-      <div onClick={handleTriggerClick} className={`h-full px-3 transition-colors
-       ${currentMenu === "profile" ? "bg-color-gray-2/100" : ""}`}>
+      <div
+        onClick={handleTriggerClick}
+        className={`h-full px-3 transition-colors
+       ${currentMenu === "profile" ? "bg-color-gray-2/100" : ""}`}
+      >
         {trigger}
       </div>
 

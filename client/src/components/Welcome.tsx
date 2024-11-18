@@ -73,12 +73,12 @@ const Welcome = () => {
         <Button
           onClick={() => navigate("/login")}
           text="Log In"
-          className="bg-blue-600 hover:bg-blue-500 w-48"
+          className="bg-blue-600 hover:bg-blue-500 w-48 py-4"
         />
         <Button
           onClick={() => navigate("/signup")}
           text="Sign Up"
-          className="bg-gray-600 hover:bg-gray-500 w-48"
+          className="bg-gray-600 hover:bg-gray-500 w-48 py-4"
         />
       </div>
       <div className='mt-16'>

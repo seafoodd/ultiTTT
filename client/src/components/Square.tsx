@@ -48,7 +48,7 @@ const Square: React.FC<SquareProps> = ({
     ${highlight && (turn === "X" ? "bg-blue-900/50" : "bg-red-900/50")}`}
       ></div>
       <div
-        className={`absolute inset-0 justify-center items-center flex z-10
+        className={`absolute inset-0 justify-center items-center flex
      ${lastMove && value !== "" && "border-4"}
      ${value === "X" ? "border-color-symbols-x" : "border-color-symbols-o"}`}
       ></div>

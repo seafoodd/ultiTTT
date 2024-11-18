@@ -59,6 +59,7 @@ export const handleOverallWin = async (io, game, gameId, redisClient) => {
     if (!game.gameFinished) {
       game.gameFinished = true;
       await redisClient.set(`game:${gameId}`, JSON.stringify(game));
+      console.log(game);
       io.to(gameId).emit("gameResult", gameResult);
       await finishGame(io, game, gameId, overallWinner, redisClient);
     }

@@ -1,15 +1,15 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import verifyToken from "../utils/verifyToken";
-import { io } from "socket.io-client";
-import { useAuth } from "../context/AuthContext";
-import {MdCancel} from "react-icons/md";
+import { Socket } from "socket.io-client";
+import { MdCancel } from "react-icons/md";
 
-const socket = io(import.meta.env.VITE_API_URL);
+interface JoinGameProps {
+  socket: Socket;
+}
 
-const JoinGame = () => {
+const JoinGame: React.FC<JoinGameProps> = ({ socket }) => {
   const navigate = useNavigate();
-  const { token } = useAuth();
   const [searching, setSearching] = useState<boolean>();
   const [gameType, setGameType] = useState<string>("");
 
@@ -21,12 +21,13 @@ const JoinGame = () => {
     }
 
     try {
-      setGameType(gameType)
-      socket.emit("searchMatch", token, gameType);
-      setSearching(true)
+      setGameType(gameType);
+      socket.emit("searchMatch", gameType);
+      setSearching(true);
       socket.on("matchFound", (gameId) => {
         navigate(`/${gameId}`);
-        setSearching(false)
+        // location.reload();
+        setSearching(false);
       });
     } catch (e) {
       console.error("Failed to join the game:", e);
@@ -40,11 +41,12 @@ const JoinGame = () => {
     }
 
     try {
-      socket.emit("createFriendlyGame", token, gameType);
-      setSearching(true)
+      socket.emit("createFriendlyGame", gameType);
+      setSearching(true);
       socket.on("friendlyGameCreated", (gameId) => {
         navigate(`/${gameId}`);
-        setSearching(false)
+        // location.reload();
+        setSearching(false);
       });
     } catch (e) {
       console.error("Failed to join the game:", e);
@@ -52,19 +54,21 @@ const JoinGame = () => {
   };
 
   const cancelSearch = async () => {
-    socket.emit("cancelSearch", token, gameType);
+    socket.emit("cancelSearch", gameType);
     socket.on("searchCancelled", () => {
-      setSearching(false)
+      setSearching(false);
     });
-  }
+  };
 
   return (
     <div>
       {searching ? (
         <div>
-
-        <div>Searching...</div>
-          <button onClick={cancelSearch}> <MdCancel/></button>
+          <div>Searching...</div>
+          <button onClick={cancelSearch}>
+            {" "}
+            <MdCancel />
+          </button>
         </div>
       ) : (
         <div className="flex flex-col mt-32 gap-8 items-center">
