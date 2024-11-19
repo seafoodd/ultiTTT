@@ -26,9 +26,10 @@ services:
       context: ../client
       args:
 #        VITE_API_URL: "http://192.168.0.100:5000"
-        VITE_API_URL: "http://13.60.158.88:5000"
+#        VITE_API_URL: "http://13.60.158.88:5000"
+        VITE_API_URL: "https://ultittt.org/api"
     ports:
-      - '80:80'
+      - '8000:80'
 #      - '443:443'
 #    volumes:
 #      - ./client/nginx.conf:/etc/nginx/conf.d
