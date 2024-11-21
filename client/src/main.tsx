@@ -18,25 +18,29 @@ import SignUp from "./pages/SignUp";
 import Cookies from "universal-cookie";
 import Settings from "./pages/Settings";
 
+export const env = import.meta.env.VITE_ENV || "production";
+
 const cookies = new Cookies();
 const token = cookies.get("token");
 
-if (!token) {
-  console.error("No token found");
-}
-
 const apiUrl = import.meta.env.VITE_API_URL;
-const socketUrl = apiUrl.endsWith('/api') ? `${apiUrl.replace('/api', '')}` : `${apiUrl}`;
+const socketUrl = apiUrl.endsWith("/api")
+  ? `${apiUrl.replace("/api", "")}`
+  : `${apiUrl}`;
 
 const socket = io(socketUrl, {
   auth: {
     token: token,
   },
-  path: "/sockets/socket.io",
+  path: env === "production" ? "/sockets/socket.io" : undefined,
 });
 
 socket.on("connect_error", (err) => {
   console.error("Connection error:", err.message);
+});
+
+socket.on("error", (err) => {
+  console.error("error:", err.code, err.message);
 });
 
 const router = createBrowserRouter(
@@ -68,10 +72,10 @@ const router = createBrowserRouter(
 const rootElement = document.getElementById("root");
 if (rootElement) {
   createRoot(rootElement).render(
-    // <StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>,
-    // </StrictMode>,
+    <StrictMode>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </StrictMode>,
   );
 }

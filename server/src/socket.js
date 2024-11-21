@@ -8,6 +8,7 @@ import {
   removePlayerFromQueue,
 } from "./utils/matchmakingUtils.js";
 import { assignPlayerSymbols, isValidMove } from "./utils/gameUtils.js";
+import { debugEmitError } from "./utils/debugUtils.js";
 
 /**
  * Initialize socket connections and define event handlers.
@@ -15,6 +16,12 @@ import { assignPlayerSymbols, isValidMove } from "./utils/gameUtils.js";
 const initializeSocket = () => {
   io.on("connection", async (socket) => {
     const token = socket.handshake.auth.token;
+
+    if (!token) {
+      debugEmitError(socket, "error", 401, "Token is missing");
+      return;
+    }
+
     let user = null;
 
     try {

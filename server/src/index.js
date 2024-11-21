@@ -13,9 +13,12 @@ configDotenv();
 const app = express();
 const server = http.createServer(app);
 
+export const env = process.env.ENV || "production";
+
 export const redisClient = new Redis({
-  host: "redis",
+  host: env === "production" ? "redis" : undefined,
 });
+
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
 // await redisClient.connect();
 
