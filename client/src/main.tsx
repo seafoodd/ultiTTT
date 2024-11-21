@@ -17,6 +17,8 @@ import LogIn from "./pages/LogIn";
 import SignUp from "./pages/SignUp";
 import Cookies from "universal-cookie";
 import Settings from "./pages/Settings";
+import { debugError } from "./utils/debugUtils";
+import { Root } from "react-dom/client";
 
 export const env = import.meta.env.VITE_ENV || "production";
 
@@ -40,7 +42,7 @@ socket.on("connect_error", (err) => {
 });
 
 socket.on("error", (err) => {
-  console.error("error:", err.code, err.message);
+  debugError(err.code, err.message);
 });
 
 const router = createBrowserRouter(
@@ -70,8 +72,17 @@ const router = createBrowserRouter(
 );
 
 const rootElement = document.getElementById("root");
+let root: Root;
+
 if (rootElement) {
-  createRoot(rootElement).render(
+  if (!(rootElement as any)._reactRootContainer) {
+    root = createRoot(rootElement);
+    (rootElement as any)._reactRootContainer = root;
+  } else {
+    root = (rootElement as any)._reactRootContainer;
+  }
+
+  root.render(
     <StrictMode>
       <AuthProvider>
         <RouterProvider router={router} />

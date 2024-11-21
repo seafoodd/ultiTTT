@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import Header from "./components/Header";
 import Notification from "./components/Notification";
 import {Socket} from "socket.io-client";
+import React from "react";
 
 interface AppProps {
   socket: Socket;
