@@ -151,7 +151,7 @@ const Game: React.FC<GameProps> = ({ socket }) => {
     return (
       <div className="mt-8 flex flex-col justify-center items-center">
         <h1 className="font-semibold text-xl">404 - Game Not Found</h1>
-        <Button text="Home" icon={<BiHome />} onClick={() => navigate("")} className="bg-color-blue-2 px-2 py-2 mt-2" />
+        <Button text="Home" icon={<BiHome />} onClick={() => navigate("/home")} className="bg-color-blue-2 px-2 py-2 mt-2" />
       </div>
     );
   }
