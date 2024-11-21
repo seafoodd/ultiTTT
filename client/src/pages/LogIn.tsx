@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import Cookies from "universal-cookie";
 import Axios from "axios";
@@ -12,6 +12,7 @@ const LogIn = () => {
   const [identifier, setIdentifier] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
   const logIn = (event: React.FormEvent) => {
     event.preventDefault();
@@ -19,27 +20,20 @@ const LogIn = () => {
       identifier,
       password,
       rememberMe,
-    }).then((res) => {
-      const { token } = res.data;
-      cookies.set("token", token, { path: "/" });
-      // cookies.set("username", username);
-      setIsAuth(true);
-      navigate("/home");
-      location.reload();
-    });
+    })
+      .then((res) => {
+        const { token } = res.data;
+        cookies.set("token", token, { path: "/" });
+        setIsAuth(true);
+        window.location.href = "/home";
+      })
+      .catch((err) => {
+        setError(
+          err.response?.data?.error || "An error occurred. Please try again",
+        );
+      });
   };
 
-  const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setIdentifier(event.target.value);
-  };
-
-  const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPassword(event.target.value);
-  };
-
-  const handleRememberMeChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setRememberMe(event.target.checked);
-  };
   return (
     <div
       className="flex flex-col bg-color-gray-1 p-8 rounded-md
@@ -52,14 +46,14 @@ const LogIn = () => {
         <input
           className="px-2 py-1 rounded-md"
           placeholder="Username or email"
-          onChange={handleUsernameChange}
+          onChange={(event) => setIdentifier(event.target.value)}
           required
         />
         <input
           className="px-2 py-1 rounded-md"
           placeholder="Password"
           type="password"
-          onChange={handlePasswordChange}
+          onChange={(event) => setPassword(event.target.value)}
           required
         />
         <div className="flex justify-between">
@@ -68,7 +62,7 @@ const LogIn = () => {
               className="cursor-pointer"
               type="checkbox"
               checked={rememberMe}
-              onChange={handleRememberMeChange}
+              onChange={(event) => setRememberMe(event.target.checked)}
             />
             Remember Me
           </label>
@@ -79,6 +73,7 @@ const LogIn = () => {
             Forgot password?
           </button>
         </div>
+        {error && <div className="text-red-500 text-md -mb-5">{error}</div>}
         <button
           className="mt-8 font-semibold flex justify-center items-center bg-blue-600 rounded-md px-12 w-full py-2"
           onClick={logIn}

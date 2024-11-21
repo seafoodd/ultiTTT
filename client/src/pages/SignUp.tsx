@@ -1,46 +1,44 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import Cookies from "universal-cookie";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-interface User {
-  username: string;
-  password: string;
-  email: string;
-}
-
 const LogIn = () => {
   const { setIsAuth } = useAuth();
   const cookies = new Cookies();
   const navigate = useNavigate();
+  const [error, setError] = useState<string>("");
 
-  const [user, setUser] = useState<User>({
-    email: "",
-    username: "",
-    password: "",
-  });
+  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [passwordConfirm, setPasswordConfirm] = useState<string>("");
 
   const signUp = (event: React.FormEvent) => {
     event.preventDefault();
-    Axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, user).then(
-      (res) => {
+    if (password !== passwordConfirm) {
+      setError("Passwords do not match.");
+      return;
+    }
+    Axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
+      email,
+      username,
+      password,
+    })
+      .then((res) => {
         const { token } = res.data;
-
         cookies.set("token", token, { path: "/" });
-        // cookies.set("username", username);
-        // cookies.set("password", password);
         setIsAuth(true);
-        navigate("/home");
-        location.reload();
-      },
-    );
+        window.location.href = "/home";
+      })
+      .catch((err) => {
+        setError(
+          err.response?.data?.error || "An error occurred. Please try again",
+        );
+      });
   };
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setUser((prevUser) => ({ ...prevUser, [name]: value }));
-  };
   return (
     <div
       className="flex flex-col bg-color-gray-1 p-8 rounded-md
@@ -55,14 +53,14 @@ const LogIn = () => {
           name="email"
           type="email"
           placeholder="Email"
-          onChange={handleInputChange}
+          onChange={(event) => setEmail(event.target.value)}
           required
         />
         <input
           className="px-2 py-1 rounded-md"
           name="username"
           placeholder="Username"
-          onChange={handleInputChange}
+          onChange={(event) => setUsername(event.target.value)}
           required
         />
         <input
@@ -70,9 +68,18 @@ const LogIn = () => {
           name="password"
           placeholder="Password"
           type="password"
-          onChange={handleInputChange}
+          onChange={(event) => setPassword(event.target.value)}
           required
         />
+        <input
+          className="px-2 py-1 rounded-md"
+          name="passwordConfirm"
+          placeholder="Confirm Password"
+          type="password"
+          onChange={(event) => setPasswordConfirm(event.target.value)}
+          required
+        />
+        {error && <div className="text-red-500 text-md -mb-5">{error}</div>}
         <button
           className="mt-8 font-semibold flex justify-center items-center bg-blue-600 rounded-md px-12 w-full py-2"
           onClick={signUp}
