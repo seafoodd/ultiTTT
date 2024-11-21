@@ -9,14 +9,14 @@ const LogIn = () => {
   const cookies = new Cookies();
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState<string>("");
+  const [identifier, setIdentifier] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [rememberMe, setRememberMe] = useState<boolean>(false);
 
   const logIn = (event: React.FormEvent) => {
     event.preventDefault();
     Axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
-      username,
+      identifier,
       password,
       rememberMe,
     }).then((res) => {
@@ -30,7 +30,7 @@ const LogIn = () => {
   };
 
   const handleUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setUsername(event.target.value);
+    setIdentifier(event.target.value);
   };
 
   const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {

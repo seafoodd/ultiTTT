@@ -7,8 +7,11 @@ export const authenticateToken = async (req, res, next) => {
 
   try {
     const user = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    const dbUser = await prisma.user.findUnique({
-      where: { username: user.username },
+
+    const dbUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email: user.identifier }, { username: user.identifier }],
+      },
     });
 
     if (!dbUser) return res.sendStatus(404);

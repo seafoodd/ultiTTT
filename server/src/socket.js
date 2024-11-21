@@ -63,7 +63,7 @@ const handleUserConnection = async (socket, user) => {
     await redisClient.set(`user:${user.username}`, socket.id);
     socket.username = user.username;
     socket.gameRequests = new Set();
-    console.log(socket.username, "has connected");
+    // console.log(socket.username, "has connected");
     io.emit("userOnline", user.username);
   } catch (e) {
     console.error("Connection error:", e);
@@ -145,15 +145,15 @@ const handleDeclineChallenge = async (socket, user, gameId, fromUsername) => {
  */
 const handleDisconnect = async (socket) => {
   if (socket.username) {
-    console.log(
-      `${socket.username} has disconnected with`,
-      socket.gameRequests,
-    );
+    // console.log(
+    //   `${socket.username} has disconnected with`,
+    //   socket.gameRequests,
+    // );
     await redisClient.srem("onlineUsers", socket.username);
     await redisClient.del(`user:${socket.username}`);
     for (const gameId of socket.gameRequests) {
       await redisClient.del(`game:${gameId}`);
-      console.log("deleted the game with id:", gameId);
+      // console.log("deleted the game with id:", gameId);
     }
     io.emit("userOffline", socket.username);
   }

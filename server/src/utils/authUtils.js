@@ -9,8 +9,10 @@ export const getUserByToken = async (token) => {
       if (err) return reject(new Error("Token verification failed"));
 
       try {
-        const dbUser = await prisma.user.findUnique({
-          where: { username: user.username },
+        const dbUser = await prisma.user.findFirst({
+          where: {
+            OR: [{ email: user.identifier }, { username: user.identifier }],
+          },
         });
 
         if (!dbUser) return reject(new Error("User not found"));
