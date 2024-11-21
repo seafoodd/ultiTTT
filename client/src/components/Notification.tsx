@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
-import { useNavigate } from "react-router-dom";
 import {CgClose} from "react-icons/cg";
 
 interface NotificationProps {
@@ -13,7 +12,6 @@ const Notification: React.FC<NotificationProps> = ({ socket }) => {
     gameId: string;
     gameType: string;
   } | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     socket.on(
@@ -53,8 +51,7 @@ const Notification: React.FC<NotificationProps> = ({ socket }) => {
   const respondChallenge = (accepted: boolean) => {
     if (challenge) {
       if (accepted) {
-        navigate(challenge.gameId);
-        location.reload();
+        window.location.href = `/${challenge.gameId}`;
       } else {
         socket.emit(
           "declineChallenge",

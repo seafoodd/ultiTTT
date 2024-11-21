@@ -5,12 +5,10 @@ import BurgerMenu from "./BurgerMenu";
 import Dropdown from "./Dropdown";
 import { FaUser } from "react-icons/fa6";
 import { FaCog, FaSignOutAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const Header = () => {
   const { currentUser, logOut, isAuth } = useAuth();
-  const navigate = useNavigate();
   const [currentMenu, setCurrentMenu] = useState<string>("");
 
   return (
@@ -60,22 +58,19 @@ const Header = () => {
               {
                 name: "Profile",
                 icon: <FaUser />,
-                onClick: () => {
-                  navigate(`/@/${currentUser?.username}`);
-                  location.reload();
-                },
+                href: `/@/${currentUser?.username}`,
               },
               {
                 name: "Settings",
                 icon: <FaCog />,
-                onClick: () => navigate(`settings`),
+                href: "/settings",
               },
               {
                 name: "Log Out",
                 icon: <FaSignOutAlt />,
                 onClick: () => {
                   logOut();
-                  navigate("");
+                  window.location.href = "/home";
                 },
               },
             ]}

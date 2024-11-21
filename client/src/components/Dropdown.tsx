@@ -2,12 +2,13 @@ import React from "react";
 
 interface Option {
   name: string;
-  icon: JSX.Element;
-  onClick: () => void;
+  icon: React.ReactNode;
+  onClick?: () => void;
+  href?: string;
 }
 
 interface DropdownProps {
-  trigger: JSX.Element;
+  trigger: React.ReactNode;
   options: Option[];
   currentMenu: string;
   setCurrentMenu: React.Dispatch<React.SetStateAction<string>>;
@@ -20,15 +21,11 @@ const Dropdown: React.FC<DropdownProps> = ({
   setCurrentMenu,
 }) => {
   const handleTriggerClick = () => {
-    if (currentMenu === "profile") {
-      setCurrentMenu("");
-      return;
-    }
-    setCurrentMenu("profile");
+    setCurrentMenu(currentMenu === "profile" ? "" : "profile");
   };
 
-  const handleOptionClick = (onClick: () => void) => {
-    onClick();
+  const handleOptionClick = (onClick?: () => void) => {
+    if (onClick) onClick();
     setCurrentMenu("");
   };
 
@@ -36,28 +33,35 @@ const Dropdown: React.FC<DropdownProps> = ({
     <div className="inline-block text-left h-full relative">
       <div
         onClick={handleTriggerClick}
-        className={`h-full px-3 transition-colors
-       ${currentMenu === "profile" ? "bg-color-gray-2/100" : ""}`}
+        className={`h-full px-3 transition-colors ${currentMenu === "profile" ? "bg-color-gray-2/100" : ""}`}
       >
         {trigger}
       </div>
 
       <div
-        className={`${currentMenu === "profile" ? "scale-y-100" : "scale-y-0"} h-fit transform
-        transition-transform origin-top absolute top-16 right-0 w-60 
-        bg-color-gray-2/80 box-content shadow-md backdrop-blur-sm z-10`}
+        className={`${currentMenu === "profile" ? "scale-y-100" : "scale-y-0"} h-fit transform transition-transform origin-top absolute top-16 right-0 w-60 bg-color-gray-2/80 box-content shadow-md backdrop-blur-sm z-10`}
       >
         <div className="py-1">
           {options.map((option, index) => (
-            <div
-              key={index}
-              className="flex items-center px-4 py-2 text-sm transition-colors
-               duration-75 hover:bg-color-blue-2 font-medium cursor-pointer"
-              onClick={() => handleOptionClick(option.onClick)}
-            >
-              {option.icon}
-              <span className="ml-2">{option.name}</span>
-            </div>
+            <React.Fragment key={index}>
+              {option.onClick ? (
+                <div
+                  className="flex items-center px-4 py-2 text-sm transition-colors duration-75 hover:bg-color-blue-2 font-medium cursor-pointer"
+                  onClick={() => handleOptionClick(option.onClick)}
+                >
+                  {option.icon}
+                  <span className="ml-2">{option.name}</span>
+                </div>
+              ) : (
+                <a
+                  className="flex items-center px-4 py-2 text-sm transition-colors duration-75 hover:bg-color-blue-2 font-medium cursor-pointer"
+                  href={option.href}
+                >
+                  {option.icon}
+                  <span className="ml-2">{option.name}</span>
+                </a>
+              )}
+            </React.Fragment>
           ))}
         </div>
       </div>

@@ -2,7 +2,7 @@ import React from "react";
 import Cross from "./Cross";
 import Circle from "./Circle";
 
-const renderIcon: { [key: string]: JSX.Element | string } = {
+const renderIcon: { [key: string]: React.ReactNode | string } = {
   X: <Cross />,
   O: <Circle />,
   "": "",

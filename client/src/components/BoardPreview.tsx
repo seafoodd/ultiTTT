@@ -11,7 +11,7 @@ interface BoardPreviewProps {
   size?: number;
 }
 
-const renderSubWinner: { [key: string]: JSX.Element | string } = {
+const renderSubWinner: { [key: string]: React.ReactNode | string } = {
   X: <Cross transparent />,
   O: <Circle transparent />,
   tie: <Tie />,
@@ -49,7 +49,7 @@ const SubBoardPreview: React.FC<{ subWinner: string; className: string; squares:
   </div>
 );
 
-const renderIcon: { [key: string]: JSX.Element | string } = {
+const renderIcon: { [key: string]: React.ReactNode | string } = {
   X: <Cross />,
   O: <Circle />,
   "": "",

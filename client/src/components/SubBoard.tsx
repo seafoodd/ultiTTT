@@ -16,7 +16,7 @@ interface SubBoardProps {
   squares: string[];
 }
 
-const renderSubWinner: { [key: string]: JSX.Element | string } = {
+const renderSubWinner: { [key: string]: React.ReactNode | string } = {
   X: <Cross transparent />,
   O: <Circle transparent />,
   tie: <Tie />,

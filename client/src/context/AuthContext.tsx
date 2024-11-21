@@ -26,32 +26,29 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
   const cookies = new Cookies();
   const [isAuth, setIsAuth] = useState<boolean>(false);
   const token = cookies.get("token");
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
-    const verifyToken = async () => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/auth/verifyToken`,
-          {
-            headers: {
-              Authorization: token,
-            },
-          },
-        );
-        if (response.status === 200) {
-          setIsAuth(true);
-          setCurrentUser(response.data.user)
+    (async () => {
+      if (token) {
+        try {
+          const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/auth/verifyToken`,
+            {
+              headers: {
+                Authorization: token,
+              },
+            }
+          );
+          if (response.status === 200) {
+            setIsAuth(true);
+            setCurrentUser(response.data.user);
+          }
+        } catch (error) {
+          setIsAuth(false);
         }
-      } catch (error) {
-        // console.log("verify token error:", error)
-        setIsAuth(false);
       }
-    };
-
-    if (token) {
-      verifyToken();
-    }
+    })();
   }, [token]);
 
   const logOut = () => {
