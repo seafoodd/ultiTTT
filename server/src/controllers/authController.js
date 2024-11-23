@@ -5,9 +5,9 @@ import rateLimit from "express-rate-limit";
 
 // Rate limiter to prevent brute-force attacks.
 const loginLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 15 minutes
-  max: 10, // Limit each IP to 10 login requests per windowMs
-  message: { error: "Too many login attempts, try again after 10 minutes" },
+  windowMs: 30 * 1000, // 30 seconds
+  max: 5, // Limit each IP to 5 login requests per windowMs
+  message: { error: "Too many login attempts, try again after 30 seconds." },
 });
 
 export const register = async (req, res) => {
