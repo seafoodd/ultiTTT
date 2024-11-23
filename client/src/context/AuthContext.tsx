@@ -57,6 +57,8 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
     cookies.remove("username");
     cookies.remove("hashedPassword");
     setIsAuth(false);
+
+    window.location.href = "/home";
   };
 
   return (

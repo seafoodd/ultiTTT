@@ -35,8 +35,8 @@ const LogIn = () => {
         setError(
           err.response?.data?.error || "An error occurred. Please try again",
         );
+        setLoading(false);
       })
-      .finally(() => setLoading(false));
   };
 
   return (
@@ -80,7 +80,7 @@ const LogIn = () => {
         </div>
         {error && <div className="text-red-500 text-md -mb-5">{error}</div>}
         <button
-          className="mt-8 font-semibold flex justify-center items-center bg-blue-600 rounded-md px-12 w-full py-2"
+          className={`${loading ? "pointer-events-none bg-blue-600/70" : "bg-blue-600"} mt-8 font-semibold flex justify-center items-center rounded-md px-12 w-full py-2`}
           onClick={logIn}
         >
           {loading ? <LoadingCircle /> : <span>Log In</span>}

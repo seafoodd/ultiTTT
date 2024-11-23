@@ -70,7 +70,6 @@ const Header = () => {
                 icon: <FaSignOutAlt />,
                 onClick: () => {
                   logOut();
-                  window.location.href = "/home";
                 },
               },
             ]}
