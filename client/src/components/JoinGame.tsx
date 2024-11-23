@@ -116,12 +116,12 @@ const JoinGame: React.FC<JoinGameProps> = ({ socket }) => {
             >
               15 Minutes
             </button>
-            <button
-              className="border h-24 w-32 text-xl bg-gray-800/40 border-red-700 flex items-center text-red-700 justify-center p-2 font-semibold rounded-md"
-              onClick={() => searchMatch("0")}
-            >
-              Instant
-            </button>
+            {/*<button*/}
+            {/*  className="border h-24 w-32 text-xl bg-gray-800/40 border-red-700 flex items-center text-red-700 justify-center p-2 font-semibold rounded-md"*/}
+            {/*  onClick={() => searchMatch("0")}*/}
+            {/*>*/}
+            {/*  Instant*/}
+            {/*</button>*/}
           </div>
           <div>
             <button
