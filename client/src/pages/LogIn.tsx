@@ -36,7 +36,7 @@ const LogIn = () => {
           err.response?.data?.error || "An error occurred. Please try again",
         );
         setLoading(false);
-      })
+      });
   };
 
   return (
@@ -47,7 +47,7 @@ const LogIn = () => {
       <h1 className="flex justify-center text-white/90 text-3xl font-medium">
         Log in
       </h1>
-      <form className="mt-12 flex flex-col gap-4 w-72">
+      <form className="mt-12 flex flex-col gap-4 w-72" onSubmit={logIn}>
         <input
           className="px-2 py-1 rounded-md"
           placeholder="Username or email"
@@ -80,8 +80,9 @@ const LogIn = () => {
         </div>
         {error && <div className="text-red-500 text-md -mb-5">{error}</div>}
         <button
-          className={`${loading ? "pointer-events-none bg-blue-600/70" : "bg-blue-600"} mt-8 font-semibold flex justify-center items-center rounded-md px-12 w-full py-2`}
-          onClick={logIn}
+          className="bg-blue-600 disabled:bg-opacity-70 mt-8 font-semibold flex justify-center items-center rounded-md px-12 w-full py-2"
+          disabled={loading}
+          type="submit"
         >
           {loading ? <LoadingCircle /> : <span>Log In</span>}
         </button>

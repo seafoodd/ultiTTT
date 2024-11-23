@@ -52,11 +52,12 @@ const LogIn = () => {
       <h1 className="flex justify-center text-white/90 text-3xl font-medium">
         Sign Up
       </h1>
-      <form className="mt-12 flex flex-col gap-4 w-72">
+      <form className="mt-12 flex flex-col gap-4 w-72" onSubmit={signUp}>
         <input
           className="px-2 py-1 rounded-md"
           name="email"
           type="email"
+          minLength={3}
           placeholder="Email"
           onChange={(event) => setEmail(event.target.value)}
           required
@@ -64,6 +65,7 @@ const LogIn = () => {
         <input
           className="px-2 py-1 rounded-md"
           name="username"
+          minLength={2}
           placeholder="Username"
           onChange={(event) => setUsername(event.target.value)}
           required
@@ -73,6 +75,7 @@ const LogIn = () => {
           name="password"
           placeholder="Password"
           type="password"
+          minLength={8}
           onChange={(event) => setPassword(event.target.value)}
           required
         />
@@ -86,8 +89,9 @@ const LogIn = () => {
         />
         {error && <div className="text-red-500 text-md -mb-5">{error}</div>}
         <button
-          className={`${loading ? "pointer-events-none bg-blue-600/70" : "bg-blue-600"} mt-8 font-semibold flex justify-center items-center rounded-md px-12 w-full py-2`}
-          onClick={signUp}
+          className="bg-blue-600 disabled:bg-opacity-70 mt-8 font-semibold flex justify-center items-center rounded-md px-12 w-full py-2"
+          disabled={loading}
+          type="submit"
         >
           {loading ? <LoadingCircle /> : <span>Sign Up</span>}
         </button>
