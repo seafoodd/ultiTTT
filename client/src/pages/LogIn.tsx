@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import Cookies from "universal-cookie";
 import Axios from "axios";
@@ -15,6 +15,29 @@ const LogIn = () => {
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [rateLimitTimeLeft, setRateLimitTimeLeft] = useState<number | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (rateLimitTimeLeft === null || rateLimitTimeLeft <= 0) {
+      setRateLimitTimeLeft(null);
+      setError("")
+      return;
+    }
+
+    setError(
+      `Too many login attempts, try again after ${rateLimitTimeLeft} seconds.`,
+    );
+
+    const timer = setInterval(() => {
+      setRateLimitTimeLeft((prevTime) =>
+        prevTime !== null ? prevTime - 1 : null,
+      );
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [rateLimitTimeLeft]);
 
   const logIn = (event: React.FormEvent) => {
     event.preventDefault();
@@ -32,9 +55,14 @@ const LogIn = () => {
         window.location.href = "/home";
       })
       .catch((err) => {
-        setError(
-          err.response?.data?.error || "An error occurred. Please try again",
-        );
+        if (err.response?.status === 429) {
+          const retryAfter = err.response.data.retryAfter;
+          setRateLimitTimeLeft(retryAfter);
+        } else {
+          setError(
+            err.response?.data?.error || "An error occurred. Please try again",
+          );
+        }
         setLoading(false);
       });
   };
@@ -81,7 +109,7 @@ const LogIn = () => {
         {error && <div className="text-red-500 text-md -mb-5">{error}</div>}
         <button
           className="bg-blue-600 disabled:bg-opacity-70 mt-8 font-semibold flex justify-center items-center rounded-md px-12 w-full py-2"
-          disabled={loading}
+          disabled={loading || rateLimitTimeLeft !== null}
           type="submit"
         >
           {loading ? <LoadingCircle /> : <span>Log In</span>}
