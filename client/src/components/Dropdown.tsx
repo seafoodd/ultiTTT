@@ -73,7 +73,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           ))}
         </div>
         <PingDisplay className="pl-3 py-2 border-t border-white/50" socket={socket} />
-        {socket.id}
+        {/*{socket.id}*/}
       </div>
     </div>
   );

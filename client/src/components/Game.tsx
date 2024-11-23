@@ -75,12 +75,11 @@ const Game: React.FC<GameProps> = ({ socket }) => {
   const [gameFinished, setGameFinished] = useState<boolean>(false);
 
   useEffect(() => {
-    if (gameFinished || moveHistory.length < 2) {
-      console.log(123);
-      return;
-    }
     if (timerInterval) {
       clearInterval(timerInterval);
+    }
+    if (gameFinished || moveHistory.length < 2) {
+      return;
     }
     const interval = setInterval(() => {
       setTimers((prevTimers) => {
@@ -92,7 +91,7 @@ const Game: React.FC<GameProps> = ({ socket }) => {
       });
     }, 100);
     setTimerInterval(interval);
-  }, [turn, victoryMessage, moveHistory]);
+  }, [turn, victoryMessage, moveHistory, gameFinished]);
 
   useEffect(() => {
     socket.emit("joinGame", gameId);
