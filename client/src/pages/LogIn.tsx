@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import Cookies from "universal-cookie";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
+import LoadingCircle from "../components/LoadingCircle";
 
 const LogIn = () => {
   const { setIsAuth } = useAuth();
@@ -13,9 +14,12 @@ const LogIn = () => {
   const [password, setPassword] = useState<string>("");
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const logIn = (event: React.FormEvent) => {
     event.preventDefault();
+    setError("");
+    setLoading(true);
     Axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
       identifier,
       password,
@@ -31,7 +35,8 @@ const LogIn = () => {
         setError(
           err.response?.data?.error || "An error occurred. Please try again",
         );
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -78,7 +83,7 @@ const LogIn = () => {
           className="mt-8 font-semibold flex justify-center items-center bg-blue-600 rounded-md px-12 w-full py-2"
           onClick={logIn}
         >
-          Log in
+          {loading ? <LoadingCircle /> : <span>Log In</span>}
         </button>
         <button
           className="text-[14px] font-medium text-white/70 transition-colors hover:text-white/80"
