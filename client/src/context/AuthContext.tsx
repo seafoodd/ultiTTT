@@ -9,6 +9,7 @@ import Cookies from "universal-cookie";
 import axios from "axios";
 
 interface AuthContextType {
+  authLoading: boolean;
   isAuth: boolean;
   token: string | null;
   logOut: () => void;
@@ -25,6 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
   const cookies = new Cookies();
   const [isAuth, setIsAuth] = useState<boolean>(false);
+  const [authLoading, setAuthLoading] = useState<boolean>(true);
   const token = cookies.get("token");
   const [currentUser, setCurrentUser] = useState<any>(null);
 
@@ -38,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
               headers: {
                 Authorization: token,
               },
-            }
+            },
           );
           if (response.status === 200) {
             setIsAuth(true);
@@ -48,6 +50,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
           setIsAuth(false);
         }
       }
+      setAuthLoading(false);
     })();
   }, [token]);
 
@@ -62,7 +65,9 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuth, token, logOut, setIsAuth, currentUser }}>
+    <AuthContext.Provider
+      value={{ authLoading, isAuth, token, logOut, setIsAuth, currentUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
