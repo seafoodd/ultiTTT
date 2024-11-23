@@ -134,7 +134,8 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
             <Button
               text="Challenge"
               onClick={() => setIsChallengeModalOpen(isOnline && !isOwner)}
-              className={`${isOnline ? "" : "cursor-not-allowed bg-color-gray-3"} bg-color-blue-2 px-4 py-3`}
+              className={`bg-color-blue-2 disabled:bg-color-gray-3 px-4 py-3`}
+              disabled={!isOnline}
             />
             <Modal
               isOpen={isChallengeModalOpen}
@@ -145,7 +146,9 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
             <Button
               text="Add friend"
               onClick={() => console.log("added friend")}
-              className="bg-color-blue-2 px-4 py-3"
+              className="bg-color-blue-2 px-4 py-3 disabled:bg-color-gray-3"
+              // TODO: implement friends
+              disabled={true}
             />
             {/*<Button text="Challenge" onClick={() => console.log("challenged")} className='bg-color-blue-2 px-4 py-3'/>*/}
           </div>
