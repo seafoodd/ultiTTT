@@ -1,4 +1,3 @@
-version: '3'
 services:
   server:
     build: .
@@ -9,33 +8,61 @@ services:
       - redis
     env_file:
       - .env
-#    volumes:
-#      - ./media:/app/media
+    networks:
+      - ultittt-network
+
   db:
-    image: prismagraphql/mongo-single-replica:5.0.3
+    image: mongo:5.0.3
+    restart: unless-stopped
     ports:
       - '27017:27017'
     env_file:
       - .env
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    command: ["mongod", "--replSet", "rs0"]
+    networks:
+      - ultittt-network
+
   redis:
     image: redis:latest
     ports:
       - '6379:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - ultittt-network
+
   client:
     build:
       context: ../client
       args:
-#        VITE_API_URL: "http://192.168.0.100:5000"
-#        VITE_API_URL: "http://13.60.158.88:5000"
         VITE_API_URL: "https://ultittt.org/api"
     ports:
       - '8000:80'
-#      - '443:443'
-#    volumes:
-#      - ./client/nginx.conf:/etc/nginx/conf.d
-#      - ./client/nginx-selfsigned.crt:/etc/ssl/certs
-#      - ./client/nginx-selfsigned.key:/etc/ssl/private
-#    depends_on:
-#      - server
+    networks:
+      - ultittt-network
+
+  mongo_express:
+    image: mongo-express:1.0.2-20-alpine3.19
+    restart: unless-stopped
+    ports:
+      - 8081:8081
+    #    environment:
+    #      - ME_CONFIG_BASICAUTH=false
+    #      - ME_CONFIG_MONGODB_SERVER=db
+    networks:
+      - ultittt-network
+    depends_on:
+      - db
+    env_file:
+      - .env
+
 volumes:
-  client:
+  mongo-data:
+  redis-data:
+
+networks:
+  ultittt-network:
+    driver: bridge
