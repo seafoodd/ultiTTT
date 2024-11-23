@@ -19,6 +19,7 @@ import Cookies from "universal-cookie";
 import Settings from "./pages/Settings";
 import { debugError } from "./utils/debugUtils";
 import { Root } from "react-dom/client";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 export const env = import.meta.env.VITE_ENV || "production";
 
@@ -59,8 +60,22 @@ const router = createBrowserRouter(
         { path: "/rules", element: <Rules /> },
         { path: "/donate", element: <Donate /> },
         { path: "/friends", element: <Friends /> },
-        { path: "/login", element: <LogIn /> },
-        { path: "/signup", element: <SignUp /> },
+        {
+          path: "/login",
+          element: (
+            <ProtectedRoute redirectTo="/home">
+              <LogIn />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "/signup",
+          element: (
+            <ProtectedRoute redirectTo="/home">
+              <SignUp />
+            </ProtectedRoute>
+          ),
+        },
         { path: "/@/:username", element: <Profile socket={socket} /> },
         { path: "/settings", element: <Settings /> },
       ],
