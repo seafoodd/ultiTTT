@@ -105,7 +105,7 @@ const handleSendChallenge = async (socket, user, gameType, username) => {
       return;
     }
 
-    const game = createNewGame(gameType);
+    const game = createNewGame(gameType, false);
     game.opponentUsername = username;
 
     await addNewPlayerToGame(socket, gameId, player.username, game);
@@ -191,6 +191,7 @@ const handleIsUserOnline = async (username, callback) => {
 const handleJoinGame = async (socket, user, gameId) => {
   try {
     let game = JSON.parse(await redisClient.get(`game:${gameId}`));
+    console.log(game)
 
     if (!game) {
       socket.emit("error", "No Game found");
@@ -278,11 +279,21 @@ const handleSearchMatch = async (socket, user, gameType) => {
       assignPlayerSymbols(game);
       await startTimer(io, gameId, redisClient);
       await saveGameToRedis(gameId, game);
-      emitGameState(io, gameId, game);
 
       for (const id of [player1.id, player2.id]) {
-        io.to(id).emit("matchFound", gameId);
+        if (io.sockets.sockets.get(id)) {
+          console.log("emitted to player", id);
+          io.to(id).emit("matchFound", gameId, (error) => {
+            if (error) {
+              console.error(`Failed to emit to player ${id}:`, error);
+            }
+          });
+        } else {
+          console.error(`Socket not connected for player ${id}`);
+        }
       }
+
+      emitGameState(io, gameId, game);
     }
   } catch (e) {
     console.error("searchMatch error:", e);
@@ -307,7 +318,7 @@ const handleCreateFriendlyGame = async (socket, user, gameType) => {
       return;
     }
 
-    const game = createNewGame(gameType);
+    const game = createNewGame(gameType, false);
     await addNewPlayerToGame(socket, gameId, player.username, game);
     await saveGameToRedis(gameId, game);
     socket.gameRequests.add(gameId);
@@ -355,9 +366,10 @@ const handleMakeMove = async (
 /**
  * Create a new game object based on the game type.
  * @param {string} gameType - The type of game.
+ * @param isRanked - Is the game ranked?
  * @returns {Object} The new game object.
  */
-const createNewGame = (gameType) => {
+const createNewGame = (gameType, isRanked = true) => {
   let time = 5 * 60 * 1000;
   let timeIncrement = 0;
 
@@ -385,6 +397,7 @@ const createNewGame = (gameType) => {
     timeIncrement: timeIncrement,
     currentSubBoard: null,
     timers: { X: time, O: time },
+    isRanked: isRanked,
   };
 };
 
@@ -405,7 +418,7 @@ export const saveGameToRedis = async (gameId, game) => {
       timers: game.timers,
       timeIncrement: game.timeIncrement,
       opponentUsername: game.opponentUsername,
-      isRanked: true,
+      isRanked: game.isRanked,
     }),
   );
 };
@@ -425,7 +438,7 @@ export const emitGameState = (io, gameId, game) => {
     players: game.players,
     timers: game.timers,
     opponentUsername: game.opponentUsername,
-    isRanked: true,
+    isRanked: game.isRanked,
   });
 };
 

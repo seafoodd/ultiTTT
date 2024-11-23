@@ -96,6 +96,9 @@ export const getGameHistory = async (req, res) => {
         let gameResult = "tie";
         if (game.winnerId && game.winner)
           gameResult = game.winnerId === user.id ? "win" : "loss";
+        if(game.status === "aborted"){
+          gameResult = "aborted"
+        }
         return { ...game, gameResult };
       },
     ).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));

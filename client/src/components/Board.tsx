@@ -1,11 +1,13 @@
 import React from "react";
 import SubBoard from "./SubBoard";
+import Button from "./Button";
 
 interface BoardReworkProps {
   board: { subWinner: string; squares: string[] }[];
   turn: string;
   player: string;
   victoryMessage: string;
+  setVictoryMessage: React.Dispatch<React.SetStateAction<string>>;
   chooseSquare: (subBoardIndex: number, squareIndex: number) => void;
   currentSubBoard: number | null;
   currentMoveSelected: boolean;
@@ -20,15 +22,32 @@ const Board: React.FC<BoardReworkProps> = ({
   currentMoveSelected,
   lastMove,
   victoryMessage,
+  setVictoryMessage,
   player,
 }) => {
   const renderVictoryMessage = () => (
     <div
       className="flex items-center justify-center
-      absolute inset-0 top-0 left-0 z-30 text-6xl
-      font-bold bg-white/20 backdrop-blur-sm"
+      absolute w-full h-full left-0 z-30
+      bg-white/5"
+      onClick={() => setVictoryMessage("")}
     >
-      {victoryMessage}
+      <div
+        className="w-72 h-36 rounded-lg bg-color-black-1
+       flex flex-col justify-center items-center text-xl font-bold"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        {victoryMessage}
+        <Button
+          onClick={() => {
+            window.location.href = "/home";
+          }}
+          className="bg-color-blue-2 px-3 py-2 mt-4"
+          text="Home"
+        />
+      </div>
     </div>
   );
 

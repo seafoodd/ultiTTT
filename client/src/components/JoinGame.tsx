@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import verifyToken from "../utils/verifyToken";
 import { Socket } from "socket.io-client";
@@ -13,6 +13,19 @@ const JoinGame: React.FC<JoinGameProps> = ({ socket }) => {
   const [searching, setSearching] = useState<boolean>();
   const [gameType, setGameType] = useState<string>("");
 
+  useEffect(() => {
+    const matchFoundListener = (gameId: string) => {
+      console.log("matchFound!!!");
+      navigate(`/${gameId}`);
+      setSearching(false);
+    };
+
+    socket.on("matchFound", matchFoundListener);
+    return () => {
+      socket.off("matchFound", matchFoundListener);
+    };
+  }, [socket]);
+
   const searchMatch = async (gameType: string) => {
     const isAuth = await verifyToken();
     if (!isAuth) {
@@ -22,13 +35,25 @@ const JoinGame: React.FC<JoinGameProps> = ({ socket }) => {
 
     try {
       setGameType(gameType);
+      // socket.emit("searchMatch", gameType, (error: any) => {
+      //   if (error) {
+      //     console.error("Failed to emit searchMatch:", error);
+      //     return;
+      //   }
+      //   setSearching(true);
+      // });
       socket.emit("searchMatch", gameType);
       setSearching(true);
-      socket.on("matchFound", (gameId) => {
-        navigate(`/${gameId}`);
-        // location.reload();
-        setSearching(false);
-      });
+
+      // const matchFoundListener = (gameId: string) => {
+      //   console.log("matchFound!!!");
+      //   navigate(`/${gameId}`);
+      //   setSearching(false);
+      // };
+
+      // Remove any existing listener to avoid duplicates
+      // socket.on("matchFound", matchFoundListener);
+      // socket.off("matchFound", matchFoundListener);
     } catch (e) {
       console.error("Failed to join the game:", e);
     }
@@ -91,12 +116,12 @@ const JoinGame: React.FC<JoinGameProps> = ({ socket }) => {
             >
               15 Minutes
             </button>
-            {/*<button*/}
-            {/*  className="border h-24 w-32 text-xl bg-gray-800/40 border-red-700 flex items-center text-red-700 justify-center p-2 font-semibold rounded-md"*/}
-            {/*  onClick={() => searchMatch("0")}*/}
-            {/*>*/}
-            {/*  Instant*/}
-            {/*</button>*/}
+            <button
+              className="border h-24 w-32 text-xl bg-gray-800/40 border-red-700 flex items-center text-red-700 justify-center p-2 font-semibold rounded-md"
+              onClick={() => searchMatch("0")}
+            >
+              Instant
+            </button>
           </div>
           <div>
             <button

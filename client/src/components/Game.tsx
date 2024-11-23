@@ -69,25 +69,30 @@ const Game: React.FC<GameProps> = ({ socket }) => {
   const [victoryMessage, setVictoryMessage] = useState<string>("");
   const [isDeclined, setIsDeclined] = useState<boolean>(false);
   const [gameNotFound, setGameNotFound] = useState<boolean>(false);
-  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
+  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(
+    null,
+  );
+  const [gameFinished, setGameFinished] = useState<boolean>(false);
 
   useEffect(() => {
+    if (gameFinished || moveHistory.length < 2) {
+      console.log(123);
+      return;
+    }
     if (timerInterval) {
       clearInterval(timerInterval);
-    }
-    if (victoryMessage || moveHistory.length < 2) {
-      return;
     }
     const interval = setInterval(() => {
       setTimers((prevTimers) => {
         const newTimers = { ...prevTimers };
-        newTimers[turn as "X" | "O"] -= 100;
+        if (newTimers[turn as "X" | "O"] > 0) {
+          newTimers[turn as "X" | "O"] -= 100;
+        }
         return newTimers;
       });
-      console.log(timers, turn, Date.now())
     }, 100);
     setTimerInterval(interval);
-  }, [turn, victoryMessage]);
+  }, [turn, victoryMessage, moveHistory]);
 
   useEffect(() => {
     socket.emit("joinGame", gameId);
@@ -104,7 +109,7 @@ const Game: React.FC<GameProps> = ({ socket }) => {
       setBoard(gameState.board);
       setTurn(gameState.turn);
       setMoveHistory(gameState.moveHistory);
-      setPlayers(gameState.players)
+      setPlayers(gameState.players);
       setCurrentMoveIndex(gameState.moveHistory.length);
       setCurrentSubBoard(gameState.currentSubBoard);
       setOpponentUsername(gameState.opponentUsername);
@@ -123,9 +128,12 @@ const Game: React.FC<GameProps> = ({ socket }) => {
     const handleGameResult = (result: any) => {
       setVictoryMessage(
         result.winner === "none"
-          ? "Game tied!"
+          ? result.status === "aborted"
+            ? "Game aborted!"
+            : "Game tied!"
           : `Player ${result.winner} wins!`,
       );
+      setGameFinished(true);
     };
 
     socket.on("gameState", handleGameState);
@@ -219,6 +227,7 @@ const Game: React.FC<GameProps> = ({ socket }) => {
           player={player}
           chooseSquare={chooseSquare}
           victoryMessage={victoryMessage}
+          setVictoryMessage={setVictoryMessage}
           currentSubBoard={currentSubBoard}
         />
       </div>

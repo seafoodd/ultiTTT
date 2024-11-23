@@ -1,6 +1,9 @@
 import { checkOverallWin, checkTie, checkWin } from "../utils/gameUtils.js";
 import prisma from "../../prisma/prismaClient.js";
-import { preciseSetInterval } from "../utils/timeUtils.js";
+import {
+  clearPreciseInterval,
+  preciseSetInterval,
+} from "../utils/timeUtils.js";
 import { emitGameState } from "../socket.js";
 
 /**
@@ -15,33 +18,36 @@ export const handleMove = async (
   player,
   redisClient,
 ) => {
-  let game = JSON.parse(await redisClient.get(`game:${gameId}`));
-  game.board[subBoardIndex].squares[squareIndex] = player;
-  game.turn = player === "X" ? "O" : "X";
+  try {
+    let game = JSON.parse(await redisClient.get(`game:${gameId}`));
+    game.board[subBoardIndex].squares[squareIndex] = player;
+    game.turn = player === "X" ? "O" : "X";
 
-  if (game.moveHistory.length > 1) game.timers[player] += game.timeIncrement;
-  game.moveHistory.push({ subBoardIndex, squareIndex, player });
+    if (game.moveHistory.length > 1) game.timers[player] += game.timeIncrement;
+    game.moveHistory.push({ subBoardIndex, squareIndex, player });
 
-  if (checkWin(game.board[subBoardIndex].squares)) {
-    game.board[subBoardIndex].subWinner = player;
-  } else if (checkTie(game.board[subBoardIndex].squares)) {
-    game.board[subBoardIndex].subWinner = "tie";
+    if (checkWin(game.board[subBoardIndex].squares)) {
+      game.board[subBoardIndex].subWinner = player;
+    } else if (checkTie(game.board[subBoardIndex].squares)) {
+      game.board[subBoardIndex].subWinner = "tie";
+    }
+
+    updateCurrentSubBoard(game, squareIndex);
+
+    await redisClient.set(`game:${gameId}`, JSON.stringify(game));
+    io.to(gameId).emit("gameState", {
+      board: game.board,
+      turn: game.turn,
+      moveHistory: game.moveHistory,
+      currentSubBoard: game.currentSubBoard,
+      players: game.players,
+      timers: game.timers,
+    });
+
+    await handleOverallWin(io, game, gameId, redisClient);
+  } catch (e) {
+    console.error("handleMove error:", e);
   }
-
-
-  updateCurrentSubBoard(game, squareIndex);
-
-  await redisClient.set(`game:${gameId}`, JSON.stringify(game));
-  io.to(gameId).emit("gameState", {
-    board: game.board,
-    turn: game.turn,
-    moveHistory: game.moveHistory,
-    currentSubBoard: game.currentSubBoard,
-    players: game.players,
-    timers: game.timers,
-  });
-
-  await handleOverallWin(io, game, gameId, redisClient);
 };
 
 /**
@@ -51,9 +57,7 @@ export const handleMove = async (
 export const handleOverallWin = async (io, game, gameId, redisClient) => {
   const overallWinner = checkOverallWin(game.board);
   const gameResult = {
-    board: game.board,
     winner: overallWinner || "none",
-    moveHistory: game.moveHistory,
     state: "finished",
   };
 
@@ -66,7 +70,15 @@ export const handleOverallWin = async (io, game, gameId, redisClient) => {
       await redisClient.set(`game:${gameId}`, JSON.stringify(game));
       console.log(game);
       io.to(gameId).emit("gameResult", gameResult);
-      await finishGame(io, game, gameId, overallWinner, redisClient);
+      await finishGame(
+        io,
+        game,
+        gameId,
+        overallWinner,
+        redisClient,
+        game.isRanked,
+        overallWinner ? "finished" : "tie",
+      );
     }
   }
 };
@@ -74,7 +86,7 @@ export const handleOverallWin = async (io, game, gameId, redisClient) => {
 /**
  * Saves the game result to the database and updates player ELO ratings.
  */
-const saveGameResult = async (game, overallWinner) => {
+const saveGameResult = async (game, overallWinner, isRanked, status) => {
   try {
     const [player1, player2] = await Promise.all([
       prisma.user.findUnique({ where: { username: game.players[0].username } }),
@@ -82,27 +94,67 @@ const saveGameResult = async (game, overallWinner) => {
     ]);
 
     if (player1 && player2) {
-      const player1Outcome =
-        overallWinner === game.players[0].symbol ? 1 : overallWinner ? 0 : 0.5;
-      const player2Outcome =
-        overallWinner === game.players[1].symbol ? 1 : overallWinner ? 0 : 0.5;
+      let player1EloChange = {
+        newRating: player1.elo,
+        newRd: player1.rd,
+        newVol: player1.vol,
+      };
+      let player2EloChange = {
+        newRating: player2.elo,
+        newRd: player2.rd,
+        newVol: player2.vol,
+      };
 
-      const player1EloChange = calculateEloChange(
-        player1.elo,
-        player1.rd,
-        player1.vol,
-        player2.elo,
-        player2.rd,
-        player1Outcome,
-      );
-      const player2EloChange = calculateEloChange(
-        player2.elo,
-        player2.rd,
-        player2.vol,
-        player1.elo,
-        player1.rd,
-        player2Outcome,
-      );
+      if (isRanked) {
+        const player1Outcome =
+          overallWinner === game.players[0].symbol
+            ? 1
+            : overallWinner
+              ? 0
+              : 0.5;
+        const player2Outcome =
+          overallWinner === game.players[1].symbol
+            ? 1
+            : overallWinner
+              ? 0
+              : 0.5;
+
+        player1EloChange = calculateEloChange(
+          player1.elo,
+          player1.rd,
+          player1.vol,
+          player2.elo,
+          player2.rd,
+          player1Outcome,
+        );
+        player2EloChange = calculateEloChange(
+          player2.elo,
+          player2.rd,
+          player2.vol,
+          player1.elo,
+          player1.rd,
+          player2Outcome,
+        );
+
+        await Promise.all([
+          prisma.user.update({
+            where: { id: player1.id },
+            data: {
+              elo: player1EloChange.newRating,
+              rd: player1EloChange.newRd,
+              vol: player1EloChange.newVol,
+            },
+          }),
+          prisma.user.update({
+            where: { id: player2.id },
+            data: {
+              elo: player2EloChange.newRating,
+              rd: player2EloChange.newRd,
+              vol: player2EloChange.newVol,
+            },
+          }),
+        ]);
+      }
 
       const winnerId = overallWinner
         ? overallWinner === game.players[0].symbol
@@ -127,27 +179,10 @@ const saveGameResult = async (game, overallWinner) => {
           player2: { connect: { id: player2.id } },
           player2Elo: player2.elo,
           player2EloChange: player2EloChange.newRating - player2.elo,
+          isRanked: isRanked,
+          status: status,
         },
       });
-
-      await Promise.all([
-        prisma.user.update({
-          where: { id: player1.id },
-          data: {
-            elo: player1EloChange.newRating,
-            rd: player1EloChange.newRd,
-            vol: player1EloChange.newVol,
-          },
-        }),
-        prisma.user.update({
-          where: { id: player2.id },
-          data: {
-            elo: player2EloChange.newRating,
-            rd: player2EloChange.newRd,
-            vol: player2EloChange.newVol,
-          },
-        }),
-      ]);
     }
   } catch (error) {
     console.error("Error saving game result:", error);
@@ -163,10 +198,14 @@ export const finishGame = async (
   gameId,
   winnerSymbol,
   redisClient,
+  isRanked,
+  status,
 ) => {
-  await saveGameResult(game, winnerSymbol);
+  await saveGameResult(game, winnerSymbol, isRanked, status);
   console.log("deleted the game with id:", gameId);
+  console.log(JSON.parse(await redisClient.get(`game:${gameId}`)));
   await redisClient.del(`game:${gameId}`);
+  console.log(JSON.parse(await redisClient.get(`game:${gameId}`)));
 };
 
 /**
@@ -179,7 +218,6 @@ export const updateCurrentSubBoard = (game, squareIndex) => {
 
 /**
  * Starts the game timer and handles timer updates.
- * The code is very confusing because of how timerIntervals are stored.
  */
 export const startTimer = async (io, gameId, redisClient) => {
   const timerInterval = preciseSetInterval(async () => {
@@ -188,13 +226,41 @@ export const startTimer = async (io, gameId, redisClient) => {
     if (redisGame && redisGame.timers && redisGame.turn !== undefined) {
       if (redisGame.moveHistory.length > 1)
         redisGame.timers[redisGame.turn] -= 100;
+      else {
+        if (
+          timerInterval.createdAt &&
+          !timerInterval.gameFinished &&
+          Date.now() - timerInterval.createdAt > 30 * 1000
+        ) {
+          console.log("aborted game with id", gameId);
+          timerInterval.gameFinished = true;
+          clearPreciseInterval(timerInterval);
+          emitGameState(io, gameId, redisGame);
+          await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
+
+          io.to(gameId).emit("gameResult", {
+            winner: "none",
+            status: "aborted",
+          });
+          await finishGame(
+            io,
+            redisGame,
+            gameId,
+            null,
+            redisClient,
+            redisGame.isRanked,
+            "aborted",
+          );
+          return
+        }
+      }
 
       if (redisGame.timers[redisGame.turn] > 0) {
         await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
         return;
       }
 
-      clearInterval(timerInterval);
+      clearPreciseInterval(timerInterval);
 
       redisGame.timers[redisGame.turn] = 0;
       await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
@@ -210,9 +276,12 @@ export const startTimer = async (io, gameId, redisClient) => {
         gameId,
         redisGame.turn === "X" ? "O" : "X",
         redisClient,
+        redisGame.isRanked,
+        "byTime",
       );
     }
   }, 100);
+  timerInterval.createdAt = Date.now();
 };
 
 /**

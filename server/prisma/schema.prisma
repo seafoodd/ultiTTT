@@ -64,4 +64,6 @@ model Game {
   player2Id        String?  @db.ObjectId
   player2Elo       Int
   player2EloChange Int
+  isRanked         Boolean  @default(true)
+  status           String   @default("finished")
 }

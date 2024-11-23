@@ -17,3 +17,9 @@ export const preciseSetInterval = (func, time) => {
 
   return outp;
 };
+
+export const clearPreciseInterval = (interval) => {
+  if (interval && interval.id) {
+    clearTimeout(interval.id);
+  }
+};

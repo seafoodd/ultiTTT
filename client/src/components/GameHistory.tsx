@@ -2,9 +2,10 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import BoardPreview from "./BoardPreview";
 
 const resultMessages = {
-  win: <div className="text-color-green-1">Victory!</div>,
-  loss: <div className="text-color-red-1">Defeat!</div>,
-  tie: <div className="text-color-gray-3">Tie!</div>,
+  win: <div className="text-color-green-1">Victory</div>,
+  loss: <div className="text-color-red-1">Defeat</div>,
+  tie: <div className="text-color-gray-3">Tie</div>,
+  aborted: <div className="text-color-gray-3">Aborted</div>,
 };
 
 const fetchGameHistory = async (
@@ -121,8 +122,6 @@ const PlayerInfo: React.FC<{
 }> = ({ player, elo, eloChange }) => {
   return (
     <div className="flex flex-col justify-center items-center">
-      {/* Maybe I should've used something like navigate from react-router-dom,
-          but it keeps the game history from a previous page, so I just used <a> for now. */}
       <a
         className={`text-xl font-bold ${player ? "" : "text-white/70 pointer-events-none"}`}
         href={`/@/${player?.username}`}
@@ -130,11 +129,19 @@ const PlayerInfo: React.FC<{
         {player ? player.username : "deleted"}
       </a>
       <div className="text-gray-400 font-normal text-md">
-        ({elo}{" "}
-        <span className={eloChange >= 0 ? "text-color-green-1" : "text-color-red-1"}>
-          {eloChange > 0 && "+"}
-          {eloChange}
-        </span>
+        ({elo}
+        {eloChange ? (
+          <span
+            className={
+              eloChange >= 0 ? "text-color-green-1" : "text-color-red-1"
+            }
+          >
+            {" "}{eloChange > 0 && "+"}
+            {eloChange}
+          </span>
+        ) : (
+          ""
+        )}
         )
       </div>
     </div>
