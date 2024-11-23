@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
   }, [token]);
 
   const logOut = () => {
-    cookies.remove("token");
+    cookies.remove("token", {path: "/" });
     cookies.remove("userId");
     cookies.remove("username");
     cookies.remove("hashedPassword");
