@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+// import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
@@ -36,6 +36,11 @@ const socket = io(socketUrl, {
     token: token,
   },
   path: env === "production" ? "/sockets/socket.io" : undefined,
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  randomizationFactor: 0.5,
 });
 
 socket.on("connect_error", (err) => {
@@ -98,10 +103,10 @@ if (rootElement) {
   }
 
   root.render(
-    <StrictMode>
+    // <StrictMode>
       <AuthProvider>
         <RouterProvider router={router} />
       </AuthProvider>
-    </StrictMode>,
+    // </StrictMode>,
   );
 }

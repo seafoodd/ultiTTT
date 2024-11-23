@@ -7,12 +7,13 @@ const formatTime = (seconds: number) => {
 };
 
 interface TimerProps {
-  seconds: number;
+  ms: number;
   isCompact?: boolean;
   className?: string;
 }
 
-const Timer: React.FC<TimerProps> = ({ seconds, isCompact, className }) => {
+const Timer: React.FC<TimerProps> = ({ ms, isCompact, className }) => {
+  const seconds = Math.ceil(ms / 1000)
   if (isCompact) {
     return (
       <div

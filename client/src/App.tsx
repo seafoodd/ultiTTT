@@ -12,7 +12,7 @@ interface AppProps {
 const App: React.FC<AppProps> = ({socket}) => {
   return (
     <>
-      <Header />
+      <Header socket={socket} />
       <div className="w-full h-full mt-12 flex justify-center items-center gap-24">
         <Outlet />
         <Notification socket={socket}/>

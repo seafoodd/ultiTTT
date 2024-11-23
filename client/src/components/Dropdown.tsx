@@ -1,4 +1,6 @@
 import React from "react";
+import { Socket } from "socket.io-client";
+import PingDisplay from "./PingDisplay";
 
 interface Option {
   name: string;
@@ -12,6 +14,8 @@ interface DropdownProps {
   options: Option[];
   currentMenu: string;
   setCurrentMenu: React.Dispatch<React.SetStateAction<string>>;
+  className?: string;
+  socket: Socket;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -19,6 +23,8 @@ const Dropdown: React.FC<DropdownProps> = ({
   options,
   currentMenu,
   setCurrentMenu,
+  className,
+  socket,
 }) => {
   const handleTriggerClick = () => {
     setCurrentMenu(currentMenu === "profile" ? "" : "profile");
@@ -30,7 +36,9 @@ const Dropdown: React.FC<DropdownProps> = ({
   };
 
   return (
-    <div className="inline-block text-left h-full relative">
+    <div
+      className={`${className ? className : ""} inline-block text-left h-full relative`}
+    >
       <div
         onClick={handleTriggerClick}
         className={`h-full px-3 transition-colors ${currentMenu === "profile" ? "bg-color-gray-2/100" : ""}`}
@@ -64,6 +72,7 @@ const Dropdown: React.FC<DropdownProps> = ({
             </React.Fragment>
           ))}
         </div>
+        <PingDisplay className="pl-3 py-2 border-t border-white/50" socket={socket} />
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import { checkOverallWin, checkTie, checkWin } from "../utils/gameUtils.js";
 import prisma from "../../prisma/prismaClient.js";
+import { preciseSetInterval } from "../utils/timeUtils.js";
+import { emitGameState } from "../socket.js";
 
 /**
  * Handles a player's move in the game.
@@ -16,6 +18,8 @@ export const handleMove = async (
   let game = JSON.parse(await redisClient.get(`game:${gameId}`));
   game.board[subBoardIndex].squares[squareIndex] = player;
   game.turn = player === "X" ? "O" : "X";
+
+  if (game.moveHistory.length > 1) game.timers[player] += game.timeIncrement;
   game.moveHistory.push({ subBoardIndex, squareIndex, player });
 
   if (checkWin(game.board[subBoardIndex].squares)) {
@@ -24,8 +28,10 @@ export const handleMove = async (
     game.board[subBoardIndex].subWinner = "tie";
   }
 
+
   updateCurrentSubBoard(game, squareIndex);
 
+  await redisClient.set(`game:${gameId}`, JSON.stringify(game));
   io.to(gameId).emit("gameState", {
     board: game.board,
     turn: game.turn,
@@ -34,9 +40,7 @@ export const handleMove = async (
     players: game.players,
     timers: game.timers,
   });
-  console.log("handleMove");
 
-  await redisClient.set(`game:${gameId}`, JSON.stringify(game));
   await handleOverallWin(io, game, gameId, redisClient);
 };
 
@@ -50,6 +54,7 @@ export const handleOverallWin = async (io, game, gameId, redisClient) => {
     board: game.board,
     winner: overallWinner || "none",
     moveHistory: game.moveHistory,
+    state: "finished",
   };
 
   if (
@@ -160,7 +165,6 @@ export const finishGame = async (
   redisClient,
 ) => {
   await saveGameResult(game, winnerSymbol);
-  clearInterval(game.timerInterval);
   console.log("deleted the game with id:", gameId);
   await redisClient.del(`game:${gameId}`);
 };
@@ -176,36 +180,39 @@ export const updateCurrentSubBoard = (game, squareIndex) => {
 /**
  * Starts the game timer and handles timer updates.
  * The code is very confusing because of how timerIntervals are stored.
- * TODO: fix this shit.
  */
-export const startTimer = async (io, game, gameId, redisClient) => {
-  game.timerInterval = setInterval(async () => {
+export const startTimer = async (io, gameId, redisClient) => {
+  const timerInterval = preciseSetInterval(async () => {
     const redisGame = JSON.parse(await redisClient.get(`game:${gameId}`));
+
     if (redisGame && redisGame.timers && redisGame.turn !== undefined) {
+      if (redisGame.moveHistory.length > 1)
+        redisGame.timers[redisGame.turn] -= 100;
+
       if (redisGame.timers[redisGame.turn] > 0) {
-        redisGame.timers[redisGame.turn]--;
         await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
-        io.to(gameId).emit("timerUpdate", redisGame.timers);
-      } else {
-        if (!game.gameFinished) {
-          game.gameFinished = true;
-          await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
-          io.to(gameId).emit("gameResult", {
-            winner: redisGame.turn === "X" ? "O" : "X",
-            state: "Won",
-          });
-          // clearInterval(game.timerInterval);
-          await finishGame(
-            io,
-            redisGame,
-            gameId,
-            redisGame.turn === "X" ? "O" : "X",
-            redisClient,
-          );
-        }
+        return;
       }
+
+      clearInterval(timerInterval);
+
+      redisGame.timers[redisGame.turn] = 0;
+      await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
+
+      emitGameState(io, gameId, redisGame);
+      io.to(gameId).emit("gameResult", {
+        winner: redisGame.turn === "X" ? "O" : "X",
+        state: "byTime",
+      });
+      await finishGame(
+        io,
+        redisGame,
+        gameId,
+        redisGame.turn === "X" ? "O" : "X",
+        redisClient,
+      );
     }
-  }, 1000);
+  }, 100);
 };
 
 /**

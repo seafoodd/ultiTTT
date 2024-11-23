@@ -56,6 +56,9 @@ const initializeSocket = () => {
     socket.on("makeMove", ({ gameId, subBoardIndex, squareIndex, player }) =>
       handleMakeMove(socket, gameId, subBoardIndex, squareIndex, player),
     );
+    socket.on("ping", (callback) => {
+      callback();
+    });
   });
 };
 
@@ -136,7 +139,9 @@ const handleDeclineChallenge = async (socket, user, gameId, fromUsername) => {
       return;
     }
     if (game.players < 2) {
+      console.log("del 1");
       await redisClient.del(`game:${gameId}`);
+      socket.gameRequests.delete(gameId);
     }
     const fromSocketId = await redisClient.get(`user:${fromUsername}`);
     io.to(fromSocketId).emit("challengeDeclined", { to: socket.username });
@@ -158,10 +163,11 @@ const handleDisconnect = async (socket) => {
     // );
     await redisClient.srem("onlineUsers", socket.username);
     await redisClient.del(`user:${socket.username}`);
-    for (const gameId of socket.gameRequests) {
-      await redisClient.del(`game:${gameId}`);
-      // console.log("deleted the game with id:", gameId);
-    }
+    // for (const gameId of socket.gameRequests) {
+    //   await redisClient.del(`game:${gameId}`);
+    //   console.log('del 2')
+    // console.log("deleted the game with id:", gameId);
+    // }
     io.emit("userOffline", socket.username);
   }
 };
@@ -184,7 +190,6 @@ const handleIsUserOnline = async (username, callback) => {
  */
 const handleJoinGame = async (socket, user, gameId) => {
   try {
-    const username = user.username;
     let game = JSON.parse(await redisClient.get(`game:${gameId}`));
 
     if (!game) {
@@ -192,23 +197,32 @@ const handleJoinGame = async (socket, user, gameId) => {
       return;
     }
 
-    if (game.opponentUsername && game.opponentUsername !== username) return;
+    const username = user.username;
 
     const existingPlayer = game.players.find(
       (player) => player.username === username,
     );
+    // if (!existingPlayer && game.opponentUsername && game.opponentUsername !== username) {
+    //   return;
+    // }
+
     if (existingPlayer) {
       await rejoinExistingPlayer(socket, gameId, existingPlayer, game);
       emitGameState(io, gameId, game);
       return;
     }
 
-    if (game.players.length < 2) {
+    if (
+      game.players.length < 2 &&
+      game.opponentUsername &&
+      game.opponentUsername === username
+    ) {
       await addNewPlayerToGame(socket, gameId, username, game);
       assignPlayerSymbols(game);
-      await startTimer(io, game, gameId, redisClient);
+      await startTimer(io, gameId, redisClient);
       await saveGameToRedis(gameId, game);
       emitGameState(io, gameId, game);
+      socket.gameRequests.delete(gameId);
     }
   } catch (e) {
     console.error("joinGame error:", e);
@@ -262,7 +276,7 @@ const handleSearchMatch = async (socket, user, gameType) => {
       }
 
       assignPlayerSymbols(game);
-      await startTimer(io, game, gameId, redisClient);
+      await startTimer(io, gameId, redisClient);
       await saveGameToRedis(gameId, game);
       emitGameState(io, gameId, game);
 
@@ -344,11 +358,21 @@ const handleMakeMove = async (
  * @returns {Object} The new game object.
  */
 const createNewGame = (gameType) => {
-  let time = 300;
-  if (gameType === "0") time = 3;
-  if (gameType === "5") time = 300;
-  else if (gameType === "10") time = 600;
-  else if (gameType === "15") time = 900;
+  let time = 5 * 60 * 1000;
+  let timeIncrement = 0;
+
+  if (gameType === "0") {
+    time = 3 * 1000;
+  } else if (gameType === "5") {
+    time = 5 * 60 * 1000;
+    timeIncrement = 3000;
+  } else if (gameType === "10") {
+    time = 10 * 60 * 1000;
+    timeIncrement = 5000;
+  } else if (gameType === "15") {
+    time = 15 * 60 * 1000;
+    timeIncrement = 10000;
+  }
 
   return {
     board: Array.from({ length: 9 }, () => ({
@@ -358,6 +382,7 @@ const createNewGame = (gameType) => {
     players: [],
     moveHistory: [],
     turn: "X",
+    timeIncrement: timeIncrement,
     currentSubBoard: null,
     timers: { X: time, O: time },
   };
@@ -368,7 +393,7 @@ const createNewGame = (gameType) => {
  * @param {string} gameId - The ID of the game.
  * @param {Object} game - The game object.
  */
-const saveGameToRedis = async (gameId, game) => {
+export const saveGameToRedis = async (gameId, game) => {
   await redisClient.set(
     `game:${gameId}`,
     JSON.stringify({
@@ -378,6 +403,7 @@ const saveGameToRedis = async (gameId, game) => {
       currentSubBoard: game.currentSubBoard,
       players: game.players,
       timers: game.timers,
+      timeIncrement: game.timeIncrement,
       opponentUsername: game.opponentUsername,
       isRanked: true,
     }),
@@ -390,7 +416,7 @@ const saveGameToRedis = async (gameId, game) => {
  * @param {string} gameId - The ID of the game.
  * @param {Object} game - The game object.
  */
-const emitGameState = (io, gameId, game) => {
+export const emitGameState = (io, gameId, game) => {
   io.to(gameId).emit("gameState", {
     board: game.board,
     turn: game.turn,

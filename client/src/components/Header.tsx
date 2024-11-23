@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import NavItem from "./NavItem";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { useAuth } from "../context/AuthContext";
@@ -5,9 +6,13 @@ import BurgerMenu from "./BurgerMenu";
 import Dropdown from "./Dropdown";
 import { FaUser } from "react-icons/fa6";
 import { FaCog, FaSignOutAlt } from "react-icons/fa";
-import { useState } from "react";
+import {Socket} from "socket.io-client";
 
-const Header = () => {
+interface HeaderProps {
+  socket: Socket;
+}
+
+const Header: React.FC<HeaderProps> = ({ socket }) => {
   const { currentUser, logOut, isAuth } = useAuth();
   const [currentMenu, setCurrentMenu] = useState<string>("");
 
@@ -46,6 +51,7 @@ const Header = () => {
         <div className="flex justify-center h-full items-center ml-auto">
           {/*<NavItem href="/friends" text="friends" />*/}
           <Dropdown
+            socket={socket}
             currentMenu={currentMenu}
             setCurrentMenu={setCurrentMenu}
             trigger={
@@ -74,9 +80,6 @@ const Header = () => {
               },
             ]}
           />
-          {/*<button onClick={logOut} className="h-8">*/}
-          {/*  Log Out*/}
-          {/*</button>*/}
         </div>
       ) : (
         <div className="flex justify-center gap-4 ml-auto pr-4 md:pr-0">
