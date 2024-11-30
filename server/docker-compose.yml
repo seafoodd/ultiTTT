@@ -11,25 +11,17 @@ services:
     networks:
       - ultittt-network
 
-#  db:
-#    image: mongo:5.0.3
-#    restart: unless-stopped
-#    ports:
-#      - '27017:27017'
-#    env_file:
-#      - .env
-#    volumes:
-#      - mongo-data:/data/db
-#      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-#    command: ["mongod", "--replSet", "rs0"]
-#    networks:
-#      - ultittt-network
   db:
-    image: prismagraphql/mongo-single-replica:5.0.3
+    image: mongo:5.0.3
+    restart: unless-stopped
     ports:
       - '27017:27017'
     env_file:
       - .env
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    command: ["mongod", "--replSet", "rs0"]
     networks:
       - ultittt-network
 
@@ -39,8 +31,8 @@ services:
       - '6379:6379'
     volumes:
       - redis-data:/data
-#    networks:
-#      - ultittt-network
+    networks:
+      - ultittt-network
 
   client:
     build:
