@@ -27,9 +27,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
         token: token,
       },
       path:
-        import.meta.env.VITE_ENV === "production"
-          ? "/sockets/socket.io"
-          : undefined,
+        import.meta.env.VITE_ENV === "development"
+          ? undefined
+          : "/sockets/socket.io",
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
