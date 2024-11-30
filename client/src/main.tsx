@@ -12,54 +12,22 @@ import Blog from "./pages/Blog";
 import Rules from "./pages/Rules";
 import Donate from "./pages/Donate";
 import Game from "./components/Game";
-import { io } from "socket.io-client";
 import LogIn from "./pages/LogIn";
 import SignUp from "./pages/SignUp";
-import Cookies from "universal-cookie";
 import Settings from "./pages/Settings";
-import { debugError } from "./utils/debugUtils";
 import { Root } from "react-dom/client";
 import ProtectedRoute from "./components/ProtectedRoute";
-
-export const env = import.meta.env.VITE_ENV || "production";
-
-const cookies = new Cookies();
-const token = cookies.get("token");
-
-const apiUrl = import.meta.env.VITE_API_URL;
-const socketUrl = apiUrl.endsWith("/api")
-  ? `${apiUrl.replace("/api", "")}`
-  : `${apiUrl}`;
-
-const socket = io(socketUrl, {
-  auth: {
-    token: token,
-  },
-  path: env === "production" ? "/sockets/socket.io" : undefined,
-  reconnection: true,
-  reconnectionAttempts: Infinity,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  randomizationFactor: 0.5,
-});
-
-socket.on("connect_error", (err) => {
-  console.error("Connection error:", err.message);
-});
-
-socket.on("error", (err) => {
-  debugError(err.code, err.message);
-});
+import { SocketProvider } from "./context/SocketContext";
 
 const router = createBrowserRouter(
   [
     {
       path: "",
-      element: <App socket={socket} />,
+      element: <App />,
       children: [
-        { path: "", element: <Home socket={socket} /> },
-        { path: "/:gameId", element: <Game socket={socket} /> },
-        { path: "/home", element: <Home socket={socket} /> },
+        { path: "", element: <Home /> },
+        { path: "/:gameId", element: <Game /> },
+        { path: "/home", element: <Home /> },
         { path: "/about", element: <About /> },
         { path: "/blog", element: <Blog /> },
         { path: "/rules", element: <Rules /> },
@@ -81,7 +49,7 @@ const router = createBrowserRouter(
             </ProtectedRoute>
           ),
         },
-        { path: "/@/:username", element: <Profile socket={socket} /> },
+        { path: "/@/:username", element: <Profile /> },
         { path: "/settings", element: <Settings /> },
       ],
     },
@@ -104,9 +72,11 @@ if (rootElement) {
 
   root.render(
     // <StrictMode>
-      <AuthProvider>
+    <AuthProvider>
+      <SocketProvider>
         <RouterProvider router={router} />
-      </AuthProvider>
+      </SocketProvider>
+    </AuthProvider>,
     // </StrictMode>,
   );
 }

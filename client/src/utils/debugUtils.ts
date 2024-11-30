@@ -1,4 +1,4 @@
-import { env } from "../main";
+const env = import.meta.env.VITE_ENV || "production";
 
 const debugWrapper = (fn: (...args: any[]) => void) => {
   return (...args: any[]) => {

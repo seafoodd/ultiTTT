@@ -1,6 +1,6 @@
 import React from "react";
-import { Socket } from "socket.io-client";
 import PingDisplay from "./PingDisplay";
+import { useSocket } from "../context/SocketContext";
 
 interface Option {
   name: string;
@@ -15,7 +15,6 @@ interface DropdownProps {
   currentMenu: string;
   setCurrentMenu: React.Dispatch<React.SetStateAction<string>>;
   className?: string;
-  socket: Socket;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -24,8 +23,10 @@ const Dropdown: React.FC<DropdownProps> = ({
   currentMenu,
   setCurrentMenu,
   className,
-  socket,
 }) => {
+  const env = import.meta.env.VITE_ENV || "production";
+  const { socket } = useSocket();
+
   const handleTriggerClick = () => {
     setCurrentMenu(currentMenu === "profile" ? "" : "profile");
   };
@@ -72,8 +73,10 @@ const Dropdown: React.FC<DropdownProps> = ({
             </React.Fragment>
           ))}
         </div>
-        <PingDisplay className="pl-3 py-2 border-t border-white/50" socket={socket} />
-        {/*{socket.id}*/}
+        <PingDisplay className="pl-3 py-2 border-t border-white/50" />
+        {env == "development" && (
+          <div>{socket?.id ? socket?.id : "No connection"}</div>
+        )}
       </div>
     </div>
   );

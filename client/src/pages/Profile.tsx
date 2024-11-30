@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import GameHistory from "../components/GameHistory";
-import { Socket } from "socket.io-client";
 import { GrStatusGoodSmall } from "react-icons/gr";
 import { MdLocationOn } from "react-icons/md";
 import { FaBirthdayCake } from "react-icons/fa";
@@ -9,10 +8,7 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import ChallengeModal from "../components/ChallengeModal";
 import { useAuth } from "../context/AuthContext";
-
-interface ProfileProps {
-  socket: Socket;
-}
+import {useSocket} from "../context/SocketContext";
 
 const fetchUserData = async (
   username: string,
@@ -42,7 +38,9 @@ const fetchUserData = async (
   }
 };
 
-const Profile: React.FC<ProfileProps> = ({ socket }) => {
+const Profile = () => {
+  const {socket} = useSocket();
+
   const { username } = useParams<string>();
   const [userData, setUserData] = useState<{
     username: string;
@@ -64,6 +62,8 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
   }, [currentUser]);
 
   useEffect(() => {
+    if (!socket) return;
+
     fetchUserData(username!, setUserData, setError, setLoading);
 
     socket.emit("isUserOnline", username, (online: boolean) => {
@@ -88,7 +88,7 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
       socket.off("userOnline");
       socket.off("userOffline");
     };
-  }, [username]);
+  }, [username, socket]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -141,7 +141,7 @@ const Profile: React.FC<ProfileProps> = ({ socket }) => {
               isOpen={isChallengeModalOpen}
               setIsOpen={setIsChallengeModalOpen}
             >
-              <ChallengeModal socket={socket} username={userData!.username} />
+              <ChallengeModal username={userData!.username} />
             </Modal>
             <Button
               text="Add friend"

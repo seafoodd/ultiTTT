@@ -9,14 +9,10 @@ import {
 import Board from "./Board";
 import Timer from "./Timer";
 import { useAuth } from "../context/AuthContext";
-import { Socket } from "socket.io-client";
 import { checkSubWinner } from "../utils/gameUtils";
 import Button from "./Button";
 import { BiHome } from "react-icons/bi";
-
-interface GameProps {
-  socket: Socket;
-}
+import {useSocket} from "../context/SocketContext";
 
 interface GameState {
   board: { subWinner: string; squares: string[] }[];
@@ -37,13 +33,13 @@ interface Player {
   symbol: string;
 }
 
-const Game: React.FC<GameProps> = ({ socket }) => {
+const Game = () => {
+  const {socket} = useSocket();
   const [playersJoined, setPlayersJoined] = useState<boolean>(false);
   const { gameId } = useParams();
   const location = useLocation();
   const { token } = useAuth();
   const navigate = useNavigate();
-
   const [board, setBoard] = useState<
     { subWinner: string; squares: string[] }[]
   >(
@@ -94,6 +90,8 @@ const Game: React.FC<GameProps> = ({ socket }) => {
   }, [turn, victoryMessage, moveHistory, gameFinished]);
 
   useEffect(() => {
+    if (!socket) return;
+
     socket.emit("joinGame", gameId);
 
     socket.on("challengeDeclined", () => {
@@ -104,7 +102,10 @@ const Game: React.FC<GameProps> = ({ socket }) => {
       setGameNotFound(true);
     };
 
-    const handleGameState = (gameState: GameState) => {
+    const handleGameState = (
+      gameState: GameState,
+      callback: (ack: string) => void = () => {},
+    ) => {
       setBoard(gameState.board);
       setTurn(gameState.turn);
       setMoveHistory(gameState.moveHistory);
@@ -122,6 +123,7 @@ const Game: React.FC<GameProps> = ({ socket }) => {
       if (gameState.players.length === 2) {
         setPlayersJoined(true);
       }
+      callback("acknowledged");
     };
 
     const handleGameResult = (result: any) => {
@@ -146,6 +148,8 @@ const Game: React.FC<GameProps> = ({ socket }) => {
   }, [gameId, token, socket, location]);
 
   const chooseSquare = (subBoardIndex: number, squareIndex: number) => {
+    if (!socket) return;
+
     if (turn === player && board[subBoardIndex].squares[squareIndex] === "") {
       socket.emit("makeMove", { gameId, subBoardIndex, squareIndex, player });
     }

@@ -6,16 +6,10 @@ import BurgerMenu from "./BurgerMenu";
 import Dropdown from "./Dropdown";
 import { FaUser } from "react-icons/fa6";
 import { FaCog, FaSignOutAlt } from "react-icons/fa";
-import {Socket} from "socket.io-client";
 
-interface HeaderProps {
-  socket: Socket;
-}
-
-const Header: React.FC<HeaderProps> = ({ socket }) => {
+const Header = () => {
   const { currentUser, logOut, isAuth } = useAuth();
   const [currentMenu, setCurrentMenu] = useState<string>("");
-
   return (
     <div
       className="bg-color-gray-1/80 w-full h-16 sticky left-0 top-0 flex
@@ -51,7 +45,6 @@ const Header: React.FC<HeaderProps> = ({ socket }) => {
         <div className="flex justify-center h-full items-center ml-auto">
           {/*<NavItem href="/friends" text="friends" />*/}
           <Dropdown
-            socket={socket}
             currentMenu={currentMenu}
             setCurrentMenu={setCurrentMenu}
             trigger={

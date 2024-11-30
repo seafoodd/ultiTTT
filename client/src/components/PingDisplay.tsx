@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Socket } from "socket.io-client";
 import {
   BiSignal1,
   BiSignal2,
@@ -7,9 +6,9 @@ import {
   BiSignal4,
   BiSignal5,
 } from "react-icons/bi";
+import { useSocket } from "../context/SocketContext";
 
 interface PingDisplayProps {
-  socket: Socket;
   className?: string;
 }
 
@@ -27,19 +26,37 @@ const getSignalIcon = (ping: number) => {
   }
 };
 
-const PingDisplay: React.FC<PingDisplayProps> = ({ socket, className }) => {
+const PingDisplay: React.FC<PingDisplayProps> = ({ className }) => {
   const [ping, setPing] = useState<number | null>(null);
+  const { socket } = useSocket();
 
   useEffect(() => {
     const handlePing = () => {
+      if (!socket) return;
+
       const start = Date.now();
-      socket.emit("ping", () => {
+      let timeoutId: NodeJS.Timeout;
+
+      const handleResponse = (error: any) => {
+        clearTimeout(timeoutId);
+        if (error) {
+          console.log("ping error");
+          setPing(null);
+          return;
+        }
         const latency = Date.now() - start;
         setPing(Math.max(latency, 1));
-      });
+      };
+
+      socket.emit("ping", handleResponse);
+
+      timeoutId = setTimeout(() => {
+        console.log("ping timeout");
+        setPing(null);
+      }, 5000); // 5 seconds timeout
     };
 
-    const interval = setInterval(handlePing, 1000);
+    const interval = setInterval(handlePing, 2000);
 
     return () => clearInterval(interval);
   }, [socket]);
@@ -48,7 +65,11 @@ const PingDisplay: React.FC<PingDisplayProps> = ({ socket, className }) => {
     <div
       className={`${className ? className : ""} flex w-full h-full gap-1.5 items-center`}
     >
-      {ping ? getSignalIcon(ping) : <BiSignal1 size={24} className="fill-red-800" />}
+      {ping ? (
+        getSignalIcon(ping)
+      ) : (
+        <BiSignal1 size={24} className="fill-red-800" />
+      )}
       <span>
         <span className="font-semibold">{ping || "-"}</span> ms
       </span>

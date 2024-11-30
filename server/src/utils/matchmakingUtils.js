@@ -17,14 +17,18 @@ class Player {
  * If the player is already in the queue, updates their ID.
  */
 const addPlayerToQueue = async (player) => {
+  console.log(`Adding player to queue: ${JSON.stringify(player)}`);
   const players = await redisClient.zrange(
     `matchmaking:${player.gameType}`,
     0,
     -1,
   );
+  console.log(`Current players in queue: ${players.length}`);
+
   for (const existingPlayer of players) {
     const parsedPlayer = JSON.parse(existingPlayer);
     if (parsedPlayer.username === player.username) {
+      console.log(`Player already in queue, updating ID: ${parsedPlayer.username}`);
       await redisClient.zrem(`matchmaking:${player.gameType}`, existingPlayer);
       parsedPlayer.id = player.id;
       await redisClient.zadd(
@@ -32,16 +36,18 @@ const addPlayerToQueue = async (player) => {
         parsedPlayer.rank,
         JSON.stringify(parsedPlayer),
       );
+      console.log(`Updated player in queue: ${JSON.stringify(parsedPlayer)}`);
       return;
     }
   }
+
   await redisClient.zadd(
     `matchmaking:${player.gameType}`,
     player.rank,
     JSON.stringify(player),
   );
+  console.log(`Added new player to queue: ${JSON.stringify(player)}`);
 };
-
 /**
  * Removes a player from the matchmaking queue.
  */

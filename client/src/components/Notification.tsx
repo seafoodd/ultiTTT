@@ -1,22 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Socket } from "socket.io-client";
-import {CgClose} from "react-icons/cg";
+import { CgClose } from "react-icons/cg";
+import { useSocket } from "../context/SocketContext";
 
-interface NotificationProps {
-  socket: Socket;
-}
-
-const Notification: React.FC<NotificationProps> = ({ socket }) => {
+const Notification = () => {
   const [challenge, setChallenge] = useState<{
     from: string;
     gameId: string;
     gameType: string;
   } | null>(null);
 
+  const { socket } = useSocket();
+
   useEffect(() => {
-    socket.on(
-      "receiveChallenge",
-      ({
+    if (!socket) return;
+
+    const receiveChallengeListener = (
+      {
         from,
         gameId,
         gameType,
@@ -24,11 +23,14 @@ const Notification: React.FC<NotificationProps> = ({ socket }) => {
         from: string;
         gameId: string;
         gameType: string;
-      }) => {
-        setChallenge({ from, gameId, gameType });
-        console.log("challenge", from, gameId, gameType);
       },
-    );
+      callback: (ack: string) => void,
+    ) => {
+      setChallenge({ from, gameId, gameType });
+      console.log("challenge", from, gameId, gameType);
+      callback("acknowledged");
+    };
+    socket.on("receiveChallenge", receiveChallengeListener);
 
     socket.on(
       "challengeResponse",
@@ -42,22 +44,17 @@ const Notification: React.FC<NotificationProps> = ({ socket }) => {
     );
 
     return () => {
-      socket.off("receiveChallenge");
+      socket.off("receiveChallenge", receiveChallengeListener);
       socket.off("challengeResponse");
-      socket.off("challengeDeclined");
     };
   }, [socket]);
 
   const respondChallenge = (accepted: boolean) => {
-    if (challenge) {
+    if (challenge && socket) {
       if (accepted) {
         window.location.href = `/${challenge.gameId}`;
       } else {
-        socket.emit(
-          "declineChallenge",
-          challenge.gameId,
-          challenge.from,
-        );
+        socket.emit("declineChallenge", challenge.gameId, challenge.from);
       }
       setChallenge(null);
     }
@@ -67,7 +64,7 @@ const Notification: React.FC<NotificationProps> = ({ socket }) => {
 
   return (
     <div className="fixed rounded-xl bottom-6 right-6 z-50 bg-color-blue-2">
-      <div className='relative py-4 px-6'>
+      <div className="relative py-4 px-6">
         <p className="font-semibold">
           {challenge.from} challenged you to a {challenge.gameType} minute game!
         </p>
