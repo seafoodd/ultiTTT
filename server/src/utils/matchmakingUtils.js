@@ -28,7 +28,9 @@ const addPlayerToQueue = async (player) => {
   for (const existingPlayer of players) {
     const parsedPlayer = JSON.parse(existingPlayer);
     if (parsedPlayer.username === player.username) {
-      console.log(`Player already in queue, updating ID: ${parsedPlayer.username}`);
+      console.log(
+        `Player already in queue, updating ID: ${parsedPlayer.username}`,
+      );
       await redisClient.zrem(`matchmaking:${player.gameType}`, existingPlayer);
       parsedPlayer.id = player.id;
       await redisClient.zadd(
@@ -54,14 +56,36 @@ const addPlayerToQueue = async (player) => {
 const removePlayerFromQueue = async (playerId, gameType) => {
   const players = await redisClient.zrange(`matchmaking:${gameType}`, 0, -1);
   console.log(await redisClient.zrange(`matchmaking:${gameType}`, 0, -1));
+
   for (const player of players) {
     const parsedPlayer = JSON.parse(player);
-    if (parsedPlayer.id === playerId) {
+    if (parsedPlayer.id !== playerId) continue;
+
+    await redisClient.zrem(`matchmaking:${gameType}`, player);
+    break;
+  }
+
+  console.log(await redisClient.zrange(`matchmaking:${gameType}`, 0, -1));
+};
+
+/**
+ * Removes a player from all the matchmaking queues
+ * without knowing the gameType.
+ */
+const removePlayerFromAllQueues = async (playerId) => {
+  const gameTypes = ["0", "5", "10", "15"];
+
+  for (const gameType of gameTypes) {
+    const players = await redisClient.zrange(`matchmaking:${gameType}`, 0, -1);
+    for (const player of players) {
+      const parsedPlayer = JSON.parse(player);
+      if (parsedPlayer.id !== playerId) continue;
+
       await redisClient.zrem(`matchmaking:${gameType}`, player);
+      console.log(`Player ${playerId} removed from "${gameType}" queue`);
       break;
     }
   }
-  console.log(await redisClient.zrange(`matchmaking:${gameType}`, 0, -1));
 };
 
 /**
@@ -109,4 +133,10 @@ const findMatch = async (
   return null;
 };
 
-export { Player, addPlayerToQueue, removePlayerFromQueue, findMatch };
+export {
+  Player,
+  addPlayerToQueue,
+  removePlayerFromQueue,
+  findMatch,
+  removePlayerFromAllQueues,
+};

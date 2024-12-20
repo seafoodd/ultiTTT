@@ -6,6 +6,7 @@ import {
   findMatch,
   Player,
   removePlayerFromQueue,
+  removePlayerFromAllQueues,
 } from "./utils/matchmakingUtils.js";
 import { assignPlayerSymbols, isValidMove } from "./utils/gameUtils.js";
 import { debugEmitError, debugLog } from "./utils/debugUtils.js";
@@ -78,7 +79,7 @@ const handleConnect = async (socket, user) => {
       const existingSocket = io.sockets.sockets.get(existingSocketId);
       if (existingSocket) {
         existingSocket.disconnect(true);
-        console.log("disconnected socket with id", existingSocketId)
+        console.log("disconnected socket with id", existingSocketId);
       }
     }
 
@@ -174,26 +175,27 @@ const handleDeclineChallenge = async (socket, user, gameId, fromUsername) => {
  * @param {Object} socket - The socket object.
  */
 const handleDisconnect = async (socket) => {
-  if (socket.username) {
-    const redisId = await redisClient.get(`user:${socket.username}`)
-    if (redisId === socket.id) {
-      await redisClient.srem("onlineUsers", socket.username);
-      await redisClient.del(`user:${socket.username}`);
-      console.log(socket.username, "has disconnected with id", socket.id, redisId);
-      io.emit("userOffline", socket.username);
-    }
+  if (!socket.username) return;
 
-      // console.log(socket.username, "has disconnected with id", socket.id, redisId);
-    // await redisClient.srem("onlineUsers", socket.username);
-    // await redisClient.del(`user:${socket.username}`);
-    // const fromSocketId = await redisClient.get(`user:${socket.username}`);
-    // console.log(fromSocketId)
-    // for (const gameId of socket.gameRequests) {
-    //   await redisClient.del(`game:${gameId}`);
-    //   console.log('del 2')
-    // console.log("deleted the game with id:", gameId);
-    // }
-    // io.emit("userOffline", socket.username);
+  try {
+    const redisId = await redisClient.get(`user:${socket.username}`);
+    if (redisId !== socket.id) return;
+
+    await redisClient.srem("onlineUsers", socket.username);
+    await redisClient.del(`user:${socket.username}`);
+    await removePlayerFromAllQueues(socket.id);
+
+    console.log(
+      socket.username,
+      "has disconnected with id",
+      socket.id,
+      redisId,
+    );
+
+    io.emit("userOffline", socket.username);
+  } catch (e) {
+    console.error("handleDisconnect error:", e);
+    socket.emit("error", e.message);
   }
 };
 
@@ -322,55 +324,6 @@ const handleSearchMatch = async (socket, user, gameType) => {
     socket.emit("error", e.message);
   }
 };
-// const handleSearchMatch = async (socket, user, gameType) => {
-//   try {
-//     const player = new Player(socket.id, user.username, user.elo, gameType);
-//     await addPlayerToQueue(player);
-//
-//     const match = await findMatch(player, gameType);
-//     if (match) {
-//       const [player1, player2] = match;
-//       const gameId = Date.now().toString();
-//       const existingGame = JSON.parse(await redisClient.get(`game:${gameId}`));
-//
-//       if (existingGame) {
-//         socket.emit("error", "The game already exists");
-//         return;
-//       }
-//
-//       const game = createNewGame(gameType);
-//       await saveGameToRedis(gameId, game);
-//
-//       for (const username of [player1.username, player2.username]) {
-//         await addNewPlayerToGame(socket, gameId, username, game);
-//       }
-//
-//       assignPlayerSymbols(game);
-//       await startTimer(io, gameId, redisClient);
-//       await saveGameToRedis(gameId, game);
-//
-//       for (const id of [player1.id, player2.id]) {
-//         if (io.sockets.sockets.get(id)) {
-//           console.log("emitted to player", id);
-//           io.timeout(1000).to(id).emit("matchFound", gameId, (error, responses) => {
-//             if (error) {
-//               console.error(`Failed to emit to player ${id}:`, error);
-//             } else {
-//               console.log(`Acknowledgment received from player ${id}:`, responses);
-//             }
-//           });
-//         } else {
-//           console.error(`Socket not connected for player ${id}`);
-//         }
-//       }
-//
-//       emitGameState(io, gameId, game);
-//     }
-//   } catch (e) {
-//     console.error("searchMatch error:", e);
-//     socket.emit("error", e.message);
-//   }
-// };
 
 /**
  * Handle creating a friendly game.
