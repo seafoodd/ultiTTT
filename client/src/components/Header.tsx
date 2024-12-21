@@ -37,15 +37,20 @@ const Header = () => {
             className="hover:bg-color-blue-2/80 px-4"
           />
         </div>
+
         <NavItem
           href="/donate"
           text="DONATE"
-          className="text-yellow-500 hover:text-yellow-100 px-4"
+          className={`text-yellow-500 ${currentMenu === "search" ? "hidden lg:flex" : ""} hover:text-yellow-100 px-4`}
         />
       </div>
 
       <div className="ml-auto flex justify-center items-center h-full">
-        <HeaderSearch className="hidden lg:flex"/>
+        <HeaderSearch
+          className="flex"
+          currentMenu={currentMenu}
+          setCurrentMenu={setCurrentMenu}
+        />
         {isAuth ? (
           <div className="flex justify-center h-full items-center">
             {/*<NavItem href="/friends" text="friends" />*/}
@@ -54,7 +59,9 @@ const Header = () => {
               setCurrentMenu={setCurrentMenu}
               trigger={
                 <div className="flex justify-center items-center gap-1 cursor-pointer h-full">
-                  <p className="font-medium truncate max-w-24">{currentUser?.username}</p>
+                  <p className="font-medium truncate max-w-24">
+                    {currentUser?.username}
+                  </p>
                   <IoPersonCircleOutline size={32} />
                 </div>
               }
