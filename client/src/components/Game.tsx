@@ -12,7 +12,7 @@ import { useAuth } from "../context/AuthContext";
 import { checkSubWinner } from "../utils/gameUtils";
 import Button from "./Button";
 import { BiHome } from "react-icons/bi";
-import {useSocket} from "../context/SocketContext";
+import { useSocket } from "../context/SocketContext";
 
 interface GameState {
   board: { subWinner: string; squares: string[] }[];
@@ -34,7 +34,7 @@ interface Player {
 }
 
 const Game = () => {
-  const {socket} = useSocket();
+  const { socket } = useSocket();
   const [playersJoined, setPlayersJoined] = useState<boolean>(false);
   const { gameId } = useParams();
   const location = useLocation();
@@ -195,8 +195,12 @@ const Game = () => {
     return isDeclined ? (
       <div className="mt-8 flex flex-col justify-center items-center">
         <h1 className="font-semibold text-xl">
-          {opponentUsername ? opponentUsername : "opponent"} declined the
-          challenge
+          {opponentUsername ? (
+            <div className="max-w-40 truncate">opponentUsername</div>
+          ) : (
+            "opponent"
+          )}{" "}
+          declined the challenge
         </h1>
         <Button
           text="Home"
@@ -208,8 +212,13 @@ const Game = () => {
     ) : (
       <div>
         <h1>
-          Waiting for {opponentUsername ? opponentUsername : "opponent"} to
-          join...
+          Waiting for{" "}
+          {opponentUsername ? (
+            <div className="max-w-40 truncate">{opponentUsername}</div>
+          ) : (
+            "opponent"
+          )}{" "}
+          to join...
         </h1>
       </div>
     );
@@ -218,7 +227,7 @@ const Game = () => {
   return (
     <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-4 md:w-[640px] lg:h-[640px]">
       <div className="flex lg:hidden items-center justify-between w-full px-4">
-        <div>{players[1].username}</div>
+        <div className="max-w-40 truncate">{players[1].username}</div>
         <Timer ms={player === "X" ? timers.O : timers.X} isCompact />
       </div>
       <div className="w-full">
@@ -235,7 +244,7 @@ const Game = () => {
         />
       </div>
       <div className="flex lg:hidden items-center justify-between w-full px-4">
-        <div>{players[0].username}</div>
+        <div className="max-w-40 truncate">{players[0].username}</div>
         <Timer ms={player === "X" ? timers.X : timers.O} isCompact />
       </div>
 
@@ -248,7 +257,7 @@ const Game = () => {
         </div>
         <div className="flex flex-col w-full rounded-r-md bg-gray-800 lg:h-[600px]">
           <div className="hidden lg:flex border-b px-4 items-center font-medium">
-            {players[1].username}
+            <div className="max-w-40 truncate">{players[1].username}</div>
           </div>
           <div className="h-full overflow-x-scroll overflow-y-hidden lg:overflow-y-scroll lg:overflow-x-hidden">
             <div
@@ -337,7 +346,7 @@ const Game = () => {
             </button>
           </div>
           <div className="hidden lg:flex border-t px-4 items-center font-medium">
-            {players[0].username}
+            <div className="max-w-40 truncate">{players[0].username}</div>
           </div>
         </div>
         <Timer

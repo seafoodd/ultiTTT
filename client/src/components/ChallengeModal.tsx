@@ -29,7 +29,7 @@ const ChallengeModal: React.FC<ChallengeModalProps> = ({
 
   return (
     <div className="flex flex-col items-center">
-      <h1 className="font-bold">Play against {username}</h1>
+      <h1 className="font-bold truncate max-w-64">Play against {username}</h1>
       <p className="mt-20 font-semibold">Minutes per player:</p>
       <div className="flex gap-3 justify-center items-center mt-4">
         <button
