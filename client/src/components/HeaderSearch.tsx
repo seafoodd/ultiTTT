@@ -3,12 +3,19 @@ import { BiSearch } from "react-icons/bi";
 
 interface HeaderSearchProps {
   className?: string;
+  currentMenu: string;
+  setCurrentMenu: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const HeaderSearch: React.FC<HeaderSearchProps> = ({ className }) => {
+const HeaderSearch: React.FC<HeaderSearchProps> = ({
+  className,
+  currentMenu,
+  setCurrentMenu,
+}) => {
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
-  const [searchOpen, setSearchOpen] = useState<boolean>(false);
+  const [query, setQuery] = useState<string>("");
   const searchCache = useRef<{ [key: string]: any[] }>({}).current;
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const debounce = (func: Function, delay: number) => {
     let timeoutId: NodeJS.Timeout;
@@ -32,7 +39,7 @@ const HeaderSearch: React.FC<HeaderSearchProps> = ({ className }) => {
       );
       if (!response.ok) {
         console.error("Network response was not ok");
-        return
+        return;
       }
       const data = await response.json();
       searchCache[query] = data;
@@ -46,6 +53,8 @@ const HeaderSearch: React.FC<HeaderSearchProps> = ({ className }) => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
+    setQuery(query);
+
     if (searchCache[query]) {
       setSearchResults(searchCache[query]);
       return;
@@ -53,45 +62,67 @@ const HeaderSearch: React.FC<HeaderSearchProps> = ({ className }) => {
     debouncedHandleSearch(query);
   };
 
+  const toggleSearch = () => {
+    if (currentMenu === "search") {
+      setCurrentMenu("");
+      return;
+    }
+
+    setCurrentMenu("search");
+    inputRef.current?.focus();
+  };
+
+  const handleBlur = () => {
+    setQuery("");
+    setSearchResults(null);
+  };
+
   return (
     <div
-      className={`${className ? className : ""} flex items-center justify-center`}
+      className={`${className ? className : ""} w-6 items-center justify-center select-none`}
     >
       <button
-        className={`transition-transform z-50 pr-1 ${searchOpen ? "" : "translate-x-48"}`}
-        onClick={() => setSearchOpen(!searchOpen)}
+        className={`transition-transform z-50 pr-1 ${currentMenu === "search" ? "-translate-x-8 sm:-translate-x-24" : "translate-x-24"}`}
+        onClick={toggleSearch}
       >
         <BiSearch className="mt-1" size={22} />
       </button>
-      <div className={`transition-transform relative`}>
+      <div
+        className={`transition-transform relative ${currentMenu === "search" ? "-translate-x-8 sm:-translate-x-24" : "translate-x-16 text-transparent"}`}
+      >
         <input
-          className={`bg-transparent w-48 h-7 px-2 py-3 rounded-md outline-none transition-transform ${searchOpen ? "" : "translate-x-52"} origin-right`}
+          ref={inputRef}
+          className={`bg-transparent w-48 h-7 px-2 py-3 rounded-md outline-none origin-right ${currentMenu !== "search" ? "placeholder-transparent" : ""}`}
           placeholder="Search"
+          value={query}
           onChange={handleInputChange}
+          onBlur={handleBlur}
         />
-        <div className="mt-1 absolute flex-col w-full rounded-md overflow-hidden">
-          {searchResults !== null && searchResults.length > 0 ? (
-            searchResults.map((result) => (
-              <div
-                key={result.username}
-                className="flex w-full duration-75 transition-colors bg-color-gray-2 font-medium hover:bg-color-gray-3"
-              >
-                <a
-                  className="w-full h-full py-1 flex items-center justify-start px-2"
-                  href={`/@/${result.username}`}
+        {currentMenu === "search" && (
+          <div className="mt-1 absolute flex-col w-full z-50 rounded-md overflow-hidden">
+            {searchResults !== null && searchResults.length > 0 ? (
+              searchResults.map((result) => (
+                <div
+                  key={result.username}
+                  className="flex w-full duration-75 transition-colors bg-color-gray-2 font-medium hover:bg-color-gray-3"
                 >
-                  <div className="max-w-32 truncate">{result.username}</div>
-                </a>
+                  <a
+                    className="w-full h-full py-1 flex items-center justify-start px-2"
+                    href={`/@/${result.username}`}
+                  >
+                    <div className="max-w-32 truncate">{result.username}</div>
+                  </a>
+                </div>
+              ))
+            ) : (
+              <div
+                className={`${searchResults === null ? "hidden" : "flex"} bg-color-gray-2 w-full items-center justify-center`}
+              >
+                No results
               </div>
-            ))
-          ) : (
-            <div
-              className={`${searchResults === null ? "hidden" : "flex"} bg-color-gray-3/40 w-full items-center justify-center text-color-gray-3`}
-            >
-              No results
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
