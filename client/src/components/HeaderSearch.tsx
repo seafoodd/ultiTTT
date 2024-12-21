@@ -109,6 +109,7 @@ const HeaderSearch: React.FC<HeaderSearchProps> = ({
                   <a
                     className="w-full h-full py-1 flex items-center justify-start px-2"
                     href={`/@/${result.username}`}
+                    onMouseDown={(e) => e.preventDefault()}
                   >
                     <div className="max-w-32 truncate">{result.username}</div>
                   </a>
