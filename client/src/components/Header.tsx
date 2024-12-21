@@ -6,13 +6,15 @@ import BurgerMenu from "./BurgerMenu";
 import Dropdown from "./Dropdown";
 import { FaUser } from "react-icons/fa6";
 import { FaCog, FaSignOutAlt } from "react-icons/fa";
+import HeaderSearch from "./HeaderSearch";
 
 const Header = () => {
   const { currentUser, logOut, isAuth } = useAuth();
   const [currentMenu, setCurrentMenu] = useState<string>("");
+
   return (
     <div
-      className="bg-color-gray-1/80 w-full h-16 sticky left-0 top-0 flex
+      className="bg-color-gray-1 w-full h-16 sticky left-0 top-0 flex
       items-center justify-center md:px-16 lg:px-32 xl:px-48 z-40
       backdrop-blur-sm select-none"
     >
@@ -41,53 +43,57 @@ const Header = () => {
           className="text-yellow-500 hover:text-yellow-100 px-4"
         />
       </div>
-      {isAuth ? (
-        <div className="flex justify-center h-full items-center ml-auto">
-          {/*<NavItem href="/friends" text="friends" />*/}
-          <Dropdown
-            currentMenu={currentMenu}
-            setCurrentMenu={setCurrentMenu}
-            trigger={
-              <div className="flex justify-center items-center gap-1 cursor-pointer h-full">
-                <p className="font-medium">{currentUser?.username}</p>
-                <IoPersonCircleOutline size={32} />
-              </div>
-            }
-            options={[
-              {
-                name: "Profile",
-                icon: <FaUser />,
-                href: `/@/${currentUser?.username}`,
-              },
-              {
-                name: "Settings",
-                icon: <FaCog />,
-                href: "/settings",
-              },
-              {
-                name: "Log Out",
-                icon: <FaSignOutAlt />,
-                onClick: () => {
-                  logOut();
+
+      <div className="ml-auto flex justify-center items-center h-full">
+        <HeaderSearch className="hidden lg:flex"/>
+        {isAuth ? (
+          <div className="flex justify-center h-full items-center">
+            {/*<NavItem href="/friends" text="friends" />*/}
+            <Dropdown
+              currentMenu={currentMenu}
+              setCurrentMenu={setCurrentMenu}
+              trigger={
+                <div className="flex justify-center items-center gap-1 cursor-pointer h-full">
+                  <p className="font-medium truncate max-w-24">{currentUser?.username}</p>
+                  <IoPersonCircleOutline size={32} />
+                </div>
+              }
+              options={[
+                {
+                  name: "Profile",
+                  icon: <FaUser />,
+                  href: `/@/${currentUser?.username}`,
                 },
-              },
-            ]}
-          />
-        </div>
-      ) : (
-        <div className="flex justify-center gap-4 ml-auto pr-4 md:pr-0">
-          <NavItem
-            href="/login"
-            text="Log In"
-            className="text-blue-500 hover:text-blue-400 text-lg"
-          />
-          <NavItem
-            href="/signup"
-            text="Sign Up"
-            className="text-gray-400 hover:text-gray-300 text-lg"
-          />
-        </div>
-      )}
+                {
+                  name: "Settings",
+                  icon: <FaCog />,
+                  href: "/settings",
+                },
+                {
+                  name: "Log Out",
+                  icon: <FaSignOutAlt />,
+                  onClick: () => {
+                    logOut();
+                  },
+                },
+              ]}
+            />
+          </div>
+        ) : (
+          <div className="flex justify-center gap-4 pr-4 md:pr-0">
+            <NavItem
+              href="/login"
+              text="Log In"
+              className="text-blue-500 hover:text-blue-400 text-lg"
+            />
+            <NavItem
+              href="/signup"
+              text="Sign Up"
+              className="text-gray-400 hover:text-gray-300 text-lg"
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
