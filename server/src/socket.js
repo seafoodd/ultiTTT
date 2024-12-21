@@ -73,22 +73,22 @@ const initializeSocket = () => {
  */
 const handleConnect = async (socket, user) => {
   try {
-    const existingSocketId = await redisClient.get(`user:${user.username}`);
+    const existingSocketIds = await redisClient.smembers(`user:${user.username}`);
 
-    if (existingSocketId) {
-      const existingSocket = io.sockets.sockets.get(existingSocketId);
-      if (existingSocket) {
-        existingSocket.disconnect(true);
-        console.log("disconnected socket with id", existingSocketId);
-      }
+    if (existingSocketIds) {
+      existingSocketIds.forEach((socketId) => {
+        const existingSocket = io.sockets.sockets.get(socketId);
+        if (existingSocket) {
+          console.log("User already connected with socket id:", socketId);
+        }
+      });
     }
 
     await redisClient.sadd("onlineUsers", user.username);
-    await redisClient.set(`user:${user.username}`, socket.id);
+    await redisClient.sadd(`user:${user.username}`, socket.id);
     socket.username = user.username;
     socket.gameRequests = new Set();
-    const redisId = await redisClient.get(`user:${user.username}`);
-    console.log(socket.username, "has connected with id", socket.id, redisId);
+    console.log(socket.username, "has connected with id", socket.id);
     io.emit("userOnline", user.username);
   } catch (e) {
     console.error("Connection error:", e);
@@ -114,8 +114,8 @@ const handleSendChallenge = async (socket, user, gameType, username) => {
       return;
     }
 
-    const toSocketId = await redisClient.get(`user:${username}`);
-    if (!toSocketId) {
+    const toSocketIds = await redisClient.smembers(`user:${username}`);
+    if (!toSocketIds || toSocketIds.length === 0) {
       socket.emit("error", "The user is offline");
       return;
     }
@@ -127,13 +127,15 @@ const handleSendChallenge = async (socket, user, gameType, username) => {
     await saveGameToRedis(gameId, game);
     socket.gameRequests.add(gameId);
 
-    const playerSocket = io.sockets.sockets.get(toSocketId);
-    console.log(`toSocketId: ${toSocketId}`);
-    // const playerSocket = io.to(toSocketId);
-    emitWithRetry(playerSocket, "receiveChallenge", {
-      from: user.username,
-      gameId,
-      gameType,
+    toSocketIds.forEach((toSocketId) => {
+      const playerSocket = io.sockets.sockets.get(toSocketId);
+      if (playerSocket) {
+        emitWithRetry(playerSocket, "receiveChallenge", {
+          from: user.username,
+          gameId,
+          gameType,
+        });
+      }
     });
 
     io.to(socket.id).emit("challengeCreated", gameId);
@@ -178,21 +180,25 @@ const handleDisconnect = async (socket) => {
   if (!socket.username) return;
 
   try {
-    const redisId = await redisClient.get(`user:${socket.username}`);
-    if (redisId !== socket.id) return;
+    const socketIds = await redisClient.smembers(`user:${socket.username}`);
+    if (!socketIds.includes(socket.id)) return;
 
-    await redisClient.srem("onlineUsers", socket.username);
-    await redisClient.del(`user:${socket.username}`);
-    await removePlayerFromAllQueues(socket.id);
+    await redisClient.srem(`user:${socket.username}`, socket.id);
+    const remainingSocketIds = await redisClient.smembers(`user:${socket.username}`);
+
+    if (remainingSocketIds.length === 0) {
+      await redisClient.srem("onlineUsers", socket.username);
+      await redisClient.del(`user:${socket.username}`);
+      io.emit("userOffline", socket.username);
+      await removePlayerFromAllQueues(socket.id);
+    }
+
 
     console.log(
       socket.username,
       "has disconnected with id",
       socket.id,
-      redisId,
     );
-
-    io.emit("userOffline", socket.username);
   } catch (e) {
     console.error("handleDisconnect error:", e);
     socket.emit("error", e.message);
@@ -205,8 +211,8 @@ const handleDisconnect = async (socket) => {
  * @param {function} callback - The callback function to return the result.
  */
 const handleIsUserOnline = async (username, callback) => {
-  const isOnline = await redisClient.sismember("onlineUsers", username);
-  callback(isOnline);
+  const isOnline = await redisClient.exists(`user:${username}`);
+  callback(isOnline === 1);
 };
 
 /**
