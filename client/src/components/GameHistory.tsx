@@ -123,7 +123,8 @@ const PlayerInfo: React.FC<{
   return (
     <div className="flex flex-col justify-center items-center">
       <a
-        className={`text-xl font-bold ${player ? "" : "text-white/70 pointer-events-none"}`}
+        className={`text-xl font-bold ${player ? "" : "text-white/70 pointer-events-none"}
+        max-w-32 truncate`}
         href={`/@/${player?.username}`}
       >
         {player ? player.username : "deleted"}

@@ -110,7 +110,7 @@ const Profile = () => {
             <GrStatusGoodSmall
               className={`mt-1.5 ${isOnline ? "text-color-green-1" : "stroke-color-gray-4 stroke-2 p-0.5 fill-transparent"}`}
             />
-            <p className="font-semibold">{userData!.username}</p>
+            <p className="font-semibold truncate max-w-40">{userData!.username}</p>
           </div>
           <p className="font-medium">Elo: {userData!.elo}</p>
         </div>
