@@ -87,7 +87,7 @@ const Header = () => {
             />
           </div>
         ) : (
-          <div className="flex justify-center gap-4 pr-4 md:pr-0">
+          <div className="flex justify-center gap-4 pr-4 md:pr-0 z-50">
             <NavItem
               href="/login"
               text="Log In"
