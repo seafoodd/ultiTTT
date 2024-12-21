@@ -21,11 +21,17 @@ export const register = async (req, res) => {
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
+  if (!emailRegex.test(email) || email.length > 254) {
     return res.status(400).json({ error: "Invalid email" });
   }
 
   const usernameRegex = /^[a-zA-Z0-9_]+$/; // (alphanumeric and underscores only)
+  const maxUsernameLength = 32
+  if (username.length > maxUsernameLength) {
+    return res.status(400).json({
+      error: `Username must not be longer than ${maxUsernameLength} characters`,
+    });
+  }
   if (!usernameRegex.test(username)) {
     return res.status(400).json({
       error: "Username must not contain spaces or special characters",

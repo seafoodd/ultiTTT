@@ -42,7 +42,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     >
       <div
         onClick={handleTriggerClick}
-        className={`h-full px-3 transition-colors ${currentMenu === "profile" ? "bg-color-gray-2/100" : ""}`}
+        className={`h-full px-3 transition-colors ${currentMenu === "profile" ? "bg-color-gray-2" : "bg-color-gray-1"}`}
       >
         {trigger}
       </div>

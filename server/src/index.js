@@ -7,6 +7,7 @@ import { initializeSocket } from "./socket.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import Redis from "ioredis";
+import searchRoutes from "./routes/searchRoutes.js";
 
 configDotenv();
 
@@ -33,6 +34,7 @@ app.use(express.json());
 
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/search", searchRoutes)
 // app.use("/game", gameRoutes);
 
 initializeSocket();
