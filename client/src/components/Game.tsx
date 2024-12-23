@@ -160,7 +160,7 @@ const Game = () => {
       return;
     }
 
-    socket.emit("makeMove", { gameId, subBoardIndex, squareIndex, player: symbol });
+    socket.emit("makeMove", { gameId, subBoardIndex, squareIndex });
   };
 
   const getBoardAtMove = (moveIndex: number) => {

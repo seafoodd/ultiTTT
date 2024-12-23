@@ -57,8 +57,8 @@ const initializeSocket = () => {
     socket.on("createFriendlyGame", (gameType) =>
       handleCreateFriendlyGame(socket, user, gameType),
     );
-    socket.on("makeMove", ({ gameId, subBoardIndex, squareIndex, player }) =>
-      handleMakeMove(socket, gameId, subBoardIndex, squareIndex, player),
+    socket.on("makeMove", ({ gameId, subBoardIndex, squareIndex }) =>
+      handleMakeMove(socket, gameId, subBoardIndex, squareIndex, user.username),
     );
     socket.on("ping", (callback) => {
       callback();
@@ -328,24 +328,28 @@ const handleCreateFriendlyGame = async (socket, user, gameType) => {
  * @param {string} gameId - The ID of the game.
  * @param {number} subBoardIndex - The index of the sub-board.
  * @param {number} squareIndex - The index of the square.
- * @param {string} player - The player making the move.
+ * @param {string} username - The player making the move.
  */
 const handleMakeMove = async (
   socket,
   gameId,
   subBoardIndex,
   squareIndex,
-  player,
+  username,
 ) => {
   try {
     let game = JSON.parse(await redisClient.get(`game:${gameId}`));
-    if (game && isValidMove(game, subBoardIndex, squareIndex, player)) {
+    const player = game.players.find(p => p.username === username)
+    if(!player) return;
+    const symbol = player.symbol
+    console.log(username, player, symbol)
+    if (game && isValidMove(game, subBoardIndex, squareIndex, symbol)) {
       await handleMove(
         io,
         gameId,
         subBoardIndex,
         squareIndex,
-        player,
+        symbol,
         redisClient,
       );
     }
