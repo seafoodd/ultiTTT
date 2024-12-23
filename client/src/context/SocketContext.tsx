@@ -24,7 +24,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const newSocket = io(socketUrl, {
       auth: {
-        token: token,
+        token: token || null,
       },
       path:
         import.meta.env.VITE_ENV === "development"

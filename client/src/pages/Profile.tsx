@@ -39,8 +39,8 @@ const fetchUserData = async (
 };
 
 const Profile = () => {
-  const {socket} = useSocket();
-
+  const { socket } = useSocket();
+  const { isAuth } = useAuth()
   const { username } = useParams<string>();
   const [userData, setUserData] = useState<{
     username: string;
@@ -135,7 +135,7 @@ const Profile = () => {
               text="Challenge"
               onClick={() => setIsChallengeModalOpen(isOnline && !isOwner)}
               className={`bg-color-blue-2 disabled:bg-color-gray-3 px-4 py-3`}
-              disabled={!isOnline}
+              disabled={!isOnline || !isAuth}
             />
             <Modal
               isOpen={isChallengeModalOpen}
