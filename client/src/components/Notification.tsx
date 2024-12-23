@@ -66,7 +66,8 @@ const Notification = () => {
     <div className="fixed rounded-xl bottom-6 right-6 z-50 bg-color-blue-2">
       <div className="relative py-4 px-6">
         <div className="font-semibold flex">
-          <div className='max-w-24 truncate'>{challenge.from}</div> challenged you to a {challenge.gameType} minute game!
+          <span className="max-w-24 truncate mr-1">{challenge.from}</span>
+          challenged you to a {challenge.gameType} minute game!
         </div>
         <div className="flex font-bold justify-center items-center gap-8">
           <button onClick={() => respondChallenge(true)}>Accept</button>

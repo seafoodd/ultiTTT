@@ -195,8 +195,8 @@ const Game = () => {
     return isDeclined ? (
       <div className="mt-8 flex flex-col justify-center items-center">
         <h1 className="font-semibold text-xl">
-          {opponentUsername ? (
-            <div className="max-w-40 truncate">opponentUsername</div>
+          {invitedUsername ? (
+            <span className="max-w-40 truncate">{invitedUsername}</span>
           ) : (
             "opponent"
           )}{" "}
@@ -211,10 +211,12 @@ const Game = () => {
       </div>
     ) : (
       <div>
-        <h1>
+        <h1 className="flex">
           Waiting for{" "}
-          {opponentUsername ? (
-            <div className="max-w-40 truncate">{opponentUsername}</div>
+          {invitedUsername ? (
+            <span className="max-w-40 truncate font-semibold mx-1">
+              {invitedUsername}
+            </span>
           ) : (
             "opponent"
           )}{" "}
