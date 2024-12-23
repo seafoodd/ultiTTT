@@ -73,18 +73,6 @@ const initializeSocket = () => {
  */
 const handleConnect = async (socket, user) => {
   try {
-    const existingSocketIds = await redisClient.smembers(`user:${user.username}`);
-
-    if (existingSocketIds) {
-      existingSocketIds.forEach((socketId) => {
-        const existingSocket = io.sockets.sockets.get(socketId);
-        if (existingSocket) {
-          console.log("User already connected with socket id:", socketId);
-        }
-      });
-    }
-
-    await redisClient.sadd("onlineUsers", user.username);
     await redisClient.sadd(`user:${user.username}`, socket.id);
     socket.username = user.username;
     socket.gameRequests = new Set();
@@ -173,7 +161,8 @@ const handleDeclineChallenge = async (socket, user, gameId, fromUsername) => {
 };
 
 /**
- * Handle user disconnection by removing the user from the online users set and deleting their games.
+ * Handle user disconnection by removing user:{username}
+ * and removing the user from matchmaking queues
  * @param {Object} socket - The socket object.
  */
 const handleDisconnect = async (socket) => {
@@ -184,10 +173,8 @@ const handleDisconnect = async (socket) => {
     if (!socketIds.includes(socket.id)) return;
 
     await redisClient.srem(`user:${socket.username}`, socket.id);
-    const remainingSocketIds = await redisClient.smembers(`user:${socket.username}`);
 
-    if (remainingSocketIds.length === 0) {
-      await redisClient.srem("onlineUsers", socket.username);
+    if (socketIds.length <= 1) {
       await redisClient.del(`user:${socket.username}`);
       io.emit("userOffline", socket.username);
       await removePlayerFromAllQueues(socket.id);
