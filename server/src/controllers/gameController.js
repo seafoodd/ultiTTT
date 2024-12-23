@@ -35,27 +35,7 @@ export const handleMove = async (
     updateCurrentSubBoard(game, squareIndex);
 
     await redisClient.set(`game:${gameId}`, JSON.stringify(game));
-    // io.to(gameId).emit("gameState", {
-    //   board: game.board,
-    //   turn: game.turn,
-    //   moveHistory: game.moveHistory,
-    //   currentSubBoard: game.currentSubBoard,
-    //   players: game.players,
-    //   timers: game.timers,
-    // });
-    // const playerSocket = io.sockets.rooms.get(gameId);
-    // console.log(io.to(gameId))
-    // console.log("Game players:", game.players);
-    // const playerSocketIds = game.players.map(player => player.id);
-    // console.log("Player socket IDs:", playerSocketIds);
-    // emitWithRetry(io.to(gameId), "gameState", {
-    //   board: game.board,
-    //   turn: game.turn,
-    //   moveHistory: game.moveHistory,
-    //   currentSubBoard: game.currentSubBoard,
-    //   players: game.players,
-    //   timers: game.timers,
-    // });
+
     io.to(gameId).emit("gameState", {
         board: game.board,
         turn: game.turn,
@@ -64,17 +44,6 @@ export const handleMove = async (
         players: game.players,
         timers: game.timers,
     })
-    // for (const playerId of playerSocketIds){
-    //   const playerSocket = io.sockets.sockets.get(playerId);
-    //   emitWithRetry(playerSocket, "gameState", {
-    //     board: game.board,
-    //     turn: game.turn,
-    //     moveHistory: game.moveHistory,
-    //     currentSubBoard: game.currentSubBoard,
-    //     players: game.players,
-    //     timers: game.timers,
-    //   });
-    // }
 
     await handleOverallWin(io, game, gameId, redisClient);
   } catch (e) {

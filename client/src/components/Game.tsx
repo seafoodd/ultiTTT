@@ -22,13 +22,12 @@ interface GameState {
   victoryMessage: string;
   playersJoined: boolean;
   moveHistory: { subBoardIndex: number; squareIndex: number; player: string }[];
-  players: { id: string; symbol: string; username: string }[];
+  players: Player[];
   timers: { X: number; O: number };
-  opponentUsername: string;
+  invitedUsername: string;
 }
 
 interface Player {
-  id: string;
   username: string;
   symbol: string;
 }
@@ -38,7 +37,7 @@ const Game = () => {
   const [playersJoined, setPlayersJoined] = useState<boolean>(false);
   const { gameId } = useParams();
   const location = useLocation();
-  const { token } = useAuth();
+  const { token, currentUser } = useAuth();
   const navigate = useNavigate();
   const [board, setBoard] = useState<
     { subWinner: string; squares: string[] }[]
@@ -57,8 +56,8 @@ const Game = () => {
   >([]);
   const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(0);
 
-  const [player, setPlayer] = useState<string>("");
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [symbol, setSymbol] = useState<string>("");
+  const [invitedUsername, setInvitedUsername] = useState<string>("");
   const [opponentUsername, setOpponentUsername] = useState<string>("");
   const [turn, setTurn] = useState<string>("X");
   const [currentSubBoard, setCurrentSubBoard] = useState<number | null>(null);
@@ -91,6 +90,7 @@ const Game = () => {
 
   useEffect(() => {
     if (!socket) return;
+    if (!currentUser) return;
 
     socket.emit("joinGame", gameId);
 
@@ -109,16 +109,21 @@ const Game = () => {
       setBoard(gameState.board);
       setTurn(gameState.turn);
       setMoveHistory(gameState.moveHistory);
-      setPlayers(gameState.players);
+      const opponent = gameState.players.find(
+        (p) => p.username !== currentUser.username,
+      );
+      if (opponent) {
+        setOpponentUsername(opponent.username);
+      }
       setCurrentMoveIndex(gameState.moveHistory.length);
       setCurrentSubBoard(gameState.currentSubBoard);
-      setOpponentUsername(gameState.opponentUsername);
+      setInvitedUsername(gameState.invitedUsername);
       setTimers(gameState.timers);
       const currentPlayer = gameState.players.find(
-        (p: any) => p.id === socket.id,
+        (p: Player) => p.username === currentUser.username,
       );
       if (currentPlayer) {
-        setPlayer(currentPlayer.symbol);
+        setSymbol(currentPlayer.symbol);
       }
       if (gameState.players.length === 2) {
         setPlayersJoined(true);
@@ -145,14 +150,17 @@ const Game = () => {
       socket.off("gameState", handleGameState);
       socket.off("gameResult", handleGameResult);
     };
-  }, [gameId, token, socket, location]);
+  }, [gameId, token, socket, location, currentUser]);
 
   const chooseSquare = (subBoardIndex: number, squareIndex: number) => {
     if (!socket) return;
 
-    if (turn === player && board[subBoardIndex].squares[squareIndex] === "") {
-      socket.emit("makeMove", { gameId, subBoardIndex, squareIndex, player });
+    if (turn !== symbol || board[subBoardIndex].squares[squareIndex] !== "") {
+      console.log(`Not a valid move: ${turn} !== ${symbol}`);
+      return;
     }
+
+    socket.emit("makeMove", { gameId, subBoardIndex, squareIndex, player: symbol });
   };
 
   const getBoardAtMove = (moveIndex: number) => {
@@ -229,8 +237,8 @@ const Game = () => {
   return (
     <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-4 md:w-[640px] lg:h-[640px]">
       <div className="flex lg:hidden items-center justify-between w-full px-4">
-        <div className="max-w-40 truncate">{players[1].username}</div>
-        <Timer ms={player === "X" ? timers.O : timers.X} isCompact />
+        <div className="max-w-40 truncate">{opponentUsername}</div>
+        <Timer ms={symbol === "X" ? timers.O : timers.X} isCompact />
       </div>
       <div className="w-full">
         <Board
@@ -238,7 +246,7 @@ const Game = () => {
           currentMoveSelected={currentMoveIndex === moveHistory.length}
           board={board}
           turn={turn}
-          player={player}
+          player={symbol}
           chooseSquare={chooseSquare}
           victoryMessage={victoryMessage}
           setVictoryMessage={setVictoryMessage}
@@ -246,20 +254,20 @@ const Game = () => {
         />
       </div>
       <div className="flex lg:hidden items-center justify-between w-full px-4">
-        <div className="max-w-40 truncate">{players[0].username}</div>
-        <Timer ms={player === "X" ? timers.X : timers.O} isCompact />
+        <div className="max-w-40 truncate">{currentUser.username}</div>
+        <Timer ms={symbol === "X" ? timers.X : timers.O} isCompact />
       </div>
 
       <div className="flex flex-col w-full md:w-[640px] lg:w-80 h-full">
         <div className="hidden lg:flex flex-col">
           <Timer
-            ms={player === "X" ? timers.O : timers.X}
+            ms={symbol === "X" ? timers.O : timers.X}
             className="rounded-t-md shadow-2xl w-32"
           />
         </div>
         <div className="flex flex-col w-full rounded-r-md bg-gray-800 lg:h-[600px]">
           <div className="hidden lg:flex border-b px-4 items-center font-medium">
-            <div className="max-w-40 truncate">{players[1].username}</div>
+            <div className="max-w-40 truncate">{opponentUsername}</div>
           </div>
           <div className="h-full overflow-x-scroll overflow-y-hidden lg:overflow-y-scroll lg:overflow-x-hidden">
             <div
@@ -348,11 +356,11 @@ const Game = () => {
             </button>
           </div>
           <div className="hidden lg:flex border-t px-4 items-center font-medium">
-            <div className="max-w-40 truncate">{players[0].username}</div>
+            <div className="max-w-40 truncate">{currentUser.username}</div>
           </div>
         </div>
         <Timer
-          ms={player === "X" ? timers.X : timers.O}
+          ms={symbol === "X" ? timers.X : timers.O}
           className="rounded-b-md shadow-2xl w-32"
         />
       </div>
