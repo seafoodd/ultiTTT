@@ -1,4 +1,5 @@
 import {debugLog} from "./debugUtils.js";
+import {io, redisClient} from "../index.js";
 
 export const emitWithRetry = (socket, event, data, retries = 3, timeout = 1000, acknowledgedPlayers = new Set()) => {
   const attemptEmit = (remainingRetries) => {
@@ -22,3 +23,18 @@ export const emitWithRetry = (socket, event, data, retries = 3, timeout = 1000, 
     attemptEmit(retries);
   }
 };
+
+export const emitToUser = async (socket, username, event, data) => {
+  const toSocketIds = await redisClient.smembers(`user:${username}`);
+  if (!toSocketIds || toSocketIds.length === 0) {
+    socket.emit("error", "The user is offline or doesn't exist");
+    return;
+  }
+
+  toSocketIds.forEach((toSocketId) => {
+    const playerSocket = io.sockets.sockets.get(toSocketId);
+    if (playerSocket) {
+      emitWithRetry(playerSocket, event, data);
+    }
+  });
+}

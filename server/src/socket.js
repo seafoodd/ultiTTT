@@ -9,8 +9,8 @@ import {
   removePlayerFromAllQueues,
 } from "./utils/matchmakingUtils.js";
 import { assignPlayerSymbols, isValidMove } from "./utils/gameUtils.js";
-import { debugEmitError, debugLog } from "./utils/debugUtils.js";
-import { emitWithRetry } from "./utils/socketUtils.js";
+import { debugEmitError } from "./utils/debugUtils.js";
+import { emitToUser } from "./utils/socketUtils.js";
 
 /**
  * Initialize socket connections and define event handlers.
@@ -47,7 +47,7 @@ const initializeSocket = () => {
     socket.on("isUserOnline", (username, callback) =>
       handleIsUserOnline(username, callback),
     );
-    socket.on("joinGame", (gameId) => handleJoinGame(socket, user, gameId));
+    socket.on("joinGame", (gameId) => handleJoinGame(socket, gameId));
     socket.on("cancelSearch", (gameType) =>
       handleCancelSearch(socket, user, gameType),
     );
@@ -93,7 +93,6 @@ const handleConnect = async (socket, user) => {
  */
 const handleSendChallenge = async (socket, user, gameType, username) => {
   try {
-    const player = new Player(socket.id, user.username, user.elo, gameType);
     const gameId = `${user.username}-${Date.now()}`;
     const existingGame = JSON.parse(await redisClient.get(`game:${gameId}`));
 
@@ -102,31 +101,19 @@ const handleSendChallenge = async (socket, user, gameType, username) => {
       return;
     }
 
-    const toSocketIds = await redisClient.smembers(`user:${username}`);
-    if (!toSocketIds || toSocketIds.length === 0) {
-      socket.emit("error", "The user is offline");
-      return;
-    }
-
     const game = createNewGame(gameType, false);
-    game.opponentUsername = username;
+    game.invitedUsername = username;
 
-    await addNewPlayerToGame(socket, gameId, player.username, game);
+    await addNewPlayerToGame(socket, gameId, user.username, game);
     await saveGameToRedis(gameId, game);
     socket.gameRequests.add(gameId);
 
-    toSocketIds.forEach((toSocketId) => {
-      const playerSocket = io.sockets.sockets.get(toSocketId);
-      if (playerSocket) {
-        emitWithRetry(playerSocket, "receiveChallenge", {
-          from: user.username,
-          gameId,
-          gameType,
-        });
-      }
+    await emitToUser(socket, user.username, "challengeCreated", gameId);
+    await emitToUser(socket, username, "receiveChallenge", {
+      from: user.username,
+      gameId,
+      gameType,
     });
-
-    io.to(socket.id).emit("challengeCreated", gameId);
   } catch (e) {
     console.error("sendChallenge error:", e);
     socket.emit("error", e.message);
@@ -143,7 +130,7 @@ const handleSendChallenge = async (socket, user, gameType, username) => {
 const handleDeclineChallenge = async (socket, user, gameId, fromUsername) => {
   try {
     const game = JSON.parse(await redisClient.get(`game:${gameId}`));
-    if (game.opponentUsername !== user.username) {
+    if (game.invitedUsername !== user.username) {
       socket.emit("error", "Not Found");
       return;
     }
@@ -152,8 +139,8 @@ const handleDeclineChallenge = async (socket, user, gameId, fromUsername) => {
       await redisClient.del(`game:${gameId}`);
       socket.gameRequests.delete(gameId);
     }
-    const fromSocketId = await redisClient.get(`user:${fromUsername}`);
-    io.to(fromSocketId).emit("challengeDeclined", { to: socket.username });
+
+    await emitToUser(socket, fromUsername, "challengeDeclined", { to: socket.username });
   } catch (e) {
     console.error("declineChallenge error:", e);
     socket.emit("error", e.message);
@@ -180,12 +167,7 @@ const handleDisconnect = async (socket) => {
       await removePlayerFromAllQueues(socket.id);
     }
 
-
-    console.log(
-      socket.username,
-      "has disconnected with id",
-      socket.id,
-    );
+    console.log(socket.username, "has disconnected with id", socket.id);
   } catch (e) {
     console.error("handleDisconnect error:", e);
     socket.emit("error", e.message);
@@ -205,40 +187,39 @@ const handleIsUserOnline = async (username, callback) => {
 /**
  * Handle joining a game.
  * @param {Object} socket - The socket object.
- * @param {Object} user - The user object.
  * @param {string} gameId - The ID of the game.
  */
-const handleJoinGame = async (socket, user, gameId) => {
+const handleJoinGame = async (socket, gameId) => {
   try {
     let game = JSON.parse(await redisClient.get(`game:${gameId}`));
-    // console.log(game)
 
     if (!game) {
       socket.emit("error", "No Game found");
       return;
     }
 
-    const username = user.username;
+    const username = socket.username;
+    // console.log("join attempt:", username);
 
     const existingPlayer = game.players.find(
       (player) => player.username === username,
     );
-    // if (!existingPlayer && game.opponentUsername && game.opponentUsername !== username) {
-    //   return;
-    // }
 
     if (existingPlayer) {
-      await rejoinExistingPlayer(socket, gameId, existingPlayer, game);
+      socket.join(gameId);
       emitGameState(io, gameId, game);
+      await saveGameToRedis(gameId, game);
+      // console.log(`connected ${username}(${socket.id}) to ${gameId}`);
       return;
     }
 
     if (
       game.players.length < 2 &&
-      game.opponentUsername &&
-      game.opponentUsername === username
+      game.invitedUsername &&
+      game.invitedUsername === username
     ) {
       await addNewPlayerToGame(socket, gameId, username, game);
+      // console.log("add new player:", username);
       assignPlayerSymbols(game);
       await startTimer(io, gameId, redisClient);
       await saveGameToRedis(gameId, game);
@@ -290,7 +271,7 @@ const handleSearchMatch = async (socket, user, gameType) => {
       }
 
       const game = createNewGame(gameType);
-      await saveGameToRedis(gameId, game);
+      console.log("created new game:", user.username);
 
       for (const username of [player1.username, player2.username]) {
         await addNewPlayerToGame(socket, gameId, username, game);
@@ -300,14 +281,8 @@ const handleSearchMatch = async (socket, user, gameType) => {
       await startTimer(io, gameId, redisClient);
       await saveGameToRedis(gameId, game);
 
-      for (const id of [player1.id, player2.id]) {
-        const playerSocket = io.sockets.sockets.get(id);
-        if (playerSocket) {
-          debugLog("emitted to player", id);
-          emitWithRetry(playerSocket, "matchFound", gameId, 3, 1000);
-        } else {
-          console.error(`Socket not connected for player ${id}`);
-        }
+      for (const username of [player1.username, player2.username]) {
+        await emitToUser(socket, username, "matchFound", gameId);
       }
 
       emitGameState(io, gameId, game);
@@ -340,7 +315,7 @@ const handleCreateFriendlyGame = async (socket, user, gameType) => {
     await saveGameToRedis(gameId, game);
     socket.gameRequests.add(gameId);
 
-    io.to(socket.id).emit("friendlyGameCreated", gameId);
+    await emitToUser(socket, socket.username, "friendlyGameCreated", gameId);
   } catch (e) {
     console.error("createFriendlyGame error:", e);
     socket.emit("error", e.message);
@@ -434,7 +409,7 @@ export const saveGameToRedis = async (gameId, game) => {
       players: game.players,
       timers: game.timers,
       timeIncrement: game.timeIncrement,
-      opponentUsername: game.opponentUsername,
+      invitedUsername: game.invitedUsername,
       isRanked: game.isRanked,
     }),
   );
@@ -454,24 +429,9 @@ export const emitGameState = (io, gameId, game) => {
     currentSubBoard: game.currentSubBoard,
     players: game.players,
     timers: game.timers,
-    opponentUsername: game.opponentUsername,
+    invitedUsername: game.invitedUsername,
     isRanked: game.isRanked,
   });
-};
-
-/**
- * Rejoin an existing player to the game.
- * @param {Object} socket - The socket object.
- * @param {string} gameId - The ID of the game.
- * @param {Object} existingPlayer - The existing player object.
- * @param {Object} game - The game object.
- */
-const rejoinExistingPlayer = async (socket, gameId, existingPlayer, game) => {
-  socket.leave(existingPlayer.id);
-  existingPlayer.id = socket.id;
-  socket.join(gameId);
-  emitGameState(io, gameId, game);
-  await saveGameToRedis(gameId, game);
 };
 
 /**
@@ -483,7 +443,7 @@ const rejoinExistingPlayer = async (socket, gameId, existingPlayer, game) => {
  */
 const addNewPlayerToGame = async (socket, gameId, username, game) => {
   socket.join(gameId);
-  game.players.push({ id: socket.id, username });
+  game.players.push({ username });
 };
 
 export { initializeSocket };
