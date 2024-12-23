@@ -53,14 +53,14 @@ const App = () => {
   }, [location]);
 
   return (
-    <div className='overflow-x-hidden'>
+    <>
       <Header />
-      <div className="w-full h-full mt-12 flex justify-center items-center gap-24">
+      <div className="w-full h-full mt-28 flex justify-center items-center gap-24">
         <Outlet />
         <Notification />
       </div>
       {/*<div className='h-[3000px] w-full bg-color-1/5'></div>*/}
-    </div>
+    </>
   );
 };
 

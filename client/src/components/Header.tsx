@@ -14,7 +14,7 @@ const Header = () => {
 
   return (
     <div
-      className="bg-color-gray-1 w-full h-16 sticky left-0 top-0 flex
+      className="bg-color-gray-1 w-full h-16 fixed left-0 top-0 flex
       items-center justify-center md:px-16 lg:px-32 xl:px-48 z-40
       backdrop-blur-sm select-none"
     >
