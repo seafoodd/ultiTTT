@@ -38,3 +38,7 @@ export const emitToUser = async (socket, username, event, data) => {
     }
   });
 }
+
+export const emitToGuest = async (socket, event, data) => {
+  socket.emit(event, data);
+}

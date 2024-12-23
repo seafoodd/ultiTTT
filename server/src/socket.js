@@ -23,42 +23,72 @@ const initializeSocket = () => {
 
     if (!token) {
       debugEmitError(socket, "error", 401, "Token is missing");
-      return;
     }
 
     let user = null;
 
     try {
       user = await getUserByToken(token);
-      await handleConnect(socket, user);
     } catch (e) {
       console.error("Token verification failed:", e.message);
-      socket.emit("error", 401);
-      return;
+      debugEmitError(socket, "error", 401, "Invalid token");
+    } finally {
+      await handleConnect(socket, user);
     }
-
-    socket.on("sendChallenge", (gameType, username) =>
-      handleSendChallenge(socket, user, gameType, username),
+    const requireAuth = (handler) => {
+      return (...args) => {
+        if (!user) {
+          debugEmitError(socket, "error", 403, "Authentication required");
+          return;
+        }
+        handler(...args);
+      };
+    };
+    socket.on(
+      "sendChallenge",
+      requireAuth((gameType, username) =>
+        handleSendChallenge(socket, user, gameType, username),
+      ),
     );
-    socket.on("declineChallenge", (gameId, fromUsername) =>
-      handleDeclineChallenge(socket, user, gameId, fromUsername),
+    socket.on(
+      "declineChallenge",
+      requireAuth((gameId, fromUsername) =>
+        handleDeclineChallenge(socket, user, gameId, fromUsername),
+      ),
     );
     socket.on("disconnect", () => handleDisconnect(socket));
     socket.on("isUserOnline", (username, callback) =>
       handleIsUserOnline(username, callback),
     );
-    socket.on("joinGame", (gameId) => handleJoinGame(socket, gameId));
-    socket.on("cancelSearch", (gameType) =>
-      handleCancelSearch(socket, user, gameType),
+    socket.on(
+      "joinGame",
+      requireAuth((gameId) => handleJoinGame(socket, gameId)),
     );
-    socket.on("searchMatch", (gameType) =>
-      handleSearchMatch(socket, user, gameType),
+    socket.on(
+      "cancelSearch",
+      requireAuth((gameType) => handleCancelSearch(socket, user, gameType)),
     );
-    socket.on("createFriendlyGame", (gameType) =>
-      handleCreateFriendlyGame(socket, user, gameType),
+    socket.on(
+      "searchMatch",
+      requireAuth((gameType) => handleSearchMatch(socket, user, gameType)),
     );
-    socket.on("makeMove", ({ gameId, subBoardIndex, squareIndex }) =>
-      handleMakeMove(socket, gameId, subBoardIndex, squareIndex, user.username),
+    socket.on(
+      "createFriendlyGame",
+      requireAuth((gameType) =>
+        handleCreateFriendlyGame(socket, user, gameType),
+      ),
+    );
+    socket.on(
+      "makeMove",
+      requireAuth(({ gameId, subBoardIndex, squareIndex }) =>
+        handleMakeMove(
+          socket,
+          gameId,
+          subBoardIndex,
+          squareIndex,
+          user.username,
+        ),
+      ),
     );
     socket.on("ping", (callback) => {
       callback();
@@ -73,10 +103,11 @@ const initializeSocket = () => {
  */
 const handleConnect = async (socket, user) => {
   try {
-    await redisClient.sadd(`user:${user.username}`, socket.id);
-    socket.username = user.username;
+    socket.username = user?.username || "guest";
     socket.gameRequests = new Set();
     console.log(socket.username, "has connected with id", socket.id);
+    if (!user) return;
+    await redisClient.sadd(`user:${user.username}`, socket.id);
     io.emit("userOnline", user.username);
   } catch (e) {
     console.error("Connection error:", e);
@@ -140,7 +171,9 @@ const handleDeclineChallenge = async (socket, user, gameId, fromUsername) => {
       socket.gameRequests.delete(gameId);
     }
 
-    await emitToUser(socket, fromUsername, "challengeDeclined", { to: socket.username });
+    await emitToUser(socket, fromUsername, "challengeDeclined", {
+      to: socket.username,
+    });
   } catch (e) {
     console.error("declineChallenge error:", e);
     socket.emit("error", e.message);
@@ -191,6 +224,7 @@ const handleIsUserOnline = async (username, callback) => {
  */
 const handleJoinGame = async (socket, gameId) => {
   try {
+    // console.log(`${socket.username} trying to connect to ${gameId}`);
     let game = JSON.parse(await redisClient.get(`game:${gameId}`));
 
     if (!game) {
@@ -213,11 +247,12 @@ const handleJoinGame = async (socket, gameId) => {
       return;
     }
 
-    if (
-      game.players.length < 2 &&
-      game.invitedUsername &&
-      game.invitedUsername === username
-    ) {
+    let canJoin = true;
+    if (game.invitedUsername && game.invitedUsername !== username) {
+      canJoin = false;
+    }
+
+    if (game.players.length < 2 && canJoin) {
       await addNewPlayerToGame(socket, gameId, username, game);
       // console.log("add new player:", username);
       assignPlayerSymbols(game);
@@ -301,7 +336,6 @@ const handleSearchMatch = async (socket, user, gameType) => {
  */
 const handleCreateFriendlyGame = async (socket, user, gameType) => {
   try {
-    const player = new Player(socket.id, user.username, user.elo, gameType);
     const gameId = `${user.username}-${Date.now()}`;
     const existingGame = JSON.parse(await redisClient.get(`game:${gameId}`));
 
@@ -311,7 +345,7 @@ const handleCreateFriendlyGame = async (socket, user, gameType) => {
     }
 
     const game = createNewGame(gameType, false);
-    await addNewPlayerToGame(socket, gameId, player.username, game);
+    await addNewPlayerToGame(socket, gameId, user.username, game);
     await saveGameToRedis(gameId, game);
     socket.gameRequests.add(gameId);
 
@@ -339,10 +373,10 @@ const handleMakeMove = async (
 ) => {
   try {
     let game = JSON.parse(await redisClient.get(`game:${gameId}`));
-    const player = game.players.find(p => p.username === username)
-    if(!player) return;
-    const symbol = player.symbol
-    console.log(username, player, symbol)
+    const player = game.players.find((p) => p.username === username);
+    if (!player) return;
+    const symbol = player.symbol;
+    console.log(username, player, symbol);
     if (game && isValidMove(game, subBoardIndex, squareIndex, symbol)) {
       await handleMove(
         io,

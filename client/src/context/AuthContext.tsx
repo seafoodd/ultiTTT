@@ -48,7 +48,11 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
           }
         } catch (error) {
           setIsAuth(false);
+          setCurrentUser({username: "guest"});
         }
+      }
+      else{
+        setCurrentUser({ username: "guest" });
       }
       setAuthLoading(false);
     })();
