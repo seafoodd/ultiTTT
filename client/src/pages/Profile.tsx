@@ -104,7 +104,7 @@ const Profile = () => {
 
   return (
     <div className="flex flex-col w-full items-center">
-      <div className="text-xl max-w-[768px] w-full flex flex-col justify-center items-center gap-4 mt-8">
+      <div className="text-xl max-w-[768px] w-full flex flex-col justify-center items-center gap-4 mt-12">
         <div className="flex justify-start w-full px-8 md:px-12">
           <div className="flex items-center justify-center gap-1 mr-auto">
             <GrStatusGoodSmall
