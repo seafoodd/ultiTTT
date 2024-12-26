@@ -20,8 +20,7 @@ export const searchUsers = async (req, res) => {
       },
     });
 
-    console.log(`users found with query ${query}:`, users)
-    res.status(200).json(users);
+    res.status(200).json(users.slice(0, 11));
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Something went wrong." });
