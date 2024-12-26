@@ -64,28 +64,37 @@ const Game = () => {
   const [victoryMessage, setVictoryMessage] = useState<string>("");
   const [isDeclined, setIsDeclined] = useState<boolean>(false);
   const [gameNotFound, setGameNotFound] = useState<boolean>(false);
-  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(
-    null,
-  );
   const [gameFinished, setGameFinished] = useState<boolean>(false);
 
   useEffect(() => {
-    if (timerInterval) {
-      clearInterval(timerInterval);
-    }
-    if (gameFinished || moveHistory.length < 2) {
-      return;
-    }
-    const interval = setInterval(() => {
+    let animationFrameId: number;
+    let start: number;
+
+    const updateTimers = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+
       setTimers((prevTimers) => {
         const newTimers = { ...prevTimers };
         if (newTimers[turn as "X" | "O"] > 0) {
-          newTimers[turn as "X" | "O"] -= 100;
+          newTimers[turn as "X" | "O"] -= elapsed;
         }
         return newTimers;
       });
-    }, 100);
-    setTimerInterval(interval);
+
+      start = timestamp;
+      animationFrameId = requestAnimationFrame(updateTimers);
+    };
+
+    if (gameFinished || moveHistory.length < 2) {
+      return;
+    }
+
+    animationFrameId = requestAnimationFrame(updateTimers);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
   }, [turn, victoryMessage, moveHistory, gameFinished]);
 
   useEffect(() => {
