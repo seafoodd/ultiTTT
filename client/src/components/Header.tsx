@@ -23,17 +23,17 @@ const Header = () => {
         <div className="hidden md:flex">
           <NavItem
             href="/home"
-            text="HOME"
-            className="hover:bg-color-blue-2/80 px-4"
-          />
-          <NavItem
-            href="/blog"
-            text="BLOG"
+            text="PLAY"
             className="hover:bg-color-blue-2/80 px-4"
           />
           <NavItem
             href="/rules"
-            text="RULES"
+            text="LEARN"
+            className="hover:bg-color-blue-2/80 px-4"
+          />
+          <NavItem
+            href="/blog"
+            text="ABOUT"
             className="hover:bg-color-blue-2/80 px-4"
           />
         </div>

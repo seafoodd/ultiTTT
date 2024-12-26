@@ -33,19 +33,19 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
       >
         <NavItem
           href="/home"
-          text="HOME"
-          className="py-6 pl-20"
-          onClick={toggleMenu}
-        />
-        <NavItem
-          href="/blog"
-          text="BLOG"
+          text="PLAY"
           className="py-6 pl-20"
           onClick={toggleMenu}
         />
         <NavItem
           href="/rules"
-          text="RULES"
+          text="LEARN"
+          className="py-6 pl-20"
+          onClick={toggleMenu}
+        />
+        <NavItem
+          href="/blog"
+          text="ABOUT"
           className="py-6 pl-20"
           onClick={toggleMenu}
         />
