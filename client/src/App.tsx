@@ -55,7 +55,7 @@ const App = () => {
   return (
     <>
       <Header />
-      <div className="w-full h-full mt-28 flex justify-center items-center gap-24">
+      <div className="w-full h-full mt-24 flex justify-center items-center gap-24">
         <Outlet />
         <Notification />
       </div>
