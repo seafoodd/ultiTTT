@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import Cookies from "universal-cookie";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoadingCircle from "../components/LoadingCircle";
+import useRateLimit from "../hooks/useRateLimit";
 
 const LogIn = () => {
   const { setIsAuth } = useAuth();
@@ -15,32 +16,13 @@ const LogIn = () => {
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [rateLimitTimeLeft, setRateLimitTimeLeft] = useState<number | null>(
-    null,
-  );
-
-  useEffect(() => {
-    if (rateLimitTimeLeft === null || rateLimitTimeLeft <= 0) {
-      setRateLimitTimeLeft(null);
-      setError("")
-      return;
-    }
-
-    setError(
-      `Too many login attempts, try again after ${rateLimitTimeLeft} seconds.`,
-    );
-
-    const timer = setInterval(() => {
-      setRateLimitTimeLeft((prevTime) =>
-        prevTime !== null ? prevTime - 1 : null,
-      );
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [rateLimitTimeLeft]);
+  const { rateLimitTimeLeft, setRateLimitTimeLeft } = useRateLimit();
 
   const logIn = (event: React.FormEvent) => {
     event.preventDefault();
+    if (loading || rateLimitTimeLeft !== null) {
+      return;
+    }
     setError("");
     setLoading(true);
     Axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
@@ -65,6 +47,16 @@ const LogIn = () => {
         }
         setLoading(false);
       });
+  };
+
+  const getButtonContent = () => {
+    if (loading) {
+      return <LoadingCircle />;
+    }
+    if (rateLimitTimeLeft !== null) {
+      return <span>{rateLimitTimeLeft}</span>;
+    }
+    return <span>Log In</span>;
   };
 
   return (
@@ -112,7 +104,7 @@ const LogIn = () => {
           disabled={loading || rateLimitTimeLeft !== null}
           type="submit"
         >
-          {loading ? <LoadingCircle /> : <span>Log In</span>}
+          {getButtonContent()}
         </button>
         <button
           className="text-[14px] font-medium text-white/70 transition-colors hover:text-white/80"

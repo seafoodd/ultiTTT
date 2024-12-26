@@ -4,6 +4,7 @@ import Cookies from "universal-cookie";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoadingCircle from "../components/LoadingCircle";
+import useRateLimit from "../hooks/useRateLimit";
 
 const LogIn = () => {
   const { setIsAuth } = useAuth();
@@ -16,9 +17,14 @@ const LogIn = () => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [passwordConfirm, setPasswordConfirm] = useState<string>("");
+  const { rateLimitTimeLeft, setRateLimitTimeLeft } = useRateLimit();
+
 
   const signUp = (event: React.FormEvent) => {
     event.preventDefault();
+    if (loading || rateLimitTimeLeft !== null) {
+      return;
+    }
     setError("");
     if (password !== passwordConfirm) {
       setError("Passwords do not match.");
@@ -37,11 +43,26 @@ const LogIn = () => {
         window.location.href = "/home";
       })
       .catch((err) => {
-        setError(
-          err.response?.data?.error || "An error occurred. Please try again",
-        );
+        if (err.response?.status === 429) {
+          const retryAfter = err.response.data.retryAfter;
+          setRateLimitTimeLeft(retryAfter);
+        } else {
+          setError(
+            err.response?.data?.error || "An error occurred. Please try again",
+          );
+        }
         setLoading(false);
       });
+  };
+
+  const getButtonContent = () => {
+    if (loading) {
+      return <LoadingCircle />;
+    }
+    if (rateLimitTimeLeft !== null) {
+      return <span>{rateLimitTimeLeft}</span>;
+    }
+    return <span>Sign Up</span>;
   };
 
   return (
@@ -90,10 +111,10 @@ const LogIn = () => {
         {error && <div className="text-red-500 text-md -mb-5">{error}</div>}
         <button
           className="bg-blue-600 disabled:bg-opacity-70 mt-8 font-semibold flex justify-center items-center rounded-md px-12 w-full py-2"
-          disabled={loading}
+          disabled={loading || rateLimitTimeLeft !== null}
           type="submit"
         >
-          {loading ? <LoadingCircle /> : <span>Sign Up</span>}
+          {getButtonContent()}
         </button>
         <button
           className="text-[14px] font-medium text-white/70 transition-colors hover:text-white/80"

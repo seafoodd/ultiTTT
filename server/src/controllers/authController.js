@@ -1,12 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../../prisma/prismaClient.js";
-import { RateLimiterMemory } from "rate-limiter-flexible";
-
-const rateLimiter = new RateLimiterMemory({
-  points: 5,
-  duration: 30,
-});
+import {
+  preventAccountFlooding,
+  preventBruteforce,
+} from "../utils/rateLimitingUtils.js";
 
 /**
  * Register a new user.
@@ -26,7 +24,13 @@ export const register = async (req, res) => {
   }
 
   const usernameRegex = /^[a-zA-Z0-9_]+$/; // (alphanumeric and underscores only)
-  const maxUsernameLength = 32
+  const maxUsernameLength = 32;
+  const minUsernameLength = 3;
+  if (username.length < minUsernameLength) {
+    return res.status(400).json({
+      error: `Username must be at least ${minUsernameLength} characters long`,
+    });
+  }
   if (username.length > maxUsernameLength) {
     return res.status(400).json({
       error: `Username must not be longer than ${maxUsernameLength} characters`,
@@ -63,6 +67,13 @@ export const register = async (req, res) => {
       return res.status(400).json({ error: "Username is already taken" });
     }
 
+    const retryAfter = await preventAccountFlooding();
+    if (retryAfter) {
+      return res
+        .status(429)
+        .json({ error: `Too many registration requests`, retryAfter });
+    }
+
     const displayName = username;
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -95,10 +106,8 @@ export const register = async (req, res) => {
  * @param {Object} res - The response object used to send back the HTTP response.
  */
 export const login = async (req, res) => {
-  try {
-    await rateLimiter.consume(req.ip);
-  } catch (rateLimiterRes) {
-    const retryAfter = Math.ceil(rateLimiterRes.msBeforeNext / 1000);
+  const retryAfter = await preventBruteforce(req.ip);
+  if (retryAfter) {
     return res.status(429).json({ error: `Too many requests`, retryAfter });
   }
 
@@ -138,7 +147,6 @@ export const login = async (req, res) => {
     res.status(500).json({ error: "Something went wrong" });
   }
 };
-
 
 /**
  * Verify a token.
