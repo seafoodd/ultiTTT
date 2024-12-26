@@ -1,11 +1,11 @@
 import React from 'react';
 
-const Rules = () => {
+const Learn = () => {
   return (
     <div>
-      Rules
+      Learn
     </div>
   );
 };
 
-export default Rules;
+export default Learn;

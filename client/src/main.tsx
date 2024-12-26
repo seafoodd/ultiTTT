@@ -8,8 +8,7 @@ import Friends from "./pages/Friends";
 import Profile from "./pages/Profile";
 import { AuthProvider } from "./context/AuthContext";
 import About from "./pages/About";
-import Blog from "./pages/Blog";
-import Rules from "./pages/Rules";
+import Learn from "./pages/Learn";
 import Donate from "./pages/Donate";
 import Game from "./components/Game";
 import LogIn from "./pages/LogIn";
@@ -29,8 +28,7 @@ const router = createBrowserRouter(
         { path: "/:gameId", element: <Game /> },
         { path: "/home", element: <Home /> },
         { path: "/about", element: <About /> },
-        { path: "/blog", element: <Blog /> },
-        { path: "/rules", element: <Rules /> },
+        { path: "/learn", element: <Learn /> },
         { path: "/donate", element: <Donate /> },
         { path: "/friends", element: <Friends /> },
         {

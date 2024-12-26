@@ -27,12 +27,12 @@ const Header = () => {
             className="hover:bg-color-blue-2/80 px-4"
           />
           <NavItem
-            href="/rules"
+            href="/learn"
             text="LEARN"
             className="hover:bg-color-blue-2/80 px-4"
           />
           <NavItem
-            href="/blog"
+            href="/about"
             text="ABOUT"
             className="hover:bg-color-blue-2/80 px-4"
           />

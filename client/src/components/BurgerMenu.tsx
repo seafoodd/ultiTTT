@@ -38,13 +38,13 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
           onClick={toggleMenu}
         />
         <NavItem
-          href="/rules"
+          href="/learn"
           text="LEARN"
           className="py-6 pl-20"
           onClick={toggleMenu}
         />
         <NavItem
-          href="/blog"
+          href="/about"
           text="ABOUT"
           className="py-6 pl-20"
           onClick={toggleMenu}
