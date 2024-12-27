@@ -22,8 +22,8 @@ const App = () => {
       case "/blog":
         title = "Blog - ultiTTT";
         break;
-      case "/rules":
-        title = "Rules - ultiTTT";
+      case "/learn":
+        title = "Learn - ultiTTT";
         break;
       case "/donate":
         title = "Donate - ultiTTT";
@@ -42,7 +42,8 @@ const App = () => {
         break;
       default:
         if (path.startsWith("/@/")) {
-          title = "Profile - ultiTTT";
+          const username = path.split("/@/")[1];
+          title = `${username}'s profile - ultiTTT`;
         } else if (path.startsWith("/")) {
           title = "Game - ultiTTT";
         }
