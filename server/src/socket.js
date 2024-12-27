@@ -194,13 +194,14 @@ const handleDisconnect = async (socket) => {
 
     await redisClient.srem(`user:${socket.username}`, socket.id);
 
+    console.log(socket.username, "has disconnected a socket with id", socket.id);
     if (socketIds.length <= 1) {
       await redisClient.del(`user:${socket.username}`);
       io.emit("userOffline", socket.username);
-      await removePlayerFromAllQueues(socket.id);
+      await removePlayerFromAllQueues(socket.username);
+      console.log(socket.username, "has disconnected");
     }
 
-    console.log(socket.username, "has disconnected with id", socket.id);
   } catch (e) {
     console.error("handleDisconnect error:", e);
     socket.emit("error", e.message);
@@ -275,7 +276,7 @@ const handleJoinGame = async (socket, gameId) => {
  */
 const handleCancelSearch = async (socket, user, gameType) => {
   try {
-    await removePlayerFromQueue(socket.id, gameType);
+    await removePlayerFromQueue(user.username, gameType);
     socket.emit("searchCancelled");
   } catch (e) {
     console.error("cancelSearch error:", e);
@@ -291,8 +292,8 @@ const handleCancelSearch = async (socket, user, gameType) => {
  */
 const handleSearchMatch = async (socket, user, gameType) => {
   try {
-    const player = new Player(socket.id, user.username, user.elo, gameType);
-    await addPlayerToQueue(player);
+    const player = new Player(user.username, user.elo);
+    await addPlayerToQueue(player, gameType);
 
     const match = await findMatch(player, gameType);
     if (match) {

@@ -4,11 +4,9 @@ import { redisClient } from "../index.js";
  * Represents a player in the matchmaking queue.
  */
 class Player {
-  constructor(id, username, rank, gameType) {
-    this.id = id;
+  constructor(username, rank) {
     this.username = username;
     this.rank = rank;
-    this.gameType = gameType;
   }
 }
 
@@ -16,77 +14,50 @@ class Player {
  * Adds a player to the matchmaking queue.
  * If the player is already in the queue, updates their ID.
  */
-const addPlayerToQueue = async (player) => {
-  console.log(`Adding player to queue: ${JSON.stringify(player)}`);
-  const players = await redisClient.zrange(
-    `matchmaking:${player.gameType}`,
-    0,
-    -1,
+const addPlayerToQueue = async (player, gameType) => {
+  const players = await redisClient.zrange(`matchmaking:${gameType}`, 0, -1);
+
+  const existingPlayer = players.find(
+    (p) => JSON.parse(p).username === player.username,
   );
-  console.log(`Current players in queue: ${players.length}`);
+  if (existingPlayer) return;
 
-  for (const existingPlayer of players) {
-    const parsedPlayer = JSON.parse(existingPlayer);
-    if (parsedPlayer.username === player.username) {
-      console.log(
-        `Player already in queue, updating ID: ${parsedPlayer.username}`,
-      );
-      await redisClient.zrem(`matchmaking:${player.gameType}`, existingPlayer);
-      parsedPlayer.id = player.id;
-      await redisClient.zadd(
-        `matchmaking:${player.gameType}`,
-        parsedPlayer.rank,
-        JSON.stringify(parsedPlayer),
-      );
-      console.log(`Updated player in queue: ${JSON.stringify(parsedPlayer)}`);
-      return;
-    }
-  }
-
+  // await debugQueue(gameType, `before adding ${player.username}:`)
   await redisClient.zadd(
-    `matchmaking:${player.gameType}`,
+    `matchmaking:${gameType}`,
     player.rank,
     JSON.stringify(player),
   );
-  console.log(`Added new player to queue: ${JSON.stringify(player)}`);
+  // await debugQueue(gameType, `after adding ${player.username}:`)
 };
 /**
  * Removes a player from the matchmaking queue.
  */
-const removePlayerFromQueue = async (playerId, gameType) => {
+const removePlayerFromQueue = async (username, gameType) => {
   const players = await redisClient.zrange(`matchmaking:${gameType}`, 0, -1);
-  console.log(await redisClient.zrange(`matchmaking:${gameType}`, 0, -1));
 
-  for (const player of players) {
-    const parsedPlayer = JSON.parse(player);
-    if (parsedPlayer.id !== playerId) continue;
+  const existingPlayer = players.find(
+    (p) => JSON.parse(p).username === username,
+  );
+  if(!existingPlayer) return;
 
-    await redisClient.zrem(`matchmaking:${gameType}`, player);
-    break;
-  }
-
-  console.log(await redisClient.zrange(`matchmaking:${gameType}`, 0, -1));
+  // await debugQueue(gameType, `before removing ${username}:`)
+  await redisClient.zrem(`matchmaking:${gameType}`, existingPlayer);
+  // await debugQueue(gameType, `after removing ${username}:`)
 };
 
 /**
  * Removes a player from all the matchmaking queues
  * without knowing the gameType.
  */
-const removePlayerFromAllQueues = async (playerId) => {
+const removePlayerFromAllQueues = async (username) => {
   const gameTypes = ["0", "5", "10", "15"];
-
+  console.log(`removing ${username} from all queues...`)
   for (const gameType of gameTypes) {
-    const players = await redisClient.zrange(`matchmaking:${gameType}`, 0, -1);
-    for (const player of players) {
-      const parsedPlayer = JSON.parse(player);
-      if (parsedPlayer.id !== playerId) continue;
-
-      await redisClient.zrem(`matchmaking:${gameType}`, player);
-      console.log(`Player ${playerId} removed from "${gameType}" queue`);
-      break;
-    }
+    await removePlayerFromQueue(username, gameType);
   }
 };
+
 
 /**
  * Finds a match for a player within a specified rank gap.
