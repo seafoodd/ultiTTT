@@ -37,13 +37,13 @@ export const handleMove = async (
     await redisClient.set(`game:${gameId}`, JSON.stringify(game));
 
     io.to(gameId).emit("gameState", {
-        board: game.board,
-        turn: game.turn,
-        moveHistory: game.moveHistory,
-        currentSubBoard: game.currentSubBoard,
-        players: game.players,
-        timers: game.timers,
-    })
+      board: game.board,
+      turn: game.turn,
+      moveHistory: game.moveHistory,
+      currentSubBoard: game.currentSubBoard,
+      players: game.players,
+      timers: game.timers,
+    });
 
     await handleOverallWin(io, game, gameId, redisClient);
   } catch (e) {
@@ -202,11 +202,9 @@ export const finishGame = async (
   isRanked,
   status,
 ) => {
-  await saveGameResult(game, winnerSymbol, isRanked, status);
-  console.log("deleted the game with id:", gameId);
-  // console.log(JSON.parse(await redisClient.get(`game:${gameId}`)));
   await redisClient.del(`game:${gameId}`);
-  // console.log(JSON.parse(await redisClient.get(`game:${gameId}`)));
+  await saveGameResult(game, winnerSymbol, isRanked, status);
+  console.log(`saved the game with id ${gameId} (status: ${status})`);
 };
 
 /**
@@ -223,64 +221,65 @@ export const updateCurrentSubBoard = (game, squareIndex) => {
 export const startTimer = async (io, gameId, redisClient) => {
   const timerInterval = preciseSetInterval(async () => {
     const redisGame = JSON.parse(await redisClient.get(`game:${gameId}`));
+    if (!redisGame) return;
+    if (!redisGame.timers) return;
+    if (redisGame.turn === undefined) return;
+    if (timerInterval.gameFinished) return;
 
-    if (redisGame && redisGame.timers && redisGame.turn !== undefined) {
-      if (redisGame.moveHistory.length > 1)
-        redisGame.timers[redisGame.turn] -= 100;
-      else {
-        if (
-          timerInterval.createdAt &&
-          !timerInterval.gameFinished &&
-          Date.now() - timerInterval.createdAt > 30 * 1000
-        ) {
-          console.log("aborted game with id", gameId);
-          timerInterval.gameFinished = true;
-          clearPreciseInterval(timerInterval);
-          emitGameState(io, gameId, redisGame);
-          await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
+    if (redisGame.moveHistory.length < 2) {
+      if (!timerInterval.createdAt) return;
+      const msSinceStart = Date.now() - timerInterval.createdAt;
+      if (msSinceStart < 30 * 1000) return;
 
-          io.to(gameId).emit("gameResult", {
-            winner: "none",
-            status: "aborted",
-          });
-          await finishGame(
-            io,
-            redisGame,
-            gameId,
-            null,
-            redisClient,
-            redisGame.isRanked,
-            "aborted",
-          );
-          return
-        }
-      }
-
-      if (redisGame.timers[redisGame.turn] > 0) {
-        await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
-        return;
-      }
-
+      timerInterval.gameFinished = true;
       clearPreciseInterval(timerInterval);
-
-      redisGame.timers[redisGame.turn] = 0;
+      emitGameState(io, gameId, redisGame); // idk why it's here, maybe remove it later
       await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
 
-      emitGameState(io, gameId, redisGame);
       io.to(gameId).emit("gameResult", {
-        winner: redisGame.turn === "X" ? "O" : "X",
-        state: "byTime",
+        winner: "none",
+        status: "aborted",
       });
       await finishGame(
         io,
         redisGame,
         gameId,
-        redisGame.turn === "X" ? "O" : "X",
+        null,
         redisClient,
-        redisGame.isRanked,
-        "byTime",
+        false,
+        "aborted",
       );
+      console.log("aborted game with id", gameId);
+
+      return;
     }
+
+    redisGame.timers[redisGame.turn] -= 100;
+
+    if (redisGame.timers[redisGame.turn] > 0) {
+      await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
+      return;
+    }
+
+    clearPreciseInterval(timerInterval);
+
+    redisGame.timers[redisGame.turn] = 0;
+    await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
+
+    emitGameState(io, gameId, redisGame);
+    io.to(gameId).emit("gameResult", {
+      winner: redisGame.turn === "X" ? "O" : "X",
+      state: "byTime",
+    });
+    await finishGame(
+      io,
+      redisGame,
+      gameId,
+      redisGame.turn === "X" ? "O" : "X",
+      redisClient,
+      redisGame.isRanked,
+      "byTime",
+    );
   }, 100);
   timerInterval.createdAt = Date.now();
 };

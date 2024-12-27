@@ -55,12 +55,12 @@ export const checkOverallWin = (board) => {
 /**
  * Validates if the move is allowed.
  */
-export const isValidMove = (game, subBoardIndex, squareIndex, player) => {
+export const isValidMove = (game, subBoardIndex, squareIndex, symbol) => {
   return (
     game.board[subBoardIndex].subWinner === "" &&
     (game.currentSubBoard === null || subBoardIndex === game.currentSubBoard) &&
     game.board[subBoardIndex].squares[squareIndex] === "" &&
-    game.turn === player
+    game.turn === symbol
   );
 };
 
