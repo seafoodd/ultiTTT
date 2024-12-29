@@ -190,6 +190,13 @@ const handleDisconnect = async (socket) => {
 
   try {
     const socketIds = await redisClient.smembers(`user:${socket.username}`);
+    console.log(socketIds)
+
+    const invalidSocketIds = socketIds.filter((id) => !io.sockets.sockets.has(id));
+    for (const id of invalidSocketIds) {
+      await redisClient.srem(`user:${socket.username}`, id);
+    }
+
     if (!socketIds.includes(socket.id)) return;
 
     await redisClient.srem(`user:${socket.username}`, socket.id);

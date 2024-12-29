@@ -8,10 +8,9 @@ datasource db {
 }
 
 model User {
-  id                     String          @id @default(auto()) @map("_id") @db.ObjectId
+  username               String          @id @map("_id")
   email                  String          @unique
   password               String
-  username               String          @unique
   displayName            String
   location               String?
   dateOfBirth            DateTime?
@@ -30,38 +29,37 @@ model User {
 }
 
 model Friend {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  user1     User     @relation("User1Friends", fields: [user1Id], references: [id])
-  user1Id   String   @db.ObjectId
-  user2     User     @relation("User2Friends", fields: [user2Id], references: [id])
-  user2Id   String   @db.ObjectId
-  createdAt DateTime @default(now())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  user1         User     @relation("User1Friends", fields: [user1Username], references: [username])
+  user1Username String
+  user2         User     @relation("User2Friends", fields: [user2Username], references: [username])
+  user2Username String
+  createdAt     DateTime @default(now())
 
-  @@unique([user1Id, user2Id])
+  @@unique([user1Username, user2Username])
 }
 
 model FriendRequest {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  from      User     @relation("SentFriendRequests", fields: [fromId], references: [id])
-  fromId    String   @db.ObjectId
-  to        User     @relation("ReceivedFriendRequests", fields: [toId], references: [id])
-  toId      String   @db.ObjectId
-  createdAt DateTime @default(now())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  from         User     @relation("SentFriendRequests", fields: [fromUsername], references: [username])
+  fromUsername String
+  to           User     @relation("ReceivedFriendRequests", fields: [toUsername], references: [username])
+  toUsername   String
+  createdAt    DateTime @default(now())
 }
 
 model Game {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
   board            Json
   winner           String?
-  winnerId         String?  @db.ObjectId
   moveHistory      Json
   createdAt        DateTime @default(now())
-  player1          User?    @relation("Player1Games", fields: [player1Id], references: [id], onDelete: SetNull)
-  player1Id        String?  @db.ObjectId
+  player1          User?    @relation("Player1Games", fields: [player1Username], references: [username], onDelete: SetNull)
+  player1Username  String?
   player1Elo       Int
   player1EloChange Int
-  player2          User?    @relation("Player2Games", fields: [player2Id], references: [id], onDelete: SetNull)
-  player2Id        String?  @db.ObjectId
+  player2          User?    @relation("Player2Games", fields: [player2Username], references: [username], onDelete: SetNull)
+  player2Username  String?
   player2Elo       Int
   player2EloChange Int
   isRanked         Boolean  @default(true)
