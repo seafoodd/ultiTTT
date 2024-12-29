@@ -139,7 +139,7 @@ const saveGameResult = async (game, overallWinner, isRanked, status) => {
 
         await Promise.all([
           prisma.user.update({
-            where: { id: player1.id },
+            where: { username: player1.username },
             data: {
               elo: player1EloChange.newRating,
               rd: player1EloChange.newRd,
@@ -147,7 +147,7 @@ const saveGameResult = async (game, overallWinner, isRanked, status) => {
             },
           }),
           prisma.user.update({
-            where: { id: player2.id },
+            where: { username: player2.username },
             data: {
               elo: player2EloChange.newRating,
               rd: player2EloChange.newRd,
@@ -157,11 +157,6 @@ const saveGameResult = async (game, overallWinner, isRanked, status) => {
         ]);
       }
 
-      const winnerId = overallWinner
-        ? overallWinner === game.players[0].symbol
-          ? player1.id
-          : player2.id
-        : null;
       const winnerUsername = overallWinner
         ? overallWinner === game.players[0].symbol
           ? player1.username
@@ -172,12 +167,11 @@ const saveGameResult = async (game, overallWinner, isRanked, status) => {
         data: {
           board: game.board,
           winner: winnerUsername,
-          winnerId: winnerId,
           moveHistory: game.moveHistory,
-          player1: { connect: { id: player1.id } },
+          player1: { connect: { username: player1.username } },
           player1Elo: player1.elo,
           player1EloChange: player1EloChange.newRating - player1.elo,
-          player2: { connect: { id: player2.id } },
+          player2: { connect: { username: player2.username } },
           player2Elo: player2.elo,
           player2EloChange: player2EloChange.newRating - player2.elo,
           isRanked: isRanked,

@@ -9,6 +9,7 @@ import userRoutes from "./routes/userRoutes.js";
 import Redis from "ioredis";
 import searchRoutes from "./routes/searchRoutes.js";
 import {rateLimitMiddleware} from "./utils/rateLimitingUtils.js";
+import friendRoutes from "./routes/friendRoutes.js";
 
 configDotenv();
 
@@ -38,7 +39,7 @@ app.use(rateLimitMiddleware);
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/search", searchRoutes)
-// app.use("/game", gameRoutes);
+app.use("/friends", friendRoutes);
 
 initializeSocket();
 

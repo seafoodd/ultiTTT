@@ -17,7 +17,7 @@ const fetchGameHistory = async (
 ) => {
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/users/username/${username}/games?page=${page}&limit=${limit}`,
+      `${import.meta.env.VITE_API_URL}/users/${username}/games?page=${page}&limit=${limit}`,
     );
     if (!response.ok) {
       console.error("Failed to fetch game history");
@@ -29,14 +29,14 @@ const fetchGameHistory = async (
         let player1Response = null;
         let player2Response = null;
 
-        if (game.player1Id) {
+        if (game.player1Username) {
           player1Response = await fetch(
-            `${import.meta.env.VITE_API_URL}/users/id/${game.player1Id}`,
+            `${import.meta.env.VITE_API_URL}/users/${game.player1Username}`,
           );
         }
-        if (game.player2Id) {
+        if (game.player2Username) {
           player2Response = await fetch(
-            `${import.meta.env.VITE_API_URL}/users/id/${game.player2Id}`,
+            `${import.meta.env.VITE_API_URL}/users/${game.player2Username}`,
           );
         }
         let player1 = null;
