@@ -36,13 +36,32 @@ export const handleMove = async (
 
     await redisClient.set(`game:${gameId}`, JSON.stringify(game));
 
+    // for some reason, the game sometimes doesn't get set to the redis,
+    // so I retry 5 times (usually it sets from the first retry)
+    let retries = 0;
+    let redisGame = JSON.parse(await redisClient.get(`game:${gameId}`));
+    while (
+      redisGame.moveHistory.length !== game.moveHistory.length &&
+      retries < 5
+    ) {
+      await redisClient.set(`game:${gameId}`, JSON.stringify(game));
+      retries += 1;
+      console.error(
+        `RETRY ${retries}`,
+        gameId,
+        game.moveHistory.length,
+        redisGame.moveHistory.length,
+      );
+      redisGame = JSON.parse(await redisClient.get(`game:${gameId}`));
+    }
+
     io.to(gameId).emit("gameState", {
-      board: game.board,
-      turn: game.turn,
-      moveHistory: game.moveHistory,
-      currentSubBoard: game.currentSubBoard,
-      players: game.players,
-      timers: game.timers,
+      board: redisGame.board,
+      turn: redisGame.turn,
+      moveHistory: redisGame.moveHistory,
+      currentSubBoard: redisGame.currentSubBoard,
+      players: redisGame.players,
+      timers: redisGame.timers,
     });
 
     await handleOverallWin(io, game, gameId, redisClient);
