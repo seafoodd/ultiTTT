@@ -16,9 +16,11 @@ export default {
           },
           red: {
             1: "#B91C1C",
+            2: "#B91C1C",
           },
           green: {
             1: "#2ac367",
+            2: "#26ae4a",
           },
           black:{
             1: "#111827",

@@ -13,12 +13,12 @@ const Friends = () => {
       <div>
         <b>Incoming Requests:</b>
         {incomingRequests &&
-          incomingRequests.map((request) => <div key={request.id}>{request.fromUsername}</div>)}
+          incomingRequests.map((request) => <div key={request.id}>{request.username}</div>)}
       </div>
       <div>
         <b>Outgoing Requests:</b>
         {outgoingRequests &&
-          outgoingRequests.map((request) => <div key={request.id}>{request.toUsername}</div>)}
+          outgoingRequests.map((request) => <div key={request.id}>{request.username}</div>)}
       </div>
     </div>
   );

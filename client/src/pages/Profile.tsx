@@ -3,20 +3,30 @@ import { useParams } from "react-router-dom";
 import GameHistory from "../components/GameHistory";
 import { GrStatusGoodSmall } from "react-icons/gr";
 import { MdLocationOn } from "react-icons/md";
-import { FaBirthdayCake } from "react-icons/fa";
+import {FaBirthdayCake, FaUserMinus, FaUserPlus} from "react-icons/fa";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import ChallengeModal from "../components/ChallengeModal";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
-import Axios from "axios";
 import { useStore } from "../context/StoreContext";
+import LoadingCircle from "../components/LoadingCircle";
+import {IoClose} from "react-icons/io5";
+import {IoMdCheckmark} from "react-icons/io";
+
+interface UserData {
+  username: string;
+  location: string;
+  dateOfBirth: Date;
+  avatarUrl: string;
+  elo: number;
+}
 
 const fetchUserData = async (
   username: string,
-  setUserData: Function,
-  setError: Function,
-  setLoading: Function,
+  setUserData: React.Dispatch<React.SetStateAction<UserData | null>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
   try {
     const response = await fetch(
@@ -26,7 +36,7 @@ const fetchUserData = async (
       if (response.status === 404) {
         setError("The player doesn't exist");
       } else {
-        setError("Something went wrong.");
+        setError("Something went wrong");
       }
     } else {
       const data = await response.json();
@@ -40,54 +50,63 @@ const fetchUserData = async (
   }
 };
 
-const sendFriendRequest = (username: string, token: string) => {
-  Axios.post(
-    `${import.meta.env.VITE_API_URL}/friends/add/${username}`,
-    {},
-    {
-      headers: {
-        Authorization: token,
-      },
-    },
-  )
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((err) => {
-      console.error(err);
-    });
-};
+const getFriendButton = (
+  friends: string[],
+  username: string,
+  isAuth: boolean,
+  outgoingRequests: { username: string; id: string }[],
+  incomingRequests: { username: string; id: string }[],
+  friendsLoading: boolean,
+  sendFriendRequest: Function
+) => {
+  let disabled = false;
+  let text = "Add friend";
+  let action: "add" | "remove" = "add";
+  let color: "bg-color-blue-2" | "bg-color-green-2" | "bg-color-red-2" = "bg-color-green-2"
+  let icon = <FaUserPlus size={20} className='-mb-0.5'/>;
 
-const removeFriend = (username: string, token: string) => {
-  Axios.post(
-    `${import.meta.env.VITE_API_URL}/friends/remove/${username}`,
-    {},
-    {
-      headers: {
-        Authorization: token,
-      },
-    },
-  )
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((err) => {
-      console.error(err);
-    });
+  console.log(username, outgoingRequests)
+
+  if (!isAuth) {
+    disabled = true;
+  } else if (friends.includes(username)) {
+    text = "Remove friend";
+    color = "bg-color-red-2"
+    action = "remove";
+    icon = <FaUserMinus size={20} className='-mb-0.5'/>;
+  } else if (outgoingRequests.some((r) => r.username === username)) {
+    text = "Cancel request";
+    icon = <IoClose size={26} className='-mb-1 -mx-1'/>;
+    color = "bg-color-red-2"
+  } else if (incomingRequests.some((r) => r.username === username)) {
+    icon = <IoMdCheckmark size={26} className='-mb-1 -mx-1'/>;
+    text = "Accept request";
+  }
+
+  return (
+    <Button
+      text={text}
+      icon={icon}
+      onClick={() => sendFriendRequest(username, action)}
+      className={`${color} px-4 py-3 disabled:bg-color-gray-3`}
+      disabled={disabled}
+      loading={friendsLoading}
+    />
+  );
 };
 
 const Profile = () => {
-  const { friends } = useStore();
+  const {
+    friends,
+    incomingRequests,
+    outgoingRequests,
+    loading: friendsLoading,
+    sendFriendRequest,
+  } = useStore();
   const { socket } = useSocket();
-  const { isAuth, token } = useAuth();
+  const { isAuth } = useAuth();
   const { username } = useParams<string>();
-  const [userData, setUserData] = useState<{
-    username: string;
-    location: string;
-    dateOfBirth: Date;
-    avatarUrl: string;
-    elo: number;
-  } | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(false);
@@ -131,7 +150,7 @@ const Profile = () => {
   }, [username, socket]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingCircle />;
   }
 
   if (error) {
@@ -159,13 +178,13 @@ const Profile = () => {
         <div className="text-[18px] px-8 md:px-12 text-white/95 flex justify-start w-full flex-col items-start">
           {userData!.location && (
             <p className="flex items-center justify-start">
-              <MdLocationOn className="fill-color-gray-4" />{" "}
+              <MdLocationOn className="mr-2"/>
               {userData!.location}
             </p>
           )}
           {userData!.dateOfBirth && (
             <p className="flex items-center justify-start">
-              <FaBirthdayCake className="fill-color-gray-4" />{" "}
+              <FaBirthdayCake className="mr-2"/>
               {dateOfBirthFormatted}
             </p>
           )}
@@ -185,41 +204,28 @@ const Profile = () => {
                 isOpen={isChallengeModalOpen}
                 setIsOpen={setIsChallengeModalOpen}
               >
-                <ChallengeModal username={userData!.username} />
+                <ChallengeModal username={userData!.username}/>
               </Modal>
-              {userData &&
-                (username && friends.includes(username) ? (
-                  <Button
-                    text="Remove friend"
-                    onClick={() => removeFriend(userData.username, token!)}
-                    className="bg-color-blue-2 px-4 py-3 disabled:bg-color-gray-3"
-                    disabled={
-                      !isAuth ||
-                      !userData ||
-                      !username ||
-                      !friends.includes(username)
-                    }
-                  />
-                ) : (
-                  <Button
-                    text="Add friend"
-                    onClick={() => sendFriendRequest(userData.username, token!)}
-                    className="bg-color-blue-2 px-4 py-3 disabled:bg-color-gray-3"
-                    disabled={
-                      !isAuth ||
-                      !userData ||
-                      !username ||
-                      friends.includes(userData.username)
-                    }
-                  />
-                ))}
+              {username ? (
+                getFriendButton(
+                  friends,
+                  username,
+                  isAuth,
+                  outgoingRequests,
+                  incomingRequests,
+                  friendsLoading,
+                  sendFriendRequest
+                )
+              ) : (
+                <LoadingCircle/>
+              )}
               {/*<Button text="Challenge" onClick={() => console.log("challenged")} className='bg-color-blue-2 px-4 py-3'/>*/}
             </div>
           )}
         </div>
       </div>
       <div className="border-t md:border-none max-w-[768px] border-white/50 w-full">
-        <GameHistory username={username!} />
+        <GameHistory username={username!}/>
       </div>
     </div>
   );
