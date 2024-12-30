@@ -1,23 +1,36 @@
 import React from "react";
+import LoadingCircle from "./LoadingCircle";
 
 interface ButtonProps {
   onClick: () => void;
   className?: string;
   text?: string;
   icon?: any;
-  disabled?: boolean
+  disabled?: boolean;
+  loading?: boolean;
 }
 
-const Button: React.FC<ButtonProps> = ({ onClick, className, text, icon, disabled }) => {
+const Button: React.FC<ButtonProps> = ({
+  onClick,
+  className,
+  text,
+  icon,
+  disabled,
+  loading = false,
+}) => {
   return (
     <button
       className={`${className ? className : ""} font-semibold flex justify-center 
       items-center gap-1 rounded-md h-fit text-xl shadow-md transition-colors text-nowrap`}
-      onClick={onClick}
-      disabled={disabled}
+      onClick={loading ? undefined : onClick}
+      disabled={loading || disabled}
     >
-      {icon && icon}
-      {text && text}
+      {icon && <div className="h-full">{icon}</div>}
+      {loading ? (
+        <LoadingCircle />
+      ) : (
+        text && <div className="h-full">{text}</div>
+      )}
     </button>
   );
 };
