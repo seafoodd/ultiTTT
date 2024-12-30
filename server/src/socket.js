@@ -190,9 +190,11 @@ const handleDisconnect = async (socket) => {
 
   try {
     const socketIds = await redisClient.smembers(`user:${socket.username}`);
-    console.log(socketIds)
+    console.log(socketIds);
 
-    const invalidSocketIds = socketIds.filter((id) => !io.sockets.sockets.has(id));
+    const invalidSocketIds = socketIds.filter(
+      (id) => !io.sockets.sockets.has(id),
+    );
     for (const id of invalidSocketIds) {
       await redisClient.srem(`user:${socket.username}`, id);
     }
@@ -201,14 +203,17 @@ const handleDisconnect = async (socket) => {
 
     await redisClient.srem(`user:${socket.username}`, socket.id);
 
-    console.log(socket.username, "has disconnected a socket with id", socket.id);
+    console.log(
+      socket.username,
+      "has disconnected a socket with id",
+      socket.id,
+    );
     if (socketIds.length <= 1) {
       await redisClient.del(`user:${socket.username}`);
       io.emit("userOffline", socket.username);
       await removePlayerFromAllQueues(socket.username);
       console.log(socket.username, "has disconnected");
     }
-
   } catch (e) {
     console.error("handleDisconnect error:", e);
     socket.emit("error", e.message);
@@ -384,17 +389,20 @@ const handleMakeMove = async (
     const player = game.players.find((p) => p.username === username);
     if (!player) return;
     const symbol = player.symbol;
-    console.log(username, player, symbol);
-    if (game && isValidMove(game, subBoardIndex, squareIndex, symbol)) {
-      await handleMove(
-        io,
-        gameId,
-        subBoardIndex,
-        squareIndex,
-        symbol,
-        redisClient,
-      );
+
+    if (!game) return;
+    if (!isValidMove(game, subBoardIndex, squareIndex, symbol)) {
+      return;
     }
+
+    await handleMove(
+      io,
+      gameId,
+      subBoardIndex,
+      squareIndex,
+      symbol,
+      redisClient,
+    );
   } catch (e) {
     console.error("makeMove error:", e);
     socket.emit("error", e.message);
