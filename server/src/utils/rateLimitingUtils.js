@@ -9,7 +9,7 @@ const floodingLimiter = new RateLimiterMemory({
   duration: 60,
 });
 const globalRateLimiter = new RateLimiterMemory({
-  points: 20,
+  points: 50, // replace with a lower number (like 20) when i fix the places with too many requests from the client
   duration: 1,
 });
 
