@@ -7,12 +7,15 @@ import React, {
 } from "react";
 import { useAuth } from "./AuthContext";
 import Axios from "axios";
+import {useSocket} from "./SocketContext";
 
 interface StoreContextProps {
   friends: string[];
   setFriends: React.Dispatch<React.SetStateAction<string[]>>;
   fetchFriends: Function;
   sendFriendRequest: Function;
+  onlineFriends: string[];
+  setOnlineFriends: React.Dispatch<React.SetStateAction<string[]>>;
   activeGames: any[];
   setActiveGames: React.Dispatch<React.SetStateAction<any[]>>;
   incomingRequests: any[];
@@ -25,6 +28,7 @@ const StoreContext = createContext<StoreContextProps | undefined>(undefined);
 export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const { token, isAuth } = useAuth();
   const [friends, setFriends] = useState<string[]>([]);
+  const [onlineFriends, setOnlineFriends] = useState<string[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<
     { username: string; id: string }[]
   >([]);
@@ -33,6 +37,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   >([]);
   const [activeGames, setActiveGames] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { socket } = useSocket();
 
   useEffect(() => {
     if (!isAuth) return;
@@ -52,6 +57,9 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
       }
       const data = await response.json();
       setFriends(data.friends);
+
+      checkOnlineStatus(data.friends)
+
       setIncomingRequests(
         data.incomingRequests.map(
           (r: { id: string; toUsername: string; fromUsername: string }) => ({
@@ -94,6 +102,16 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
       .finally(fetchFriends);
   };
 
+  const checkOnlineStatus = (friends: string[]) => {
+    friends.forEach((friend) => {
+      socket && socket.emit("isUserOnline", friend, (online: boolean) => {
+        setOnlineFriends((prev) =>
+          online ? [...prev, friend] : prev.filter((f) => f !== friend),
+        );
+      });
+    });
+  };
+
   return (
     <StoreContext.Provider
       value={{
@@ -101,6 +119,8 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
         setFriends,
         fetchFriends,
         sendFriendRequest,
+        onlineFriends,
+        setOnlineFriends,
         activeGames,
         setActiveGames,
         incomingRequests,
