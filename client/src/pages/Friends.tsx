@@ -30,7 +30,7 @@ const Friends = () => {
   } = useStore();
   const [isChallengeModalOpen, setIsChallengeModalOpen] =
     useState<boolean>(false);
-
+  const [challengeUsername, setChallengeUsername] = useState<string>("");
   useEffect(() => {
     console.log(onlineFriends);
   }, [onlineFriends]);
@@ -99,14 +99,17 @@ const Friends = () => {
           <Button
             className={isOnline ? "hover:text-yellow-300" : "text-gray-500"}
             disabled={!isOnline}
-            onClick={() => setIsChallengeModalOpen(isOnline)}
+            onClick={() => {
+              setChallengeUsername(username)
+              setIsChallengeModalOpen(isOnline);
+            }}
             icon={<RiSwordLine />}
           />
           <Modal
             isOpen={isChallengeModalOpen}
             setIsOpen={setIsChallengeModalOpen}
           >
-            <ChallengeModal username={username} />
+            <ChallengeModal username={challengeUsername} />
           </Modal>
         </div>
       </div>
