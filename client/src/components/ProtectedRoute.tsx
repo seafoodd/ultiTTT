@@ -6,16 +6,24 @@ import LoadingCircle from "../components/LoadingCircle";
 interface ProtectedRouteProps {
   children: React.ReactNode;
   redirectTo: string;
+  require: "auth" | "no-auth";
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, redirectTo }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  redirectTo,
+  require,
+}) => {
   const { isAuth, authLoading } = useAuth();
 
   if (authLoading) {
     return <LoadingCircle />;
   }
 
-  if (isAuth) {
+  if (require === "no-auth" && isAuth) {
+    return <Navigate to={redirectTo} />;
+  }
+  if (require === "auth" && !isAuth) {
     return <Navigate to={redirectTo} />;
   }
 

@@ -30,11 +30,18 @@ const router = createBrowserRouter(
         { path: "/about", element: <About /> },
         { path: "/learn", element: <Learn /> },
         { path: "/donate", element: <Donate /> },
-        { path: "/friends", element: <Friends /> },
+        {
+          path: "/friends",
+          element: (
+            <ProtectedRoute redirectTo={"/"} require="auth">
+              <Friends />
+            </ProtectedRoute>
+          ),
+        },
         {
           path: "/login",
           element: (
-            <ProtectedRoute redirectTo="/home">
+            <ProtectedRoute redirectTo="/" require="no-auth">
               <LogIn />
             </ProtectedRoute>
           ),
@@ -42,7 +49,7 @@ const router = createBrowserRouter(
         {
           path: "/signup",
           element: (
-            <ProtectedRoute redirectTo="/home">
+            <ProtectedRoute redirectTo="/" require="no-auth">
               <SignUp />
             </ProtectedRoute>
           ),
