@@ -7,6 +7,7 @@ import Dropdown from "./Dropdown";
 import { FaUser } from "react-icons/fa6";
 import { FaCog, FaSignOutAlt } from "react-icons/fa";
 import HeaderSearch from "./HeaderSearch";
+import { MdPeopleAlt } from "react-icons/md";
 
 const Header = () => {
   const { currentUser, logOut, isAuth } = useAuth();
@@ -51,6 +52,9 @@ const Header = () => {
           currentMenu={currentMenu}
           setCurrentMenu={setCurrentMenu}
         />
+        <a className="z-50 mr-1" href="/friends">
+          <MdPeopleAlt className="-mb-1" href="/friends" size={22} />
+        </a>
         {isAuth ? (
           <div className="flex justify-center h-full items-center">
             {/*<NavItem href="/friends" text="friends" />*/}
