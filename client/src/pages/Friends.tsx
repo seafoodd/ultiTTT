@@ -97,7 +97,8 @@ const Friends = () => {
         </a>
         <div>
           <Button
-            className="hover:text-yellow-300"
+            className={isOnline ? "hover:text-yellow-300" : "text-gray-500"}
+            disabled={!isOnline}
             onClick={() => setIsChallengeModalOpen(isOnline)}
             icon={<RiSwordLine />}
           />
