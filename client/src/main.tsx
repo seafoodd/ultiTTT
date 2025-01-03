@@ -16,7 +16,7 @@ import Settings from "./pages/Settings";
 import { Root } from "react-dom/client";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { SocketProvider } from "./context/SocketContext";
-import {StoreProvider} from "./context/StoreContext";
+import { StoreProvider } from "./context/StoreContext";
 
 const router = createBrowserRouter(
   [
@@ -69,12 +69,12 @@ if (rootElement) {
   }
 
   root.render(
-    <AuthProvider>
-      <StoreProvider>
-        <SocketProvider>
+    <SocketProvider>
+      <AuthProvider>
+        <StoreProvider>
           <RouterProvider router={router} />
-        </SocketProvider>
-      </StoreProvider>
-    </AuthProvider>,
+        </StoreProvider>
+      </AuthProvider>
+    </SocketProvider>,
   );
 }
