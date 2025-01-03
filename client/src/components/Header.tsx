@@ -52,9 +52,11 @@ const Header = () => {
           currentMenu={currentMenu}
           setCurrentMenu={setCurrentMenu}
         />
-        <a className="z-50 mr-1" href="/friends">
-          <MdPeopleAlt className="-mb-1" href="/friends" size={22} />
-        </a>
+        {isAuth && (
+          <a className="z-50 mr-1" href="/friends">
+            <MdPeopleAlt className="-mb-1" href="/friends" size={22} />
+          </a>
+        )}
         {isAuth ? (
           <div className="flex justify-center h-full items-center">
             {/*<NavItem href="/friends" text="friends" />*/}
