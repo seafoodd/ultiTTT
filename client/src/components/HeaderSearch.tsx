@@ -82,17 +82,17 @@ const HeaderSearch: React.FC<HeaderSearchProps> = ({
       className={`${className ? className : ""} w-6 items-center justify-center select-none`}
     >
       <button
-        className={`transition-transform z-50 pr-1 ${currentMenu === "search" ? "-translate-x-8 sm:-translate-x-24" : "translate-x-20"}`}
+        className={`transition-transform z-50 pr-1 ${currentMenu === "search" ? "-translate-x-16 sm:-translate-x-24" : "translate-x-14"}`}
         onClick={toggleSearch}
       >
-        <BiSearch className="mt-1" size={22} />
+        <BiSearch className="-mb-1" size={22} />
       </button>
       <div
-        className={`transition-transform relative ${currentMenu === "search" ? "-translate-x-8 sm:-translate-x-24" : "translate-x-16 text-transparent"}`}
+        className={`transition-transform relative ${currentMenu === "search" ? "-translate-x-16 sm:-translate-x-24" : "translate-x-16 text-transparent"}`}
       >
         <input
           ref={inputRef}
-          className={`bg-transparent w-48 h-7 px-2 py-3 rounded-md outline-none origin-right ${currentMenu !== "search" ? "placeholder-transparent" : ""}`}
+          className={`bg-transparent w-32 h-7 px-2 py-3 rounded-md outline-none origin-right ${currentMenu !== "search" ? "placeholder-transparent" : ""}`}
           placeholder="Search"
           value={query}
           onChange={handleInputChange}
