@@ -176,9 +176,12 @@ const handleDeclineChallenge = async (socket, user, gameId, fromUsername) => {
       socket.gameRequests.delete(gameId);
     }
 
-    await emitToUser(socket, fromUsername, "challengeDeclined", {
-      to: socket.username,
-    });
+    await emitToUser(
+      socket,
+      fromUsername,
+      "challengeDeclined",
+      socket.username,
+    );
   } catch (e) {
     console.error("declineChallenge error:", e);
     socket.emit("error", e.message);

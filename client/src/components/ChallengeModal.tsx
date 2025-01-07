@@ -1,29 +1,31 @@
 import React, { useState } from "react";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
-import {useSocket} from "../context/SocketContext";
+import { useSocket } from "../context/SocketContext";
 
 interface ChallengeModalProps {
   username: string;
 }
 
-const ChallengeModal: React.FC<ChallengeModalProps> = ({
-  username,
-}) => {
+const ChallengeModal: React.FC<ChallengeModalProps> = ({ username }) => {
   const [gameType, setGameType] = useState<string>("10");
   const navigate = useNavigate();
-  const {socket} = useSocket()
+  const { socket } = useSocket();
 
   const sendChallengeRequest = () => {
     if (!socket) return;
 
-    try{
-    socket.emit("sendChallenge", gameType, username);
-    socket.on("challengeCreated", (gameId) => {
-      navigate(`/${gameId}`);
-    });
+    try {
+      socket.emit("sendChallenge", gameType, username);
+      socket.on(
+        "challengeCreated",
+        (gameId, callback: (ack: string) => void) => {
+          callback("acknowledged");
+          navigate(`/${gameId}`);
+        },
+      );
     } catch (e) {
-      console.error(123, e)
+      console.error(123, e);
     }
   };
 

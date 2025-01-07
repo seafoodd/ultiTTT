@@ -30,7 +30,7 @@ const JoinGame = () => {
   }, [socket]);
 
   const searchMatch = async (gameType: string) => {
-    if(!socket) return;
+    if (!socket) return;
 
     const isAuth = await verifyToken();
     if (!isAuth) {
@@ -47,7 +47,7 @@ const JoinGame = () => {
   };
 
   const friendlyGame = async (gameType: string) => {
-    if(!socket) return;
+    if (!socket) return;
 
     const isAuth = await verifyToken();
     if (!isAuth) {
@@ -58,18 +58,22 @@ const JoinGame = () => {
     try {
       socket.emit("createFriendlyGame", gameType);
       setSearching(true);
-      socket.on("friendlyGameCreated", (gameId) => {
-        navigate(`/${gameId}`);
-        // location.reload();
-        setSearching(false);
-      });
+      socket.on(
+        "friendlyGameCreated",
+        (gameId, callback: (ack: string) => void) => {
+          navigate(`/${gameId}`);
+          // location.reload();
+          setSearching(false);
+          callback("acknowledged");
+        },
+      );
     } catch (e) {
       console.error("Failed to join the game:", e);
     }
   };
 
   const cancelSearch = async () => {
-    if(!socket) return;
+    if (!socket) return;
 
     socket.emit("cancelSearch", gameType);
     socket.on("searchCancelled", () => {

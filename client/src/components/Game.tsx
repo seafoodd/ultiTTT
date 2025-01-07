@@ -105,8 +105,10 @@ const Game = () => {
 
     socket.emit("joinGame", gameId);
 
-    socket.on("challengeDeclined", () => {
+    socket.on("challengeDeclined", (username, callback: (ack: string) => void) => {
       setIsDeclined(true);
+      setOpponentUsername(username)
+      callback("acknowledged");
     });
 
     const handleError = () => {
