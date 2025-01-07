@@ -1,3 +1,6 @@
+import { customAlphabet } from "nanoid";
+import {redisClient} from "../index.js";
+
 /**
  * All the possible winning patterns
  */
@@ -11,6 +14,25 @@ const Patterns = [
   [0, 4, 8],
   [2, 4, 6],
 ];
+
+export const generateGameId = async (length = 12, maxRetries = 5) => {
+  const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  const nanoid = customAlphabet(alphabet, length);
+
+  let retries = 0;
+  while (retries < maxRetries) {
+    const gameId = nanoid();
+    const existingGame = JSON.parse(await redisClient.get(`game:${gameId}`));
+
+    if (!existingGame) {
+      return gameId;
+    }
+
+    retries++;
+  }
+
+  throw new Error('Failed to generate a unique game ID');
+};
 
 /**
  * Checks if there's a winning

@@ -12,7 +12,11 @@ import {
   removePlayerFromQueue,
   removePlayerFromAllQueues,
 } from "./utils/matchmakingUtils.js";
-import { assignPlayerSymbols, isValidMove } from "./utils/gameUtils.js";
+import {
+  assignPlayerSymbols,
+  generateGameId,
+  isValidMove,
+} from "./utils/gameUtils.js";
 import { debugEmitError } from "./utils/debugUtils.js";
 import { emitToUser } from "./utils/socketUtils.js";
 
@@ -132,14 +136,7 @@ const handleConnect = async (socket, user) => {
  */
 const handleSendChallenge = async (socket, user, gameType, username) => {
   try {
-    const gameId = `${user.username}-${Date.now()}`;
-    const existingGame = JSON.parse(await redisClient.get(`game:${gameId}`));
-
-    if (existingGame) {
-      socket.emit("error", "The game already exists");
-      return;
-    }
-
+    const gameId = await generateGameId(8);
     const game = createNewGame(gameType, false);
     game.invitedUsername = username;
 
@@ -318,14 +315,7 @@ const handleSearchMatch = async (socket, user, gameType) => {
     const match = await findMatch(player, gameType);
     if (match) {
       const [player1, player2] = match;
-      const gameId = Date.now().toString();
-      const existingGame = JSON.parse(await redisClient.get(`game:${gameId}`));
-
-      if (existingGame) {
-        socket.emit("error", "The game already exists");
-        return;
-      }
-
+      const gameId = await generateGameId();
       const game = createNewGame(gameType);
       console.log("created new game:", user.username);
 
@@ -357,14 +347,7 @@ const handleSearchMatch = async (socket, user, gameType) => {
  */
 const handleCreateFriendlyGame = async (socket, user, gameType) => {
   try {
-    const gameId = `${user.username}-${Date.now()}`;
-    const existingGame = JSON.parse(await redisClient.get(`game:${gameId}`));
-
-    if (existingGame) {
-      socket.emit("error", "The game already exists");
-      return;
-    }
-
+    const gameId = await generateGameId(8);
     const game = createNewGame(gameType, false);
     await addNewPlayerToGame(socket, gameId, user.username, game);
     await saveGameToRedis(gameId, game);
