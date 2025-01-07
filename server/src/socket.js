@@ -1,5 +1,9 @@
 import { getUserByToken } from "./utils/authUtils.js";
-import { handleMove, startTimer } from "./controllers/gameController.js";
+import {
+  finishGame,
+  handleMove,
+  startTimer,
+} from "./controllers/gameController.js";
 import { io, redisClient } from "./index.js";
 import {
   addPlayerToQueue,
@@ -89,6 +93,10 @@ const initializeSocket = () => {
           user.username,
         ),
       ),
+    );
+    socket.on(
+      "resign",
+      requireAuth((gameId) => handleResign(socket, gameId, user.username)),
     );
     socket.on("ping", (callback) => {
       callback();
@@ -386,11 +394,11 @@ const handleMakeMove = async (
 ) => {
   try {
     let game = JSON.parse(await redisClient.get(`game:${gameId}`));
+    if (!game) return;
     const player = game.players.find((p) => p.username === username);
     if (!player) return;
     const symbol = player.symbol;
 
-    if (!game) return;
     if (!isValidMove(game, subBoardIndex, squareIndex, symbol)) {
       return;
     }
@@ -403,6 +411,45 @@ const handleMakeMove = async (
       symbol,
       redisClient,
     );
+  } catch (e) {
+    console.error("makeMove error:", e);
+    socket.emit("error", e.message);
+  }
+};
+
+const handleResign = async (socket, gameId, username) => {
+  try {
+    let game = JSON.parse(await redisClient.get(`game:${gameId}`));
+    if (!game) return;
+    const player = game.players.find((p) => p.username === username);
+    if (!player) return;
+
+    if (game.moveHistory.length < 2) {
+      await finishGame(io, game, gameId, null, redisClient, false, "aborted");
+      io.to(gameId).emit("gameResult", {
+        winner: "none",
+        status: "aborted",
+      });
+      console.log("aborted game with id", gameId);
+      return;
+    }
+
+    const opponent = game.players.find((p) => p.username !== username);
+    if (!opponent) return;
+    await finishGame(
+      io,
+      game,
+      gameId,
+      opponent.symbol,
+      redisClient,
+      game.isRanked,
+      "resign",
+    );
+    io.to(gameId).emit("gameResult", {
+      winner: opponent.symbol,
+      status: "resign",
+    });
+    console.log("resigned game with id", gameId);
   } catch (e) {
     console.error("makeMove error:", e);
     socket.emit("error", e.message);
