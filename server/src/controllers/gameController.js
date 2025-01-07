@@ -106,7 +106,7 @@ export const handleOverallWin = async (io, game, gameId, redisClient) => {
 /**
  * Saves the game result to the database and updates player ELO ratings.
  */
-const saveGameResult = async (game, overallWinner, isRanked, status) => {
+const saveGameResult = async (gameId, game, overallWinner, isRanked, status) => {
   try {
     const [player1, player2] = await Promise.all([
       prisma.user.findUnique({ where: { username: game.players[0].username } }),
@@ -184,6 +184,7 @@ const saveGameResult = async (game, overallWinner, isRanked, status) => {
 
       await prisma.game.create({
         data: {
+          id: gameId,
           board: game.board,
           winner: winnerUsername,
           moveHistory: game.moveHistory,
@@ -216,7 +217,7 @@ export const finishGame = async (
   status,
 ) => {
   await redisClient.del(`game:${gameId}`);
-  await saveGameResult(game, winnerSymbol, isRanked, status);
+  await saveGameResult(gameId, game, winnerSymbol, isRanked, status);
   debugLog(`saved the game with id ${gameId} (status: ${status})`);
 };
 

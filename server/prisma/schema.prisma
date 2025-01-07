@@ -49,7 +49,7 @@ model FriendRequest {
 }
 
 model Game {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  id               String   @id @map("_id")
   board            Json
   winner           String?
   moveHistory      Json
