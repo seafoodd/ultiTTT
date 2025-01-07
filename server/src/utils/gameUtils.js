@@ -1,5 +1,6 @@
 import { customAlphabet } from "nanoid";
-import {redisClient} from "../index.js";
+import { redisClient } from "../index.js";
+import prisma from "../../prisma/prismaClient.js";
 
 /**
  * All the possible winning patterns
@@ -15,23 +16,37 @@ const Patterns = [
   [2, 4, 6],
 ];
 
-export const generateGameId = async (length = 12, maxRetries = 5) => {
-  const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+export const generateGameId = async (length = 12, maxRetries = 5, retryDelay = 100) => {
+  const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   const nanoid = customAlphabet(alphabet, length);
 
   let retries = 0;
   while (retries < maxRetries) {
     const gameId = nanoid();
-    const existingGame = JSON.parse(await redisClient.get(`game:${gameId}`));
 
-    if (!existingGame) {
-      return gameId;
+    try {
+      let existingGame = JSON.parse(await redisClient.get(`game:${gameId}`));
+
+      if (!existingGame) {
+        existingGame = await prisma.game.findUnique({
+          where: { id: gameId },
+        });
+      }
+
+      if (!existingGame) {
+        return gameId;
+      }
+    } catch (error) {
+      console.error("Error checking game ID:", error);
     }
 
     retries++;
+    if (retries < maxRetries) {
+      await new Promise(resolve => setTimeout(resolve, retryDelay)); // Delay between retries
+    }
   }
 
-  throw new Error('Failed to generate a unique game ID');
+  throw new Error("Failed to generate a unique game ID after multiple retries");
 };
 
 /**
@@ -90,7 +105,9 @@ export const isValidMove = (game, subBoardIndex, squareIndex, symbol) => {
  * Assigns symbols to players randomly.
  */
 export const assignPlayerSymbols = (game) => {
-  const playerSymbol = Math.random() < 0.5 ? "X" : "O";
-  game.players[0].symbol = playerSymbol;
-  game.players[1].symbol = playerSymbol === "X" ? "O" : "X";
+  if (Math.random() > 0.5) {
+    [game.players[0], game.players[1]] = [game.players[1], game.players[0]];
+  }
+  game.players[0].symbol = "X";
+  game.players[1].symbol = "O";
 };

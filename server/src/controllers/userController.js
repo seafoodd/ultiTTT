@@ -47,15 +47,15 @@ export const getGameHistory = async (req, res) => {
       },
       select: {
         username: true,
-        gameHistory1: true,
-        gameHistory2: true,
+        gameHistoryX: true,
+        gameHistoryO: true,
       },
     });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const combinedGames = [...user.gameHistory1, ...user.gameHistory2].map(
+    const combinedGames = [...user.gameHistoryX, ...user.gameHistoryO].map(
       (game) => {
         let gameResult = "tie";
         if (game.winner)

@@ -26,24 +26,24 @@ const fetchGameHistory = async (
 
     const gamesWithPlayers = await Promise.all(
       data.games.map(async (game: any) => {
-        let player1Response = null;
-        let player2Response = null;
+        let playerXResponse = null;
+        let playerOResponse = null;
 
-        if (game.player1Username) {
-          player1Response = await fetch(
-            `${import.meta.env.VITE_API_URL}/users/${game.player1Username}`,
+        if (game.playerXUsername) {
+          playerXResponse = await fetch(
+            `${import.meta.env.VITE_API_URL}/users/${game.playerXUsername}`,
           );
         }
-        if (game.player2Username) {
-          player2Response = await fetch(
-            `${import.meta.env.VITE_API_URL}/users/${game.player2Username}`,
+        if (game.playerOUsername) {
+          playerOResponse = await fetch(
+            `${import.meta.env.VITE_API_URL}/users/${game.playerOUsername}`,
           );
         }
-        let player1 = null;
-        let player2 = null;
-        if (player1Response) player1 = await player1Response.json();
-        if (player2Response) player2 = await player2Response.json();
-        return { ...game, player1, player2 };
+        let playerX = null;
+        let playerO = null;
+        if (playerXResponse) playerX = await playerXResponse.json();
+        if (playerOResponse) playerO = await playerOResponse.json();
+        return { ...game, playerX, playerO };
       }),
     );
 
@@ -93,15 +93,15 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
           <div className="flex-shrink flex flex-col w-full md:justify-between md:flex-row items-center">
             <div className="flex gap-6 sm:gap-2 items-center">
               <PlayerInfo
-                player={game.player1}
-                elo={game.player1Elo}
-                eloChange={game.player1EloChange}
+                player={game.playerX}
+                elo={game.playerXElo}
+                eloChange={game.playerXEloChange}
               />
               <span>vs</span>
               <PlayerInfo
-                player={game.player2}
-                elo={game.player2Elo}
-                eloChange={game.player2EloChange}
+                player={game.playerO}
+                elo={game.playerOElo}
+                eloChange={game.playerOEloChange}
               />
             </div>
             <div className="text-xl font-medium w-24 flex items-center justify-center mt-2">

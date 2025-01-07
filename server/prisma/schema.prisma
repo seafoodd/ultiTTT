@@ -20,8 +20,8 @@ model User {
   elo                    Float           @default(1000)
   rd                     Float           @default(200)
   vol                    Float           @default(0.06)
-  gameHistory1           Game[]          @relation("Player1Games")
-  gameHistory2           Game[]          @relation("Player2Games")
+  gameHistoryX           Game[]          @relation("PlayerXGames")
+  gameHistoryO           Game[]          @relation("PlayerOGames")
   friendships1           Friend[]        @relation("User1Friends")
   friendships2           Friend[]        @relation("User2Friends")
   sentFriendRequests     FriendRequest[] @relation("SentFriendRequests")
@@ -54,14 +54,14 @@ model Game {
   winner           String?
   moveHistory      Json
   createdAt        DateTime @default(now())
-  player1          User?    @relation("Player1Games", fields: [player1Username], references: [username], onDelete: SetNull)
-  player1Username  String?
-  player1Elo       Int
-  player1EloChange Int
-  player2          User?    @relation("Player2Games", fields: [player2Username], references: [username], onDelete: SetNull)
-  player2Username  String?
-  player2Elo       Int
-  player2EloChange Int
+  playerX          User?    @relation("PlayerXGames", fields: [playerXUsername], references: [username], onDelete: SetNull)
+  playerXUsername  String?
+  playerXElo       Int
+  playerXEloChange Int
+  playerO          User?    @relation("PlayerOGames", fields: [playerOUsername], references: [username], onDelete: SetNull)
+  playerOUsername  String?
+  playerOElo       Int
+  playerOEloChange Int
   isRanked         Boolean  @default(true)
   status           String   @default("finished")
 }

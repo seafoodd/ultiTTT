@@ -5,7 +5,7 @@ import {
   preciseSetInterval,
 } from "../utils/timeUtils.js";
 import { emitGameState } from "../socket.js";
-import {debugLog} from "../utils/debugUtils.js";
+import { debugLog } from "../utils/debugUtils.js";
 
 /**
  * Handles a player's move in the game.
@@ -106,71 +106,77 @@ export const handleOverallWin = async (io, game, gameId, redisClient) => {
 /**
  * Saves the game result to the database and updates player ELO ratings.
  */
-const saveGameResult = async (gameId, game, overallWinner, isRanked, status) => {
+const saveGameResult = async (
+  gameId,
+  game,
+  overallWinner,
+  isRanked,
+  status,
+) => {
   try {
-    const [player1, player2] = await Promise.all([
+    const [playerX, playerO] = await Promise.all([
       prisma.user.findUnique({ where: { username: game.players[0].username } }),
       prisma.user.findUnique({ where: { username: game.players[1].username } }),
     ]);
 
-    if (player1 && player2) {
-      let player1EloChange = {
-        newRating: player1.elo,
-        newRd: player1.rd,
-        newVol: player1.vol,
+    if (playerX && playerO) {
+      let playerXEloChange = {
+        newRating: playerX.elo,
+        newRd: playerX.rd,
+        newVol: playerX.vol,
       };
-      let player2EloChange = {
-        newRating: player2.elo,
-        newRd: player2.rd,
-        newVol: player2.vol,
+      let playerOEloChange = {
+        newRating: playerO.elo,
+        newRd: playerO.rd,
+        newVol: playerO.vol,
       };
 
       if (isRanked) {
-        const player1Outcome =
+        const playerXOutcome =
           overallWinner === game.players[0].symbol
             ? 1
             : overallWinner
               ? 0
               : 0.5;
-        const player2Outcome =
+        const playerOOutcome =
           overallWinner === game.players[1].symbol
             ? 1
             : overallWinner
               ? 0
               : 0.5;
 
-        player1EloChange = calculateEloChange(
-          player1.elo,
-          player1.rd,
-          player1.vol,
-          player2.elo,
-          player2.rd,
-          player1Outcome,
+        playerXEloChange = calculateEloChange(
+          playerX.elo,
+          playerX.rd,
+          playerX.vol,
+          playerO.elo,
+          playerO.rd,
+          playerXOutcome,
         );
-        player2EloChange = calculateEloChange(
-          player2.elo,
-          player2.rd,
-          player2.vol,
-          player1.elo,
-          player1.rd,
-          player2Outcome,
+        playerOEloChange = calculateEloChange(
+          playerO.elo,
+          playerO.rd,
+          playerO.vol,
+          playerX.elo,
+          playerX.rd,
+          playerOOutcome,
         );
 
         await Promise.all([
           prisma.user.update({
-            where: { username: player1.username },
+            where: { username: playerX.username },
             data: {
-              elo: player1EloChange.newRating,
-              rd: player1EloChange.newRd,
-              vol: player1EloChange.newVol,
+              elo: playerXEloChange.newRating,
+              rd: playerXEloChange.newRd,
+              vol: playerXEloChange.newVol,
             },
           }),
           prisma.user.update({
-            where: { username: player2.username },
+            where: { username: playerO.username },
             data: {
-              elo: player2EloChange.newRating,
-              rd: player2EloChange.newRd,
-              vol: player2EloChange.newVol,
+              elo: playerOEloChange.newRating,
+              rd: playerOEloChange.newRd,
+              vol: playerOEloChange.newVol,
             },
           }),
         ]);
@@ -178,8 +184,8 @@ const saveGameResult = async (gameId, game, overallWinner, isRanked, status) => 
 
       const winnerUsername = overallWinner
         ? overallWinner === game.players[0].symbol
-          ? player1.username
-          : player2.username
+          ? playerX.username
+          : playerO.username
         : null;
 
       await prisma.game.create({
@@ -188,12 +194,12 @@ const saveGameResult = async (gameId, game, overallWinner, isRanked, status) => 
           board: game.board,
           winner: winnerUsername,
           moveHistory: game.moveHistory,
-          player1: { connect: { username: player1.username } },
-          player1Elo: player1.elo,
-          player1EloChange: player1EloChange.newRating - player1.elo,
-          player2: { connect: { username: player2.username } },
-          player2Elo: player2.elo,
-          player2EloChange: player2EloChange.newRating - player2.elo,
+          playerX: { connect: { username: playerX.username } },
+          playerXElo: playerX.elo,
+          playerXEloChange: playerXEloChange.newRating - playerX.elo,
+          playerO: { connect: { username: playerO.username } },
+          playerOElo: playerO.elo,
+          playerOEloChange: playerOEloChange.newRating - playerO.elo,
           isRanked: isRanked,
           status: status,
         },
