@@ -170,8 +170,7 @@ const handleDeclineChallenge = async (socket, user, gameId, fromUsername) => {
       socket.emit("error", "Not Found");
       return;
     }
-    if (game.players < 2) {
-      console.log("del 1");
+    if (game.players.length < 2) {
       await redisClient.del(`game:${gameId}`);
       socket.gameRequests.delete(gameId);
     }
