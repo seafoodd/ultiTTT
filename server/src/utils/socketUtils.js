@@ -13,7 +13,7 @@ export const emitWithRetry = (socket, event, data, retries = 3, timeout = 1000, 
         console.error(`Failed to emit ${event} to ${socket.id}:`, error);
         attemptEmit(remainingRetries - 1);
       } else {
-        debugLog(`Acknowledgment received from player ${socket.id}:`, responses);
+        debugLog(`ACK: ${socket.id}`, responses);
         acknowledgedPlayers.add(socket.id);
       }
     });
