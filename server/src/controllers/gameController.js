@@ -22,7 +22,7 @@ export const handleMove = async (
   try {
     let game = JSON.parse(await redisClient.get(`game:${gameId}`));
     game.board[subBoardIndex].squares[squareIndex] = symbol;
-    game.turn = symbol === "X" ? "O" : "X";
+    game.turn = game.turn === "X" ? "O" : "X";
 
     if (game.moveHistory.length > 1) game.timers[symbol] += game.timeIncrement;
     game.moveHistory.push({ subBoardIndex, squareIndex, player: symbol });
