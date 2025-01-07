@@ -108,7 +108,7 @@ const Game = () => {
     socket.on("challengeDeclined", (username, callback: (ack: string) => void) => {
       setIsDeclined(true);
       setOpponentUsername(username)
-      callback("acknowledged");
+      callback("ACK");
     });
 
     const handleError = () => {
@@ -141,7 +141,7 @@ const Game = () => {
       if (gameState.players.length === 2) {
         setPlayersJoined(true);
       }
-      callback("acknowledged");
+      callback("ACK");
     };
 
     const handleGameResult = (result: any) => {

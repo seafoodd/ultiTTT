@@ -95,7 +95,7 @@ export const register = async (req, res) => {
 
     res.status(201).json({ ...user, token });
   } catch (e) {
-    console.log(e);
+    console.error(e);
     res.status(500).json({ error: "Something went wrong" });
   }
 };
@@ -143,7 +143,7 @@ export const login = async (req, res) => {
 
     res.status(200).json({ token });
   } catch (e) {
-    console.log(e);
+    console.error(e);
     res.status(500).json({ error: "Something went wrong" });
   }
 };

@@ -1,4 +1,5 @@
 import { redisClient } from "../index.js";
+import {debugLog} from "./debugUtils.js";
 
 /**
  * Represents a player in the matchmaking queue.
@@ -52,7 +53,7 @@ const removePlayerFromQueue = async (username, gameType) => {
  */
 const removePlayerFromAllQueues = async (username) => {
   const gameTypes = ["0", "5", "10", "15"];
-  console.log(`removing ${username} from all queues...`)
+  debugLog(`removing ${username} from all queues...`)
   for (const gameType of gameTypes) {
     await removePlayerFromQueue(username, gameType);
   }

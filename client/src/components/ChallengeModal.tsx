@@ -20,7 +20,7 @@ const ChallengeModal: React.FC<ChallengeModalProps> = ({ username }) => {
       socket.on(
         "challengeCreated",
         (gameId, callback: (ack: string) => void) => {
-          callback("acknowledged");
+          callback("ACK");
           navigate(`/${gameId}`);
         },
       );

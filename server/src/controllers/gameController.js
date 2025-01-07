@@ -5,6 +5,7 @@ import {
   preciseSetInterval,
 } from "../utils/timeUtils.js";
 import { emitGameState } from "../socket.js";
+import {debugLog} from "../utils/debugUtils.js";
 
 /**
  * Handles a player's move in the game.
@@ -88,7 +89,6 @@ export const handleOverallWin = async (io, game, gameId, redisClient) => {
     if (!game.gameFinished) {
       game.gameFinished = true;
       await redisClient.set(`game:${gameId}`, JSON.stringify(game));
-      // console.log(game);
       io.to(gameId).emit("gameResult", gameResult);
       await finishGame(
         io,
@@ -217,7 +217,7 @@ export const finishGame = async (
 ) => {
   await redisClient.del(`game:${gameId}`);
   await saveGameResult(game, winnerSymbol, isRanked, status);
-  console.log(`saved the game with id ${gameId} (status: ${status})`);
+  debugLog(`saved the game with id ${gameId} (status: ${status})`);
 };
 
 /**
@@ -262,7 +262,7 @@ export const startTimer = async (io, gameId, redisClient) => {
         false,
         "aborted",
       );
-      console.log("aborted game with id", gameId);
+      debugLog("aborted game with id", gameId);
 
       return;
     }

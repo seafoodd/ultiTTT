@@ -7,12 +7,12 @@ const debugWrapper = (fn) => {
   };
 };
 
-export const debugLog = debugWrapper((message) => {
-  console.log(message);
+export const debugLog = debugWrapper((...message) => {
+  console.log(...message);
 });
 
-export const debugError = debugWrapper((message) => {
-  console.error(message);
+export const debugError = debugWrapper((...message) => {
+  console.error(...message);
 });
 
 export const debugEmitError = debugWrapper(

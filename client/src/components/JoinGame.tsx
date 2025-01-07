@@ -17,10 +17,9 @@ const JoinGame = () => {
       gameId: string,
       callback: (ack: string) => void,
     ) => {
-      console.log("matchFound!!!");
       navigate(`/${gameId}`);
       setSearching(false);
-      callback("acknowledged");
+      callback("ACK");
     };
 
     socket.on("matchFound", matchFoundListener);
@@ -64,7 +63,7 @@ const JoinGame = () => {
           navigate(`/${gameId}`);
           // location.reload();
           setSearching(false);
-          callback("acknowledged");
+          callback("ACK");
         },
       );
     } catch (e) {

@@ -17,7 +17,7 @@ import {
   generateGameId,
   isValidMove,
 } from "./utils/gameUtils.js";
-import { debugEmitError } from "./utils/debugUtils.js";
+import {debugEmitError, debugError, debugLog} from "./utils/debugUtils.js";
 import { emitToUser } from "./utils/socketUtils.js";
 
 /**
@@ -25,7 +25,7 @@ import { emitToUser } from "./utils/socketUtils.js";
  */
 const initializeSocket = () => {
   io.on("connection", async (socket) => {
-    console.log("New connection attempt with id:", socket.id);
+    debugLog("New connection attempt with id:", socket.id);
 
     const token = socket.handshake.auth.token;
 
@@ -38,7 +38,7 @@ const initializeSocket = () => {
     try {
       user = await getUserByToken(token);
     } catch (e) {
-      console.error("Token verification failed:", e.message);
+      debugError("Token verification failed:", e.message);
       debugEmitError(socket, "error", 401, "Invalid token");
     } finally {
       await handleConnect(socket, user);
@@ -416,7 +416,7 @@ const handleResign = async (socket, gameId, username) => {
         winner: "none",
         status: "aborted",
       });
-      console.log("aborted game with id", gameId);
+      debugLog("aborted game with id", gameId);
       return;
     }
 
