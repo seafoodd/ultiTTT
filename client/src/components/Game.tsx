@@ -13,6 +13,8 @@ import { checkSubWinner } from "../utils/gameUtils";
 import Button from "./Button";
 import { BiHome } from "react-icons/bi";
 import { useSocket } from "../context/SocketContext";
+import { FaFlag } from "react-icons/fa";
+import { ImCross } from "react-icons/im";
 
 interface GameState {
   board: { subWinner: string; squares: string[] }[];
@@ -190,6 +192,11 @@ const Game = () => {
     return newBoard;
   };
 
+  function handleResign() {
+    if (!socket) return;
+    socket.emit("resign", gameId);
+  }
+
   useEffect(() => {
     setBoard(getBoardAtMove(currentMoveIndex));
   }, [currentMoveIndex, moveHistory]);
@@ -274,7 +281,7 @@ const Game = () => {
             className="rounded-t-md shadow-2xl w-32"
           />
         </div>
-        <div className="flex flex-col w-full rounded-r-md bg-gray-800 lg:h-[600px]">
+        <div className="flex lg:flex-col flex-col-reverse w-full rounded-r-md bg-gray-800 lg:h-[600px]">
           <div className="hidden lg:flex border-b px-4 items-center font-medium">
             <div className="max-w-40 truncate">{opponentUsername}</div>
           </div>
@@ -334,34 +341,45 @@ const Game = () => {
                 ))}
             </div>
           </div>
-          <div className="flex justify-center gap-8 items-center py-2">
+          <div className="flex justify-center gap-4 items-center py-4 lg:py-2">
             <button
-              className="disabled:text-white/30"
+              className="disabled:text-white/30 h-full"
               onClick={() => setCurrentMoveIndex(0)}
               disabled={currentMoveIndex <= 0}
             >
-              <FaBackwardFast />
+              <FaBackwardFast size={20} />
             </button>
             <button
-              className="disabled:text-white/30"
+              className="disabled:text-white/30 h-full"
               onClick={() => setCurrentMoveIndex(currentMoveIndex - 1)}
               disabled={currentMoveIndex <= 0}
             >
-              <FaBackwardStep />
+              <FaBackwardStep size={20} />
             </button>
             <button
-              className="disabled:text-white/30"
+              className="disabled:text-white/30 h-full"
               onClick={() => setCurrentMoveIndex(currentMoveIndex + 1)}
               disabled={currentMoveIndex >= moveHistory.length}
             >
-              <FaForwardStep />
+              <FaForwardStep size={20} />
             </button>
             <button
-              className="disabled:text-white/30"
+              className="disabled:text-white/30 h-full"
               onClick={() => setCurrentMoveIndex(moveHistory.length)}
               disabled={currentMoveIndex >= moveHistory.length}
             >
-              <FaForwardFast />
+              <FaForwardFast size={20} />
+            </button>
+            <button
+              title={moveHistory.length > 1 ? "Resign" : "Abort game"}
+              className="disabled:text-white/30 h-full ml-2"
+              onClick={() => handleResign()}
+            >
+              {moveHistory.length > 1 ? (
+                <FaFlag size={20} />
+              ) : (
+                <ImCross size={20} />
+              )}
             </button>
           </div>
           <div className="hidden lg:flex border-t px-4 items-center font-medium">
