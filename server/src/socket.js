@@ -11,7 +11,7 @@ import {
   Player,
   removePlayerFromQueue,
 } from "./utils/matchmakingUtils.js";
-import {addNewPlayerToGame, assignPlayerSymbols, generateGameId} from "./utils/roomUtils.js";
+import {addNewPlayerToGame, assignPlayerSymbols, createNewGame, generateGameId} from "./utils/roomUtils.js";
 import { debugEmitError, debugError, debugLog } from "./utils/debugUtils.js";
 import {emitGameState, emitToUser} from "./utils/socketUtils.js";
 import {saveGameToRedis} from "./utils/redisUtils.js";
@@ -281,44 +281,6 @@ const handleCreateFriendlyGame = async (socket, user, gameType) => {
     console.error("createFriendlyGame error:", e);
     socket.emit("error", e.message);
   }
-};
-
-/**
- * Create a new game object based on the game type.
- * @param {string} gameType - The type of game.
- * @param isRanked - Is the game ranked?
- * @returns {Object} The new game object.
- */
-const createNewGame = (gameType, isRanked = true) => {
-  let time = 5 * 60 * 1000;
-  let timeIncrement = 0;
-
-  if (gameType === "0") {
-    time = 3 * 1000;
-  } else if (gameType === "5") {
-    time = 5 * 60 * 1000;
-    timeIncrement = 3000;
-  } else if (gameType === "10") {
-    time = 10 * 60 * 1000;
-    timeIncrement = 5000;
-  } else if (gameType === "15") {
-    time = 15 * 60 * 1000;
-    timeIncrement = 10000;
-  }
-
-  return {
-    board: Array.from({ length: 9 }, () => ({
-      subWinner: "",
-      squares: Array(9).fill(""),
-    })),
-    players: [],
-    moveHistory: [],
-    turn: "X",
-    timeIncrement: timeIncrement,
-    currentSubBoard: null,
-    timers: { X: time, O: time },
-    isRanked: isRanked,
-  };
 };
 
 export { initializeSocket };
