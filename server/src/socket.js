@@ -1,7 +1,6 @@
 import { getUserByToken } from "./utils/authUtils.js";
 import {
-  finishGame,
-  handleMove,
+  handleMove, handleResign,
   startTimer,
 } from "./controllers/gameController.js";
 import { io, redisClient } from "./index.js";
@@ -352,44 +351,7 @@ const handleCreateFriendlyGame = async (socket, user, gameType) => {
   }
 };
 
-const handleResign = async (socket, gameId, username) => {
-  try {
-    let game = JSON.parse(await redisClient.get(`game:${gameId}`));
-    if (!game) return;
-    const player = game.players.find((p) => p.username === username);
-    if (!player) return;
 
-    if (game.moveHistory.length < 2) {
-      await finishGame(io, game, gameId, null, redisClient, false, "aborted");
-      io.to(gameId).emit("gameResult", {
-        winner: "none",
-        status: "aborted",
-      });
-      debugLog("aborted game with id", gameId);
-      return;
-    }
-
-    const opponent = game.players.find((p) => p.username !== username);
-    if (!opponent) return;
-    await finishGame(
-      io,
-      game,
-      gameId,
-      opponent.symbol,
-      redisClient,
-      game.isRanked,
-      "resign",
-    );
-    io.to(gameId).emit("gameResult", {
-      winner: opponent.symbol,
-      status: "resign",
-    });
-    console.log("resigned game with id", gameId);
-  } catch (e) {
-    console.error("makeMove error:", e);
-    socket.emit("error", e.message);
-  }
-};
 
 /**
  * Create a new game object based on the game type.
