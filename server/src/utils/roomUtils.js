@@ -62,3 +62,45 @@ export const generateGameId = async (
 
   throw new Error("Failed to generate a unique game ID after multiple retries");
 };
+
+
+/**
+ * Create a new game object based on the game type.
+ * @param {string} gameType - The type of game (minutes).
+ * @param isRanked - Is the game ranked?
+ * @returns {Object} The new game object.
+ */
+export const createNewGame = (gameType, isRanked = true) => {
+  let time = 1000;
+  let timeIncrement = 0;
+
+  switch (gameType) {
+    case "0":
+      time *= 3;
+      break
+    case "5":
+      time *= 5 * 60
+      break
+    case "10":
+      time *= 10 * 60
+      break
+    case "15":
+      time *= 15 * 60
+      break
+
+  }
+
+  return {
+    board: Array.from({ length: 9 }, () => ({
+      subWinner: "",
+      squares: Array(9).fill(""),
+    })),
+    players: [],
+    moveHistory: [],
+    turn: "X",
+    timeIncrement: timeIncrement,
+    currentSubBoard: null,
+    timers: { X: time, O: time },
+    isRanked: isRanked,
+  };
+};
