@@ -72,7 +72,6 @@ export const handleMove = async (
 
     io.to(gameId).emit("gameState", {
       board: redisGame.board,
-      turn: redisGame.turn,
       moveHistory: redisGame.moveHistory,
       currentSubBoard: redisGame.currentSubBoard,
       players: redisGame.players,

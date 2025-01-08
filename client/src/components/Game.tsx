@@ -105,11 +105,14 @@ const Game = () => {
 
     socket.emit("joinGame", gameId);
 
-    socket.on("challengeDeclined", (username, callback: (ack: string) => void) => {
-      setIsDeclined(true);
-      setOpponentUsername(username)
-      callback("ACK");
-    });
+    socket.on(
+      "challengeDeclined",
+      (username, callback: (ack: string) => void) => {
+        setIsDeclined(true);
+        setOpponentUsername(username);
+        callback("ACK");
+      },
+    );
 
     const handleError = () => {
       setGameNotFound(true);
@@ -120,7 +123,7 @@ const Game = () => {
       callback: (ack: string) => void = () => {},
     ) => {
       setBoard(gameState.board);
-      setTurn(gameState.turn);
+      setTurn(gameState.moveHistory.length % 2 === 0 ? "X" : "O");
       setMoveHistory(gameState.moveHistory);
       const opponent = gameState.players.find(
         (p) => p.username !== currentUser.username,

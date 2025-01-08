@@ -51,7 +51,6 @@ export const emitToGuest = async (socket, event, data) => {
 export const emitGameState = (gameId, game) => {
     io.to(gameId).emit("gameState", {
       board: game.board,
-      turn: game.turn,
       moveHistory: game.moveHistory,
       currentSubBoard: game.currentSubBoard,
       players: game.players,
