@@ -1,3 +1,7 @@
+import {debugLog} from "./debugUtils.js";
+import {saveGameResult} from "./dbUtils.js";
+import {redisClient} from "../index.js";
+
 /**
  * All the possible winning patterns
  */
@@ -62,4 +66,23 @@ export const isValidMove = (game, subBoardIndex, squareIndex, symbol) => {
     game.board[subBoardIndex].squares[squareIndex] === "" &&
     game.turn === symbol
   );
+};
+
+/**
+ * Finishes the game by saving the result and clearing the timer.
+ */
+export const finishGame = async (
+  game,
+  gameId,
+  winnerSymbol,
+  isRanked,
+  status,
+) => {
+  try {
+    await redisClient.del(`game:${gameId}`);
+    await saveGameResult(gameId, game, winnerSymbol, isRanked, status);
+    debugLog(`saved the game with id ${gameId} (status: ${status})`);
+  } catch (e) {
+    console.error("Error saving game result:", e);
+  }
 };
