@@ -1,6 +1,7 @@
 import { getUserByToken } from "./utils/authUtils.js";
 import {
-  handleMove, handleResign,
+  handleMove,
+  handleResign,
   startTimer,
 } from "./controllers/gameController.js";
 import { io, redisClient } from "./index.js";
@@ -11,9 +12,10 @@ import {
   removePlayerFromQueue,
   removePlayerFromAllQueues,
 } from "./utils/matchmakingUtils.js";
-import { assignPlayerSymbols, generateGameId } from "./utils/gameUtils.js";
+import {addNewPlayerToGame, assignPlayerSymbols, generateGameId} from "./utils/roomUtils.js";
 import { debugEmitError, debugError, debugLog } from "./utils/debugUtils.js";
-import { emitToUser } from "./utils/socketUtils.js";
+import {emitGameState, emitToUser} from "./utils/socketUtils.js";
+import {saveGameToRedis} from "./utils/redisUtils.js";
 
 /**
  * Initialize socket connections and define event handlers.
@@ -117,6 +119,56 @@ const handleConnect = async (socket, user) => {
 };
 
 /**
+ * Handle user disconnection by removing user:{username}
+ * and removing the user from matchmaking queues
+ * @param {Object} socket - The socket object.
+ */
+const handleDisconnect = async (socket) => {
+  if (!socket.username) return;
+
+  try {
+    const socketIds = await redisClient.smembers(`user:${socket.username}`);
+    console.log(socketIds);
+
+    const invalidSocketIds = socketIds.filter(
+      (id) => !io.sockets.sockets.has(id),
+    );
+    for (const id of invalidSocketIds) {
+      await redisClient.srem(`user:${socket.username}`, id);
+    }
+
+    if (!socketIds.includes(socket.id)) return;
+
+    await redisClient.srem(`user:${socket.username}`, socket.id);
+
+    console.log(
+      socket.username,
+      "has disconnected a socket with id",
+      socket.id,
+    );
+    if (socketIds.length <= 1) {
+      await redisClient.del(`user:${socket.username}`);
+      io.emit("userOffline", socket.username);
+      await removePlayerFromAllQueues(socket.username);
+      console.log(socket.username, "has disconnected");
+    }
+  } catch (e) {
+    console.error("handleDisconnect error:", e);
+    socket.emit("error", e.message);
+  }
+};
+
+/**
+ * Check if a user is online.
+ * @param {string} username - The username to check.
+ * @param {function} callback - The callback function to return the result.
+ */
+const handleIsUserOnline = async (username, callback) => {
+  const isOnline = await redisClient.exists(`user:${username}`);
+  callback(isOnline === 1);
+};
+
+/**
  * Handle sending a challenge to another user.
  * @param {Object} socket - The socket object.
  * @param {Object} user - The user object.
@@ -177,56 +229,6 @@ const handleDeclineChallenge = async (socket, user, gameId, fromUsername) => {
 };
 
 /**
- * Handle user disconnection by removing user:{username}
- * and removing the user from matchmaking queues
- * @param {Object} socket - The socket object.
- */
-const handleDisconnect = async (socket) => {
-  if (!socket.username) return;
-
-  try {
-    const socketIds = await redisClient.smembers(`user:${socket.username}`);
-    console.log(socketIds);
-
-    const invalidSocketIds = socketIds.filter(
-      (id) => !io.sockets.sockets.has(id),
-    );
-    for (const id of invalidSocketIds) {
-      await redisClient.srem(`user:${socket.username}`, id);
-    }
-
-    if (!socketIds.includes(socket.id)) return;
-
-    await redisClient.srem(`user:${socket.username}`, socket.id);
-
-    console.log(
-      socket.username,
-      "has disconnected a socket with id",
-      socket.id,
-    );
-    if (socketIds.length <= 1) {
-      await redisClient.del(`user:${socket.username}`);
-      io.emit("userOffline", socket.username);
-      await removePlayerFromAllQueues(socket.username);
-      console.log(socket.username, "has disconnected");
-    }
-  } catch (e) {
-    console.error("handleDisconnect error:", e);
-    socket.emit("error", e.message);
-  }
-};
-
-/**
- * Check if a user is online.
- * @param {string} username - The username to check.
- * @param {function} callback - The callback function to return the result.
- */
-const handleIsUserOnline = async (username, callback) => {
-  const isOnline = await redisClient.exists(`user:${username}`);
-  callback(isOnline === 1);
-};
-
-/**
  * Handle joining a game.
  * @param {Object} socket - The socket object.
  * @param {string} gameId - The ID of the game.
@@ -250,7 +252,7 @@ const handleJoinGame = async (socket, gameId) => {
 
     if (existingPlayer) {
       socket.join(gameId);
-      emitGameState(io, gameId, game);
+      emitGameState(gameId, game);
       await saveGameToRedis(gameId, game);
       // console.log(`connected ${username}(${socket.id}) to ${gameId}`);
       return;
@@ -263,11 +265,10 @@ const handleJoinGame = async (socket, gameId) => {
 
     if (game.players.length < 2 && canJoin) {
       await addNewPlayerToGame(socket, gameId, username, game);
-      // console.log("add new player:", username);
       assignPlayerSymbols(game);
       await startTimer(io, gameId, redisClient);
       await saveGameToRedis(gameId, game);
-      emitGameState(io, gameId, game);
+      emitGameState(gameId, game);
       socket.gameRequests.delete(gameId);
     }
   } catch (e) {
@@ -322,7 +323,7 @@ const handleSearchMatch = async (socket, user, gameType) => {
         await emitToUser(socket, username, "matchFound", gameId);
       }
 
-      emitGameState(io, gameId, game);
+      emitGameState(gameId, game);
     }
   } catch (e) {
     console.error("searchMatch error:", e);
@@ -350,8 +351,6 @@ const handleCreateFriendlyGame = async (socket, user, gameType) => {
     socket.emit("error", e.message);
   }
 };
-
-
 
 /**
  * Create a new game object based on the game type.
@@ -389,59 +388,6 @@ const createNewGame = (gameType, isRanked = true) => {
     timers: { X: time, O: time },
     isRanked: isRanked,
   };
-};
-
-/**
- * Save the game state to Redis.
- * @param {string} gameId - The ID of the game.
- * @param {Object} game - The game object.
- */
-export const saveGameToRedis = async (gameId, game) => {
-  await redisClient.set(
-    `game:${gameId}`,
-    JSON.stringify({
-      board: game.board,
-      turn: game.turn,
-      moveHistory: game.moveHistory,
-      currentSubBoard: game.currentSubBoard,
-      players: game.players,
-      timers: game.timers,
-      timeIncrement: game.timeIncrement,
-      invitedUsername: game.invitedUsername,
-      isRanked: game.isRanked,
-    }),
-  );
-};
-
-/**
- * Emit the current game state to all players in the game.
- * @param {Object} io - The socket.io instance.
- * @param {string} gameId - The ID of the game.
- * @param {Object} game - The game object.
- */
-export const emitGameState = (io, gameId, game) => {
-  io.to(gameId).emit("gameState", {
-    board: game.board,
-    turn: game.turn,
-    moveHistory: game.moveHistory,
-    currentSubBoard: game.currentSubBoard,
-    players: game.players,
-    timers: game.timers,
-    invitedUsername: game.invitedUsername,
-    isRanked: game.isRanked,
-  });
-};
-
-/**
- * Add a new player to the game.
- * @param {Object} socket - The socket object.
- * @param {string} gameId - The ID of the game.
- * @param {string} username - The username of the player.
- * @param {Object} game - The game object.
- */
-const addNewPlayerToGame = async (socket, gameId, username, game) => {
-  socket.join(gameId);
-  game.players.push({ username });
 };
 
 export { initializeSocket };
