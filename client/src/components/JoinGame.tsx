@@ -17,9 +17,9 @@ const JoinGame = () => {
       gameId: string,
       callback: (ack: string) => void,
     ) => {
+      callback("ACK");
       navigate(`/${gameId}`);
       setSearching(false);
-      callback("ACK");
     };
 
     socket.on("matchFound", matchFoundListener);
@@ -60,10 +60,10 @@ const JoinGame = () => {
       socket.on(
         "friendlyGameCreated",
         (gameId, callback: (ack: string) => void) => {
+          callback("ACK");
           navigate(`/${gameId}`);
           // location.reload();
           setSearching(false);
-          callback("ACK");
         },
       );
     } catch (e) {

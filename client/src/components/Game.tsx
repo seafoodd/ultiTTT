@@ -122,6 +122,7 @@ const Game = () => {
       gameState: GameState,
       callback: (ack: string) => void = () => {},
     ) => {
+      callback("ACK");
       setBoard(gameState.board);
       setTurn(gameState.moveHistory.length % 2 === 0 ? "X" : "O");
       setMoveHistory(gameState.moveHistory);
@@ -144,7 +145,6 @@ const Game = () => {
       if (gameState.players.length === 2) {
         setPlayersJoined(true);
       }
-      callback("ACK");
     };
 
     const handleGameResult = (result: any) => {

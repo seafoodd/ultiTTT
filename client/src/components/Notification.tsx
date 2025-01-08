@@ -26,9 +26,9 @@ const Notification = () => {
       },
       callback: (ack: string) => void,
     ) => {
+      callback("ACK");
       setChallenge({ from, gameId, gameType });
       console.log("challenge", from, gameId, gameType);
-      callback("ACK");
     };
     socket.on("receiveChallenge", receiveChallengeListener);
 
