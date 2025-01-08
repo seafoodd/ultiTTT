@@ -42,3 +42,21 @@ export const emitToUser = async (socket, username, event, data) => {
 export const emitToGuest = async (socket, event, data) => {
   socket.emit(event, data);
 }
+
+/**
+ * Emit the current game state to all players in the game.
+ * @param {string} gameId - The ID of the game.
+ * @param {Object} game - The game object.
+ */
+export const emitGameState = (gameId, game) => {
+    io.to(gameId).emit("gameState", {
+      board: game.board,
+      turn: game.turn,
+      moveHistory: game.moveHistory,
+      currentSubBoard: game.currentSubBoard,
+      players: game.players,
+      timers: game.timers,
+      invitedUsername: game.invitedUsername,
+      isRanked: game.isRanked,
+    });
+  };

@@ -4,7 +4,7 @@ import {
   clearPreciseInterval,
   preciseSetInterval,
 } from "../utils/timeUtils.js";
-import { emitGameState } from "../socket.js";
+import { emitGameState } from "../utils/socketUtils.js";
 import { debugLog } from "../utils/debugUtils.js";
 import {io, redisClient} from "../index.js";
 
@@ -300,7 +300,7 @@ export const startTimer = async (io, gameId, redisClient) => {
 
       timerInterval.gameFinished = true;
       clearPreciseInterval(timerInterval);
-      emitGameState(io, gameId, redisGame); // idk why it's here, maybe remove it later
+      emitGameState(gameId, redisGame); // idk why it's here, maybe remove it later
       await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
 
       io.to(gameId).emit("gameResult", {
@@ -333,7 +333,7 @@ export const startTimer = async (io, gameId, redisClient) => {
     redisGame.timers[redisGame.turn] = 0;
     await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
 
-    emitGameState(io, gameId, redisGame);
+    emitGameState(gameId, redisGame);
     io.to(gameId).emit("gameResult", {
       winner: redisGame.turn === "X" ? "O" : "X",
       state: "byTime",
