@@ -1,4 +1,5 @@
-import {redisClient} from "../index.js";
+import { io, redisClient } from "../index.js";
+import { startTimer } from "../controllers/gameController.js";
 
 /**
  * Save the game state to Redis.
@@ -19,5 +20,16 @@ export const saveGameToRedis = async (gameId, game) => {
       invitedUsername: game.invitedUsername,
       isRanked: game.isRanked,
     }),
+    "EX",
+    3600,
   );
+};
+
+export const restartTimers = async () => {
+  const keys = await redisClient.keys('game:*');
+  for (let key of keys) {
+    key = key.split(":")[1];
+    console.log("restarting timer for", key)
+    await startTimer(io, key, redisClient);
+  }
 };

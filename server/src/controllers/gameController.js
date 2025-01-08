@@ -12,6 +12,7 @@ import {
 import { emitGameState } from "../utils/socketUtils.js";
 import { debugLog } from "../utils/debugUtils.js";
 import { io, redisClient } from "../index.js";
+import { saveGameToRedis } from "../utils/redisUtils.js";
 
 /**
  * Handles a player's move in the game.
@@ -49,7 +50,7 @@ export const handleMove = async (
     game.currentSubBoard =
       game.board[squareIndex].subWinner === "" ? squareIndex : null;
 
-    await redisClient.set(`game:${gameId}`, JSON.stringify(game));
+    await saveGameToRedis(gameId, game);
 
     // for some reason, the game sometimes doesn't get set to the redis,
     // so I retry 5 times (usually it sets from the first retry)
@@ -59,7 +60,7 @@ export const handleMove = async (
       redisGame.moveHistory.length !== game.moveHistory.length &&
       retries < 5
     ) {
-      await redisClient.set(`game:${gameId}`, JSON.stringify(game));
+      await saveGameToRedis(gameId, game);
       retries += 1;
       console.error(
         `RETRY ${retries}`,
@@ -78,7 +79,7 @@ export const handleMove = async (
       timers: redisGame.timers,
     });
 
-    await handleOverallWin(io, game, gameId, redisClient);
+    await handleOverallWin(io, game, gameId);
   } catch (e) {
     console.error("handleMove error:", e);
   }
@@ -119,7 +120,7 @@ export const handleResign = async (socket, gameId, username) => {
  * Checks for an overall win or tie in the game.
  * If the game is finished, it triggers the end game process.
  */
-export const handleOverallWin = async (io, game, gameId, redisClient) => {
+export const handleOverallWin = async (io, game, gameId) => {
   const overallWinner = checkOverallWin(game.board);
   const gameResult = {
     winner: overallWinner || "none",
@@ -132,7 +133,7 @@ export const handleOverallWin = async (io, game, gameId, redisClient) => {
   ) {
     if (!game.gameFinished) {
       game.gameFinished = true;
-      await redisClient.set(`game:${gameId}`, JSON.stringify(game));
+      await saveGameToRedis(gameId, game);
       io.to(gameId).emit("gameResult", gameResult);
       await finishGame(
         game,
@@ -163,8 +164,7 @@ export const startTimer = async (io, gameId, redisClient) => {
 
       timerInterval.gameFinished = true;
       clearPreciseInterval(timerInterval);
-      emitGameState(gameId, redisGame); // idk why it's here, maybe remove it later
-      await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
+      await saveGameToRedis(gameId, redisGame);
 
       io.to(gameId).emit("gameResult", {
         winner: "none",
@@ -179,14 +179,14 @@ export const startTimer = async (io, gameId, redisClient) => {
     redisGame.timers[redisGame.turn] -= 100;
 
     if (redisGame.timers[redisGame.turn] > 0) {
-      await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
+      await saveGameToRedis(gameId, redisGame);
       return;
     }
 
     clearPreciseInterval(timerInterval);
 
     redisGame.timers[redisGame.turn] = 0;
-    await redisClient.set(`game:${gameId}`, JSON.stringify(redisGame));
+    await saveGameToRedis(gameId, redisGame);
 
     emitGameState(gameId, redisGame);
     io.to(gameId).emit("gameResult", {
