@@ -17,7 +17,7 @@ import {
 /**
  * Initialize socket connections and define event handlers.
  */
-const initializeSocket = () => {
+export const initializeSocket = () => {
   io.on("connection", async (socket) => {
     debugLog("New connection attempt with id:", socket.id);
 
@@ -95,5 +95,3 @@ const initializeSocket = () => {
     });
   });
 };
-
-export { initializeSocket };
