@@ -80,12 +80,15 @@ export const createNewGame = (gameType, isRanked = true) => {
       break
     case "5":
       time *= 5 * 60
+      timeIncrement = 3000;
       break
     case "10":
       time *= 10 * 60
+      timeIncrement = 5000;
       break
     case "15":
       time *= 15 * 60
+      timeIncrement = 10000;
       break
 
   }
