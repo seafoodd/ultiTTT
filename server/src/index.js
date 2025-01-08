@@ -10,6 +10,7 @@ import Redis from "ioredis";
 import searchRoutes from "./routes/searchRoutes.js";
 import {rateLimitMiddleware} from "./utils/rateLimitingUtils.js";
 import friendRoutes from "./routes/friendRoutes.js";
+import {restartTimers} from "./utils/redisUtils.js";
 
 configDotenv();
 
@@ -42,6 +43,7 @@ app.use("/search", searchRoutes)
 app.use("/friends", friendRoutes);
 
 initializeSocket();
+await restartTimers();
 
 server.listen(5000, () => {
   console.log("The server is running on port 5000");
