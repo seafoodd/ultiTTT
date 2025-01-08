@@ -1,4 +1,4 @@
-import { checkOverallWin, checkTie, checkWin } from "../utils/gameUtils.js";
+import {checkOverallWin, checkTie, checkWin, isValidMove} from "../utils/gameUtils.js";
 import prisma from "../../prisma/prismaClient.js";
 import {
   clearPreciseInterval,
@@ -6,21 +6,29 @@ import {
 } from "../utils/timeUtils.js";
 import { emitGameState } from "../socket.js";
 import { debugLog } from "../utils/debugUtils.js";
+import {io, redisClient} from "../index.js";
 
 /**
  * Handles a player's move in the game.
  * Updates the game state and checks for win/tie conditions.
  */
 export const handleMove = async (
-  io,
   gameId,
   subBoardIndex,
   squareIndex,
-  symbol,
-  redisClient,
+  username
 ) => {
   try {
     let game = JSON.parse(await redisClient.get(`game:${gameId}`));
+    if (!game) return;
+    const player = game.players.find((p) => p.username === username);
+    if (!player) return;
+    const symbol = player.symbol;
+
+    if (!isValidMove(game, subBoardIndex, squareIndex, symbol)) {
+      return;
+    }
+
     game.board[subBoardIndex].squares[squareIndex] = symbol;
     game.turn = game.turn === "X" ? "O" : "X";
 
@@ -44,7 +52,7 @@ export const handleMove = async (
     while (
       redisGame.moveHistory.length !== game.moveHistory.length &&
       retries < 5
-    ) {
+      ) {
       await redisClient.set(`game:${gameId}`, JSON.stringify(game));
       retries += 1;
       console.error(

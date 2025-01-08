@@ -12,12 +12,8 @@ import {
   removePlayerFromQueue,
   removePlayerFromAllQueues,
 } from "./utils/matchmakingUtils.js";
-import {
-  assignPlayerSymbols,
-  generateGameId,
-  isValidMove,
-} from "./utils/gameUtils.js";
-import {debugEmitError, debugError, debugLog} from "./utils/debugUtils.js";
+import { assignPlayerSymbols, generateGameId } from "./utils/gameUtils.js";
+import { debugEmitError, debugError, debugLog } from "./utils/debugUtils.js";
 import { emitToUser } from "./utils/socketUtils.js";
 
 /**
@@ -89,13 +85,7 @@ const initializeSocket = () => {
     socket.on(
       "makeMove",
       requireAuth(({ gameId, subBoardIndex, squareIndex }) =>
-        handleMakeMove(
-          socket,
-          gameId,
-          subBoardIndex,
-          squareIndex,
-          user.username,
-        ),
+        handleMove(gameId, subBoardIndex, squareIndex, user.username),
       ),
     );
     socket.on(
@@ -358,46 +348,6 @@ const handleCreateFriendlyGame = async (socket, user, gameType) => {
     await emitToUser(socket, socket.username, "friendlyGameCreated", gameId);
   } catch (e) {
     console.error("createFriendlyGame error:", e);
-    socket.emit("error", e.message);
-  }
-};
-
-/**
- * Handle making a move in a game.
- * @param {Object} socket - The socket object.
- * @param {string} gameId - The ID of the game.
- * @param {number} subBoardIndex - The index of the sub-board.
- * @param {number} squareIndex - The index of the square.
- * @param {string} username - The player making the move.
- */
-const handleMakeMove = async (
-  socket,
-  gameId,
-  subBoardIndex,
-  squareIndex,
-  username,
-) => {
-  try {
-    let game = JSON.parse(await redisClient.get(`game:${gameId}`));
-    if (!game) return;
-    const player = game.players.find((p) => p.username === username);
-    if (!player) return;
-    const symbol = player.symbol;
-
-    if (!isValidMove(game, subBoardIndex, squareIndex, symbol)) {
-      return;
-    }
-
-    await handleMove(
-      io,
-      gameId,
-      subBoardIndex,
-      squareIndex,
-      symbol,
-      redisClient,
-    );
-  } catch (e) {
-    console.error("makeMove error:", e);
     socket.emit("error", e.message);
   }
 };
