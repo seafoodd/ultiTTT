@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import {
   FaBackwardStep,
   FaForwardStep,
@@ -9,12 +9,13 @@ import {
 import Board from "./Board";
 import Timer from "./Timer";
 import { useAuth } from "../context/AuthContext";
-import { checkSubWinner } from "../utils/gameUtils";
-import Button from "./Button";
-import { BiHome } from "react-icons/bi";
+import { getBoardAtMove } from "../utils/gameUtils";
 import { useSocket } from "../context/SocketContext";
 import { FaFlag } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
+import NotFound from "./NotFound";
+import WaitingLobby from "./WaitingLobby";
+import LoadingCircle from "./LoadingCircle";
 
 interface GameState {
   board: { subWinner: string; squares: string[] }[];
@@ -35,12 +36,12 @@ interface Player {
 }
 
 const Game = () => {
+  const [loading, setLoading] = useState<boolean>(true);
   const { socket } = useSocket();
   const [playersJoined, setPlayersJoined] = useState<boolean>(false);
   const { gameId } = useParams();
   const location = useLocation();
   const { token, currentUser } = useAuth();
-  const navigate = useNavigate();
   const [board, setBoard] = useState<
     { subWinner: string; squares: string[] }[]
   >(
@@ -145,6 +146,7 @@ const Game = () => {
       if (gameState.players.length === 2) {
         setPlayersJoined(true);
       }
+      setLoading(false);
     };
 
     const handleGameResult = (result: any) => {
@@ -179,79 +181,30 @@ const Game = () => {
     socket.emit("makeMove", { gameId, subBoardIndex, squareIndex });
   };
 
-  const getBoardAtMove = (moveIndex: number) => {
-    const newBoard = Array.from({ length: 9 }, () => ({
-      subWinner: "",
-      squares: Array(9).fill(""),
-    }));
-
-    if (moveHistory) {
-      moveHistory.slice(0, moveIndex).forEach((move) => {
-        newBoard[move.subBoardIndex].squares[move.squareIndex] = move.player;
-        newBoard[move.subBoardIndex].subWinner = checkSubWinner(
-          newBoard[move.subBoardIndex].squares,
-        );
-      });
-    }
-
-    return newBoard;
-  };
-
-  function handleResign() {
+  const handleResign = () => {
     if (!socket) return;
     socket.emit("resign", gameId);
-  }
+  };
 
   useEffect(() => {
-    setBoard(getBoardAtMove(currentMoveIndex));
+    setBoard(getBoardAtMove(currentMoveIndex, moveHistory));
   }, [currentMoveIndex, moveHistory]);
 
+  if (!gameId || loading) {
+    return <LoadingCircle />;
+  }
+
   if (gameNotFound) {
-    return (
-      <div className="mt-8 flex flex-col justify-center items-center">
-        <h1 className="font-semibold text-xl">404 - Game Not Found</h1>
-        <Button
-          text="Home"
-          icon={<BiHome />}
-          onClick={() => navigate("/home")}
-          className="bg-color-blue-2 px-2 py-2 mt-2"
-        />
-      </div>
-    );
+    return <NotFound />;
   }
 
   if (!playersJoined) {
-    return isDeclined ? (
-      <div className="mt-8 flex flex-col justify-center items-center">
-        <h1 className="font-semibold text-xl">
-          {invitedUsername ? (
-            <span className="max-w-40 truncate">{invitedUsername}</span>
-          ) : (
-            "opponent"
-          )}{" "}
-          declined the challenge
-        </h1>
-        <Button
-          text="Home"
-          icon={<BiHome />}
-          onClick={() => navigate("")}
-          className="bg-color-blue-2 px-2 py-2 mt-2"
-        />
-      </div>
-    ) : (
-      <div>
-        <h1 className="flex">
-          Waiting for{" "}
-          {invitedUsername ? (
-            <span className="max-w-40 truncate font-semibold mx-1">
-              {invitedUsername}
-            </span>
-          ) : (
-            "opponent"
-          )}{" "}
-          to join...
-        </h1>
-      </div>
+    return (
+      <WaitingLobby
+        invitedUsername={invitedUsername}
+        isDeclined={isDeclined}
+        gameId={gameId}
+      />
     );
   }
 
