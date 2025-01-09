@@ -1,4 +1,5 @@
 import {winningPatterns} from "../constants";
+import {Socket} from "socket.io-client";
 
 export const checkSubWinner = (squares: string[]): string => {
   for (let pattern of winningPatterns) {
@@ -44,4 +45,9 @@ export const getBoardAtMove = (moveIndex: number, moveHistory: any[]) => {
   }
 
   return newBoard;
+};
+
+export const handleResign = (socket:Socket|null, gameId:string) => {
+  if(!socket) return;
+  socket.emit("resign", gameId);
 };
