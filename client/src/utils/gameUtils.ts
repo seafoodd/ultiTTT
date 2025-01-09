@@ -27,3 +27,21 @@ export const checkGameWinner = (board: { subWinner: string }[]): string => {
   }
   return "";
 };
+
+export const getBoardAtMove = (moveIndex: number, moveHistory: any[]) => {
+  const newBoard = Array.from({ length: 9 }, () => ({
+    subWinner: "",
+    squares: Array(9).fill(""),
+  }));
+
+  if (moveHistory) {
+    moveHistory.slice(0, moveIndex).forEach((move) => {
+      newBoard[move.subBoardIndex].squares[move.squareIndex] = move.player;
+      newBoard[move.subBoardIndex].subWinner = checkSubWinner(
+        newBoard[move.subBoardIndex].squares,
+      );
+    });
+  }
+
+  return newBoard;
+};
