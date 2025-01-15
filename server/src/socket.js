@@ -1,17 +1,19 @@
 import { getUserByToken } from "./utils/authUtils.js";
-import {
-  handleMove,
-  handleResign,
-
-} from "./controllers/gameController.js";
+import { handleMove, handleResign } from "./controllers/gameController.js";
 import { io } from "./index.js";
 import { debugEmitError, debugError, debugLog } from "./utils/debugUtils.js";
-import {handleConnect, handleDisconnect, handleIsUserOnline} from "./controllers/connectionController.js";
+import {
+  handleConnect,
+  handleDisconnect,
+  handleIsUserOnline,
+} from "./controllers/connectionController.js";
 import {
   handleCancelSearch,
-  handleCreateFriendlyGame, handleDeclineChallenge,
+  handleCreateFriendlyGame,
+  handleDeclineChallenge,
   handleJoinGame,
-  handleSearchMatch, handleSendChallenge
+  handleSearchMatch,
+  handleSendChallenge,
 } from "./controllers/roomController.js";
 
 /**
@@ -28,15 +30,16 @@ export const initializeSocket = () => {
     }
 
     let user = null;
-
     try {
       user = await getUserByToken(token);
+      if(!user) return;
+      await handleConnect(socket, user);
     } catch (e) {
       debugError("Token verification failed:", e.message);
       debugEmitError(socket, "error", 401, "Invalid token");
-    } finally {
-      await handleConnect(socket, user);
+      return;
     }
+
     const requireAuth = (handler) => {
       return (...args) => {
         if (!user) {
