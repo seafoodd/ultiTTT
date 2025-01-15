@@ -3,12 +3,23 @@ import { useNavigate } from "react-router-dom";
 import verifyToken from "../utils/verifyToken";
 import { MdCancel } from "react-icons/md";
 import { useSocket } from "../context/SocketContext";
+import {useAuth} from "../context/AuthContext";
+import Button from "./Button";
 
 const JoinGame = () => {
   const navigate = useNavigate();
   const [searching, setSearching] = useState<boolean>();
-  const [gameType, setGameType] = useState<string>("");
   const { socket } = useSocket();
+  const {isAuth} = useAuth()
+  const [isRated, setIsRated] = useState<boolean>(isAuth);
+
+  useEffect(() => {
+    setIsRated(isAuth);
+  }, [isAuth]);
+
+  const switchRanked = () => {
+    setIsRated(!isRated);
+  }
 
   useEffect(() => {
     if (!socket) return;
@@ -28,7 +39,7 @@ const JoinGame = () => {
     };
   }, [socket]);
 
-  const searchMatch = async (gameType: string) => {
+  const searchMatch = async (gameType: string, isRanked:boolean = true) => {
     if (!socket) return;
 
     const isAuth = await verifyToken();
@@ -37,9 +48,8 @@ const JoinGame = () => {
       return;
     }
     try {
-      setGameType(gameType);
-      socket.emit("searchMatch", gameType);
-      setSearching(true);
+      socket.emit("searchMatch", gameType, isRanked);
+      socket.on("searchStarted", () => setSearching(true));
     } catch (e) {
       console.error("Failed to join the game:", e);
     }
@@ -74,7 +84,7 @@ const JoinGame = () => {
   const cancelSearch = async () => {
     if (!socket) return;
 
-    socket.emit("cancelSearch", gameType);
+    socket.emit("cancelSearch");
     socket.on("searchCancelled", () => {
       setSearching(false);
     });
@@ -91,23 +101,31 @@ const JoinGame = () => {
           </button>
         </div>
       ) : (
-        <div className="flex flex-col mt-32 gap-8 items-center">
-          <div className="flex gap-4 flex-wrap mx-12 justify-center">
+        <div className="flex flex-col mt-20 sm:mt-32 gap-8 items-center">
+          {isAuth &&
+            <Button
+              className={`${isRated ? "bg-color-green-1" : "bg-color-red-1"} p-2`}
+              onClick={switchRanked}
+              disabled={!isAuth}
+              text={isRated ? "Rated" : "Unrated"}
+            />
+          }
+          <div className="flex gap-2 flex-wrap mx-12 justify-center">
             <button
               className="border h-24 w-32 text-xl bg-gray-800/40 border-white flex items-center justify-center p-2 font-semibold rounded-md"
-              onClick={() => searchMatch("5")}
+              onClick={() => searchMatch("5", isRated)}
             >
               5 Minutes
             </button>
             <button
               className="border h-24 w-32 text-xl bg-gray-800/40 border-white flex items-center justify-center p-2 font-semibold rounded-md"
-              onClick={() => searchMatch("10")}
+              onClick={() => searchMatch("10", isRated)}
             >
               10 Minutes
             </button>
             <button
               className="border h-24 w-32 text-xl bg-gray-800/40 border-white flex items-center justify-center p-2 font-semibold rounded-md"
-              onClick={() => searchMatch("15")}
+              onClick={() => searchMatch("15", isRated)}
             >
               15 Minutes
             </button>

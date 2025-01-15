@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import prisma from "../../prisma/prismaClient.js"
+import prisma from "../../prisma/prismaClient.js";
 
 export const authenticateToken = async (req, res, next) => {
   const token = req.headers["authorization"];
@@ -7,15 +7,29 @@ export const authenticateToken = async (req, res, next) => {
 
   try {
     const user = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    console.log(user);
+    let dbUser = null;
+    if (user.role === "user") {
+      dbUser = await prisma.user.findFirst({
+        where: {
+          OR: [{ email: user.identifier }, { username: user.identifier }],
+        },
+      });
+      if (!dbUser) return res.sendStatus(404);
+      req.user = {
+        username: dbUser.displayName,
+        identifier: dbUser.username,
+        role: "user",
+      };
+    }
+    if (user.role === "guest") {
+      req.user = {
+        username: "Guest",
+        identifier: user.identifier,
+        role: user.role,
+      };
+    }
 
-    const dbUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ email: user.identifier }, { username: user.identifier }],
-      },
-    });
-
-    if (!dbUser) return res.sendStatus(404);
-    req.user = dbUser;
     next();
   } catch (err) {
     if (err instanceof jwt.JsonWebTokenError) {

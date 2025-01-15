@@ -1,30 +1,40 @@
-import {addNewPlayerToGame, assignPlayerSymbols, createNewGame, generateGameId} from "../utils/roomUtils.js";
-import {saveGameToRedis} from "../utils/redisUtils.js";
-import {emitGameState, emitToUser} from "../utils/socketUtils.js";
-import {io, redisClient} from "../index.js";
-import {startTimer} from "./gameController.js";
-import {addPlayerToQueue, findMatch, Player, removePlayerFromQueue} from "../utils/matchmakingUtils.js";
+import {
+  addNewPlayerToGame,
+  assignPlayerSymbols,
+  createNewGame,
+  generateGameId,
+} from "../utils/roomUtils.js";
+import { saveGameToRedis } from "../utils/redisUtils.js";
+import { emitGameState, emitToUser } from "../utils/socketUtils.js";
+import { io, redisClient } from "../index.js";
+import { startTimer } from "./gameController.js";
+import {
+  addPlayerToQueue,
+  findMatch,
+  findUnratedMatch,
+  Player,
+  removePlayerFromAllQueues,
+} from "../utils/matchmakingUtils.js";
 
 /**
  * Handle sending a challenge to another user.
  * @param {Object} socket - The socket object.
- * @param {Object} user - The user object.
  * @param {string} gameType - The type of game.
  * @param {string} username - The username of the challenged user.
  */
-export const handleSendChallenge = async (socket, user, gameType, username) => {
+export const handleSendChallenge = async (socket, gameType, username) => {
   try {
     const gameId = await generateGameId(8);
     const game = createNewGame(gameType, false);
     game.invitedUsername = username;
 
-    await addNewPlayerToGame(socket, gameId, user.username, game);
+    await addNewPlayerToGame(socket, gameId, socket.username, socket.identifier, game);
     await saveGameToRedis(gameId, game);
     socket.gameRequests.add(gameId);
 
-    await emitToUser(socket, user.username, "challengeCreated", gameId);
+    await emitToUser(socket, socket.identifier, "challengeCreated", gameId);
     await emitToUser(socket, username, "receiveChallenge", {
-      from: user.username,
+      from: socket.username,
       gameId,
       gameType,
     });
@@ -41,7 +51,12 @@ export const handleSendChallenge = async (socket, user, gameType, username) => {
  * @param {string} gameId - The ID of the game.
  * @param {string} fromUsername - The username of the user who sent the challenge.
  */
-export const handleDeclineChallenge = async (socket, user, gameId, fromUsername) => {
+export const handleDeclineChallenge = async (
+  socket,
+  user,
+  gameId,
+  fromUsername,
+) => {
   try {
     const game = JSON.parse(await redisClient.get(`game:${gameId}`));
     if (game.invitedUsername !== user.username) {
@@ -57,7 +72,7 @@ export const handleDeclineChallenge = async (socket, user, gameId, fromUsername)
       socket,
       fromUsername,
       "challengeDeclined",
-      socket.username,
+      socket.identifier,
     );
   } catch (e) {
     console.error("declineChallenge error:", e);
@@ -80,11 +95,8 @@ export const handleJoinGame = async (socket, gameId) => {
       return;
     }
 
-    const username = socket.username;
-    // console.log("join attempt:", username);
-
     const existingPlayer = game.players.find(
-      (player) => player.username === username,
+      (player) => player.identifier === socket.identifier,
     );
 
     if (existingPlayer) {
@@ -96,12 +108,12 @@ export const handleJoinGame = async (socket, gameId) => {
     }
 
     let canJoin = true;
-    if (game.invitedUsername && game.invitedUsername !== username) {
+    if (game.invitedUsername && game.invitedUsername !== socket.identifier) {
       canJoin = false;
     }
 
     if (game.players.length < 2 && canJoin) {
-      await addNewPlayerToGame(socket, gameId, username, game);
+      await addNewPlayerToGame(socket, gameId, socket.username, socket.identifier, game);
       assignPlayerSymbols(game);
       await startTimer(io, gameId, redisClient);
       await saveGameToRedis(gameId, game);
@@ -117,12 +129,11 @@ export const handleJoinGame = async (socket, gameId) => {
 /**
  * Handle canceling a search for a match.
  * @param {Object} socket - The socket object.
- * @param {Object} user - The user object.
- * @param {string} gameType - The type of game.
  */
-export const handleCancelSearch = async (socket, user, gameType) => {
+export const handleCancelSearch = async (socket) => {
   try {
-    await removePlayerFromQueue(user.username, gameType);
+    // await removePlayerFromQueue(user.username, gameType);
+    await removePlayerFromAllQueues(socket.identifier);
     socket.emit("searchCancelled");
   } catch (e) {
     console.error("cancelSearch error:", e);
@@ -135,29 +146,39 @@ export const handleCancelSearch = async (socket, user, gameType) => {
  * @param {Object} socket - The socket object.
  * @param {Object} user - The user object.
  * @param {string} gameType - The type of game.
+ * @param {boolean} isRanked
  */
-export const handleSearchMatch = async (socket, user, gameType) => {
+export const handleSearchMatch = async (socket, user, gameType, isRanked) => {
   try {
-    const player = new Player(user.username, user.elo);
-    await addPlayerToQueue(player, gameType);
+    if (isRanked && user.role === "guest") {
+      socket.emit("error", "Unauthorized");
+      return;
+    }
 
-    const match = await findMatch(player, gameType);
+    const player = new Player(socket.username, socket.identifier, isRanked ? user.elo : null);
+    await addPlayerToQueue(player, gameType, isRanked);
+    socket.emit("searchStarted");
+
+    const match = isRanked
+      ? await findMatch(player, gameType)
+      : await findUnratedMatch(gameType);
+
     if (match) {
       const [player1, player2] = match;
       const gameId = await generateGameId();
-      const game = createNewGame(gameType);
+      const game = createNewGame(gameType, isRanked);
       console.log("created new game:", user.username);
 
-      for (const username of [player1.username, player2.username]) {
-        await addNewPlayerToGame(socket, gameId, username, game);
+      for (const {username, identifier} of [player1, player2]) {
+        await addNewPlayerToGame(socket, gameId, username, identifier, game);
       }
 
       assignPlayerSymbols(game);
       await startTimer(io, gameId, redisClient);
       await saveGameToRedis(gameId, game);
 
-      for (const username of [player1.username, player2.username]) {
-        await emitToUser(socket, username, "matchFound", gameId);
+      for (const identifier of [player1.identifier, player2.identifier]) {
+        await emitToUser(socket, identifier, "matchFound", gameId);
       }
 
       emitGameState(gameId, game);
@@ -171,18 +192,23 @@ export const handleSearchMatch = async (socket, user, gameType) => {
 /**
  * Handle creating a friendly game.
  * @param {Object} socket - The socket object.
- * @param {Object} user - The user object.
  * @param {string} gameType - The type of game.
  */
-export const handleCreateFriendlyGame = async (socket, user, gameType) => {
+export const handleCreateFriendlyGame = async (socket, gameType) => {
   try {
     const gameId = await generateGameId(8);
     const game = createNewGame(gameType, false);
-    await addNewPlayerToGame(socket, gameId, user.username, game);
+    await addNewPlayerToGame(
+      socket,
+      gameId,
+      socket.username,
+      socket.identifier,
+      game,
+    );
     await saveGameToRedis(gameId, game);
     socket.gameRequests.add(gameId);
 
-    await emitToUser(socket, socket.username, "friendlyGameCreated", gameId);
+    await emitToUser(socket, socket.identifier, "friendlyGameCreated", gameId);
   } catch (e) {
     console.error("createFriendlyGame error:", e);
     socket.emit("error", e.message);
