@@ -128,25 +128,6 @@ const Profile = () => {
     socket.emit("isUserOnline", username, (online: boolean) => {
       setIsOnline(online);
     });
-
-    socket.on("userOnline", (onlineUsername) => {
-      if (onlineUsername === username) {
-        console.log(`${username} is now online`);
-        setIsOnline(true);
-      }
-    });
-
-    socket.on("userOffline", (offlineUsername) => {
-      if (offlineUsername === username) {
-        console.log(`${username} is now offline`);
-        setIsOnline(false);
-      }
-    });
-
-    return () => {
-      socket.off("userOnline");
-      socket.off("userOffline");
-    };
   }, [username, socket]);
 
   if (loading) {
