@@ -13,7 +13,6 @@ export const handleConnect = async (socket, user) => {
     console.log(socket.username, "has connected with id", socket.id);
     if (!user) return;
     await redisClient.sadd(`user:${user.username}`, socket.id);
-    io.emit("userOnline", user.username);
   } catch (e) {
     console.error("Connection error:", e);
     socket.emit("error", e.message);
@@ -50,7 +49,6 @@ export const handleDisconnect = async (socket) => {
     );
     if (socketIds.length <= 1) {
       await redisClient.del(`user:${socket.username}`);
-      io.emit("userOffline", socket.username);
       await removePlayerFromAllQueues(socket.username);
       console.log(socket.username, "has disconnected");
     }
