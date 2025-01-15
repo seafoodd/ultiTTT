@@ -18,11 +18,18 @@ export const assignPlayerSymbols = (game) => {
  * @param {Object} socket - The socket object.
  * @param {string} gameId - The ID of the game.
  * @param {string} username - The username of the player.
+ * @param {string} identifier
  * @param {Object} game - The game object.
  */
-export const addNewPlayerToGame = async (socket, gameId, username, game) => {
+export const addNewPlayerToGame = async (
+  socket,
+  gameId,
+  username,
+  identifier,
+  game,
+) => {
   socket.join(gameId);
-  game.players.push({ username });
+  game.players.push({ username, identifier });
 };
 
 export const generateGameId = async (
@@ -63,7 +70,6 @@ export const generateGameId = async (
   throw new Error("Failed to generate a unique game ID after multiple retries");
 };
 
-
 /**
  * Create a new game object based on the game type.
  * @param {string} gameType - The type of game (minutes).
@@ -77,20 +83,19 @@ export const createNewGame = (gameType, isRanked = true) => {
   switch (gameType) {
     case "0":
       time *= 3;
-      break
+      break;
     case "5":
-      time *= 5 * 60
+      time *= 5 * 60;
       timeIncrement = 3000;
-      break
+      break;
     case "10":
-      time *= 10 * 60
+      time *= 10 * 60;
       timeIncrement = 5000;
-      break
+      break;
     case "15":
-      time *= 15 * 60
+      time *= 15 * 60;
       timeIncrement = 10000;
-      break
-
+      break;
   }
 
   return {

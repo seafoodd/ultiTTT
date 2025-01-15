@@ -23,6 +23,7 @@ interface GameState {
 
 interface Player {
   username: string;
+  identifier: string;
   symbol: string;
 }
 
@@ -120,7 +121,7 @@ const Game = () => {
       setTurn(gameState.moveHistory.length % 2 === 0 ? "X" : "O");
       setMoveHistory(gameState.moveHistory);
       const opponent = gameState.players.find(
-        (p) => p.username !== currentUser.username,
+        (p) => p.identifier !== currentUser.identifier,
       );
       if (opponent) {
         setOpponentUsername(opponent.username);
@@ -130,8 +131,9 @@ const Game = () => {
       setInvitedUsername(gameState.invitedUsername);
       setTimers(gameState.timers);
       const currentPlayer = gameState.players.find(
-        (p: Player) => p.username === currentUser.username,
+        (p: Player) => p.identifier === currentUser.identifier,
       );
+      console.log("currentPlayer", currentPlayer)
       if (currentPlayer) {
         setSymbol(currentPlayer.symbol);
       }

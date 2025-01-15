@@ -32,7 +32,6 @@ export const initializeSocket = () => {
     let user = null;
     try {
       user = await getUserByToken(token);
-      if(!user) return;
       await handleConnect(socket, user);
     } catch (e) {
       debugError("Token verification failed:", e.message);
@@ -52,7 +51,7 @@ export const initializeSocket = () => {
     socket.on(
       "sendChallenge",
       requireAuth((gameType, username) =>
-        handleSendChallenge(socket, user, gameType, username),
+        handleSendChallenge(socket, gameType, username),
       ),
     );
     socket.on(
@@ -71,27 +70,27 @@ export const initializeSocket = () => {
     );
     socket.on(
       "cancelSearch",
-      requireAuth((gameType) => handleCancelSearch(socket, user, gameType)),
+      requireAuth(() => handleCancelSearch(socket)),
     );
     socket.on(
       "searchMatch",
-      requireAuth((gameType) => handleSearchMatch(socket, user, gameType)),
+      requireAuth((gameType, isRanked) => handleSearchMatch(socket, user, gameType, isRanked)),
     );
     socket.on(
       "createFriendlyGame",
       requireAuth((gameType) =>
-        handleCreateFriendlyGame(socket, user, gameType),
+        handleCreateFriendlyGame(socket, gameType),
       ),
     );
     socket.on(
       "makeMove",
       requireAuth(({ gameId, subBoardIndex, squareIndex }) =>
-        handleMove(gameId, subBoardIndex, squareIndex, user.username),
+        handleMove(gameId, subBoardIndex, squareIndex, socket.identifier),
       ),
     );
     socket.on(
       "resign",
-      requireAuth((gameId) => handleResign(socket, gameId, user.username)),
+      requireAuth((gameId) => handleResign(socket, gameId)),
     );
     socket.on("ping", (callback) => {
       callback();

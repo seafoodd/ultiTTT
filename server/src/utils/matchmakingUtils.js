@@ -5,8 +5,9 @@ import {debugLog} from "./debugUtils.js";
  * Represents a player in the matchmaking queue.
  */
 class Player {
-  constructor(username, rank) {
+  constructor(username, identifier, rank) {
     this.username = username;
+    this.identifier = identifier;
     this.rank = rank;
   }
 }
@@ -15,47 +16,46 @@ class Player {
  * Adds a player to the matchmaking queue.
  * If the player is already in the queue, updates their ID.
  */
-const addPlayerToQueue = async (player, gameType) => {
-  const players = await redisClient.zrange(`matchmaking:${gameType}`, 0, -1);
+const addPlayerToQueue = async (player, gameType, isRanked) => {
+  const players = await redisClient.zrange(`matchmaking:${gameType}${isRanked ? "" : ":unrated"}`, 0, -1);
 
   const existingPlayer = players.find(
-    (p) => JSON.parse(p).username === player.username,
+    (p) => JSON.parse(p).identifier === player.identifier,
   );
   if (existingPlayer) return;
 
-  // await debugQueue(gameType, `before adding ${player.username}:`)
   await redisClient.zadd(
-    `matchmaking:${gameType}`,
-    player.rank,
+    `matchmaking:${gameType}${isRanked ? "" : ":unrated"}`,
+    isRanked ? player.rank : Date.now(),
     JSON.stringify(player),
   );
-  // await debugQueue(gameType, `after adding ${player.username}:`)
 };
+
+
 /**
  * Removes a player from the matchmaking queue.
  */
-const removePlayerFromQueue = async (username, gameType) => {
+const removePlayerFromQueue = async (identifier, gameType) => {
   const players = await redisClient.zrange(`matchmaking:${gameType}`, 0, -1);
 
   const existingPlayer = players.find(
-    (p) => JSON.parse(p).username === username,
+    (p) => JSON.parse(p).identifier === identifier,
   );
   if(!existingPlayer) return;
 
-  // await debugQueue(gameType, `before removing ${username}:`)
   await redisClient.zrem(`matchmaking:${gameType}`, existingPlayer);
-  // await debugQueue(gameType, `after removing ${username}:`)
 };
 
 /**
  * Removes a player from all the matchmaking queues
  * without knowing the gameType.
  */
-const removePlayerFromAllQueues = async (username) => {
+const removePlayerFromAllQueues = async (identifier) => {
   const gameTypes = ["0", "5", "10", "15"];
-  debugLog(`removing ${username} from all queues...`)
+  debugLog(`removing ${identifier} from all queues...`)
   for (const gameType of gameTypes) {
-    await removePlayerFromQueue(username, gameType);
+    await removePlayerFromQueue(identifier, gameType);
+    await removePlayerFromQueue(identifier, `${gameType}:unrated`);
   }
 };
 
@@ -67,11 +67,12 @@ const removePlayerFromAllQueues = async (username) => {
 const findMatch = async (
   player,
   gameType,
-  initialGap = 40,
-  maxGap = 400,
-  step = 40,
-  timeout = 3000,
 ) => {
+  const initialGap = 40;
+  const maxGap = 400;
+  const step = 40;
+  const timeout = 3000;
+
   let gap = initialGap;
   let startTime = Date.now();
 
@@ -88,7 +89,7 @@ const findMatch = async (
       const player1 = JSON.parse(players[i]);
       for (let j = i + 1; j < players.length; j++) {
         const player2 = JSON.parse(players[j]);
-        if (player1.username !== player2.username) {
+        if (player1.identifier !== player2.identifier) {
           await redisClient.zrem(`matchmaking:${gameType}`, players[i]);
           await redisClient.zrem(`matchmaking:${gameType}`, players[j]);
           return [player1, player2];
@@ -105,10 +106,37 @@ const findMatch = async (
   return null;
 };
 
+const findUnratedMatch = async (gameType) => {
+  const timeout = 3000;
+  const startTime = Date.now();
+
+  while (Date.now() - startTime <= timeout) {
+    const players = await redisClient.zrange(`matchmaking:${gameType}:unrated`, 0, -1);
+
+    for (let i = 0; i < players.length; i++) {
+      const player1 = JSON.parse(players[i]);
+      for (let j = i + 1; j < players.length; j++) {
+        const player2 = JSON.parse(players[j]);
+        if (player1.identifier !== player2.identifier) {
+          await redisClient.zrem(`matchmaking:${gameType}:unrated`, players[i]);
+          await redisClient.zrem(`matchmaking:${gameType}:unrated`, players[j]);
+          return [player1, player2];
+        }
+      }
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  return null;
+};
+
+
 export {
   Player,
   addPlayerToQueue,
   removePlayerFromQueue,
   findMatch,
+  findUnratedMatch,
   removePlayerFromAllQueues,
 };

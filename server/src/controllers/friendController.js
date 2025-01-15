@@ -152,6 +152,9 @@ export const removeFriend = async (req, res) => {
 // };
 
 export const getFriends = async (req, res) => {
+  if(req.user.role === "guest") {
+    return res.status(403).json({ error: "Unauthorized" });
+  }
   const username = req.user.username;
 
   try {

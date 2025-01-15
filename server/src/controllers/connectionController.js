@@ -1,5 +1,5 @@
-import {io, redisClient} from "../index.js";
-import {removePlayerFromAllQueues} from "../utils/matchmakingUtils.js";
+import { io, redisClient } from "../index.js";
+import { removePlayerFromAllQueues } from "../utils/matchmakingUtils.js";
 
 /**
  * Handle user connection by adding the user to the online users set and storing the socket ID.
@@ -8,7 +8,9 @@ import {removePlayerFromAllQueues} from "../utils/matchmakingUtils.js";
  */
 export const handleConnect = async (socket, user) => {
   try {
-    socket.username = user?.username || "guest";
+    socket.role = user.role;
+    socket.username = user.role === "guest" ? "Guest" : user.username;
+    socket.identifier = user.username;
     socket.gameRequests = new Set();
     console.log(socket.username, "has connected with id", socket.id);
     if (!user) return;
@@ -25,22 +27,22 @@ export const handleConnect = async (socket, user) => {
  * @param {Object} socket - The socket object.
  */
 export const handleDisconnect = async (socket) => {
-  if (!socket.username) return;
+  if (!socket.identifier) return;
 
   try {
-    const socketIds = await redisClient.smembers(`user:${socket.username}`);
+    const socketIds = await redisClient.smembers(`user:${socket.identifier}`);
     console.log(socketIds);
 
     const invalidSocketIds = socketIds.filter(
       (id) => !io.sockets.sockets.has(id),
     );
     for (const id of invalidSocketIds) {
-      await redisClient.srem(`user:${socket.username}`, id);
+      await redisClient.srem(`user:${socket.identifier}`, id);
     }
 
     if (!socketIds.includes(socket.id)) return;
 
-    await redisClient.srem(`user:${socket.username}`, socket.id);
+    await redisClient.srem(`user:${socket.identifier}`, socket.id);
 
     console.log(
       socket.username,
@@ -48,8 +50,8 @@ export const handleDisconnect = async (socket) => {
       socket.id,
     );
     if (socketIds.length <= 1) {
-      await redisClient.del(`user:${socket.username}`);
-      await removePlayerFromAllQueues(socket.username);
+      await redisClient.del(`user:${socket.identifier}`);
+      await removePlayerFromAllQueues(socket.identifier);
       console.log(socket.username, "has disconnected");
     }
   } catch (e) {

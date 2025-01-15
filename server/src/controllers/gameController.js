@@ -22,12 +22,12 @@ export const handleMove = async (
   gameId,
   subBoardIndex,
   squareIndex,
-  username,
+  identifier,
 ) => {
   try {
     let game = JSON.parse(await redisClient.get(`game:${gameId}`));
     if (!game) return;
-    const player = game.players.find((p) => p.username === username);
+    const player = game.players.find((p) => p.identifier === identifier);
     if (!player) return;
     const symbol = player.symbol;
 
@@ -85,11 +85,11 @@ export const handleMove = async (
   }
 };
 
-export const handleResign = async (socket, gameId, username) => {
+export const handleResign = async (socket, gameId) => {
   try {
     let game = JSON.parse(await redisClient.get(`game:${gameId}`));
     if (!game) return;
-    const player = game.players.find((p) => p.username === username);
+    const player = game.players.find((p) => p.identifier === socket.identifier);
     if (!player) return;
 
     if (game.moveHistory.length < 2) {
@@ -102,7 +102,7 @@ export const handleResign = async (socket, gameId, username) => {
       return;
     }
 
-    const opponent = game.players.find((p) => p.username !== username);
+    const opponent = game.players.find((p) => p.identifier !== socket.identifier);
     if (!opponent) return;
     await finishGame(game, gameId, opponent.symbol, game.isRanked, "resign");
     io.to(gameId).emit("gameResult", {

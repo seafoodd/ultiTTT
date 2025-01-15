@@ -5,6 +5,7 @@ import {
   preventAccountFlooding,
   preventBruteforce,
 } from "../utils/rateLimitingUtils.js";
+import { nanoid } from "nanoid";
 
 /**
  * Register a new user.
@@ -136,9 +137,26 @@ export const login = async (req, res) => {
 
     const tokenOptions = rememberMe ? {} : { expiresIn: "24h" };
     const token = jwt.sign(
-      { identifier, userId: user.userId },
+      { identifier: identifier, role: "user" },
       process.env.ACCESS_TOKEN_SECRET,
       tokenOptions,
+    );
+
+    res.status(200).json({ token });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
+export const guestLogin = async (req, res) => {
+  try {
+    const guestId = nanoid();
+
+    const token = jwt.sign(
+      { identifier: guestId, role: "guest" },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "24h" },
     );
 
     res.status(200).json({ token });
@@ -156,6 +174,10 @@ export const login = async (req, res) => {
  * @param {Object} res - The response object used to send back the HTTP response.
  */
 export const verifyToken = (req, res) => {
-  res.status(200).json({ message: "Token is valid", user: req.user });
+  const user = req.user;
+  res.status(200).json({
+    message: "Token is valid",
+    user: { username: user.username, identifier: user.identifier, role: user.role },
+  });
   return req.user.username;
 };

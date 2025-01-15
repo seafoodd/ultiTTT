@@ -7,7 +7,10 @@ export const getUserByToken = async (token) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
       if (err) return reject(new Error("Token verification failed"));
-
+      if (user.role === "guest") {
+        const guest = { username: user.identifier, role: "guest" };
+        resolve(guest);
+      }
       try {
         const dbUser = await prisma.user.findFirst({
           where: {
@@ -16,7 +19,7 @@ export const getUserByToken = async (token) => {
         });
 
         if (!dbUser) return reject(new Error("User not found"));
-        resolve(dbUser);
+        resolve({ ...dbUser, role: "user" });
       } catch (error) {
         reject(new Error("Database query failed"));
       }

@@ -27,39 +27,64 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
   const cookies = new Cookies();
   const [isAuth, setIsAuth] = useState<boolean>(false);
   const [authLoading, setAuthLoading] = useState<boolean>(true);
-  const token = cookies.get("token");
+  let token = cookies.get("token");
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
-      if (token) {
+      if (!token) {
         try {
-          const response = await axios.get(
-            `${import.meta.env.VITE_API_URL}/auth/verifyToken`,
+          const response = await axios.post(
+            `${import.meta.env.VITE_API_URL}/auth/guestLogin`,
             {
               headers: {
                 Authorization: token,
               },
             },
           );
+          console.log(response)
           if (response.status === 200) {
-            setIsAuth(true);
-            setCurrentUser(response.data.user);
+            token = response.data.token
+            cookies.set("token", token, { path: "/" });
+            console.log("received guest token",token)
           }
         } catch (error) {
+          if (axios.isAxiosError(error) && error.response?.status === 403) {
+            logOut();
+          }
           setIsAuth(false);
-          setCurrentUser({username: "guest"});
         }
       }
-      else{
-        setCurrentUser({ username: "guest" });
+      try {
+        console.log("verifying", token)
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/auth/verifyToken`,
+          {
+            headers: {
+              Authorization: token,
+            },
+          },
+        );
+        console.log(response.data)
+        if (response.status === 200) {
+          setCurrentUser(response.data.user);
+          console.log("current user", response.data.user)
+          if(response.data.user.role !== "guest"){
+            setIsAuth(true);
+          }
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 403) {
+          logOut();
+        }
+        setIsAuth(false);
       }
       setAuthLoading(false);
     })();
   }, [token]);
 
   const logOut = () => {
-    cookies.remove("token", {path: "/" });
+    cookies.remove("token", { path: "/" });
     cookies.remove("userId");
     cookies.remove("username");
     cookies.remove("hashedPassword");

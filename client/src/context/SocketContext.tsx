@@ -15,6 +15,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const [socket, setSocket] = useState<Socket | null>(null);
   const cookies = new Cookies();
   const token = cookies.get("token");
+  console.log(token)
 
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -24,7 +25,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const newSocket = io(socketUrl, {
       auth: {
-        token: token || null,
+        token: token,
       },
       path:
         import.meta.env.VITE_ENV === "development"
