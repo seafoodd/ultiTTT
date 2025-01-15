@@ -107,6 +107,7 @@ const Game = () => {
     );
 
     const handleError = () => {
+      setLoading(false)
       setGameNotFound(true);
     };
 
