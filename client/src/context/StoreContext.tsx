@@ -40,7 +40,10 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const { socket } = useSocket();
 
   useEffect(() => {
-    if (!isAuth) return;
+    if (!isAuth) {
+      setLoading(false);
+      return;
+    }
     fetchFriends().catch((err) => {
       console.error(err);
     });
