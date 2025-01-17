@@ -66,7 +66,6 @@ const JoinGame = () => {
 
     try {
       socket.emit("createFriendlyGame", gameType);
-      setSearching(true);
       socket.on(
         "friendlyGameCreated",
         (gameId, callback: (ack: string) => void) => {
