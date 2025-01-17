@@ -76,12 +76,12 @@ if (rootElement) {
   }
 
   root.render(
-    <SocketProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <SocketProvider>
         <StoreProvider>
           <RouterProvider router={router} />
         </StoreProvider>
-      </AuthProvider>
-    </SocketProvider>,
+      </SocketProvider>
+    </AuthProvider>,
   );
 }
