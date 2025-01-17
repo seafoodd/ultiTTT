@@ -1,6 +1,6 @@
-import {debugLog} from "./debugUtils.js";
-import {saveGameResult} from "./dbUtils.js";
-import {redisClient} from "../index.js";
+import { debugLog } from "./debugUtils.js";
+import { saveGameResult } from "./dbUtils.js";
+import { redisClient } from "../index.js";
 
 /**
  * All the possible winning patterns
@@ -48,7 +48,8 @@ export const checkOverallWin = (board) => {
     if (
       board[a].subWinner &&
       board[a].subWinner === board[b].subWinner &&
-      board[a].subWinner === board[c].subWinner
+      board[a].subWinner === board[c].subWinner &&
+      board[a].subWinner !== "tie"
     ) {
       return board[a].subWinner;
     }
