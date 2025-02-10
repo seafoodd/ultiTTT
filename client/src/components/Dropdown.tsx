@@ -1,6 +1,5 @@
 import React from "react";
 import PingDisplay from "./PingDisplay";
-import { useSocket } from "../context/SocketContext";
 
 interface Option {
   name: string;
@@ -24,9 +23,6 @@ const Dropdown: React.FC<DropdownProps> = ({
   setCurrentMenu,
   className,
 }) => {
-  const env = import.meta.env.VITE_ENV || "production";
-  const { socket } = useSocket();
-
   const handleTriggerClick = () => {
     setCurrentMenu(currentMenu === "profile" ? "" : "profile");
   };
@@ -42,20 +38,20 @@ const Dropdown: React.FC<DropdownProps> = ({
     >
       <div
         onClick={handleTriggerClick}
-        className={`h-full px-3 transition-colors ${currentMenu === "profile" ? "bg-color-gray-2" : ""}`}
+        className={`h-full px-3 transition-colors ${currentMenu === "profile" ? "bg-color-neutral-1000" : ""}`}
       >
         {trigger}
       </div>
 
       <div
-        className={`${currentMenu === "profile" ? "scale-y-100" : "scale-y-0"} h-fit transform transition-transform origin-top absolute top-16 right-0 w-60 bg-color-gray-2/80 box-content shadow-md backdrop-blur-sm z-10`}
+        className={`${currentMenu === "profile" ? "scale-y-100" : "scale-y-0"} h-fit transform transition-transform origin-top absolute top-14 right-0 w-60 bg-color-neutral-1000/80 box-content shadow-md backdrop-blur-sm z-10`}
       >
-        <div className="py-1">
+        <div>
           {options.map((option, index) => (
             <React.Fragment key={index}>
               {option.onClick ? (
                 <div
-                  className="flex items-center px-4 py-2 text-sm transition-colors duration-75 hover:bg-color-blue-2 font-medium cursor-pointer"
+                  className="flex items-center px-4 py-2.5 text-sm transition-colors duration-75 hover:bg-color-accent-400 font-medium cursor-pointer"
                   onClick={() => handleOptionClick(option.onClick)}
                 >
                   {option.icon}
@@ -63,7 +59,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                 </div>
               ) : (
                 <a
-                  className="flex items-center px-4 py-2 text-sm transition-colors duration-75 hover:bg-color-blue-2 font-medium cursor-pointer"
+                  className="flex items-center px-4 py-2.5 text-sm transition-colors duration-75 hover:bg-color-accent-400 font-medium cursor-pointer"
                   href={option.href}
                 >
                   {option.icon}
@@ -73,10 +69,10 @@ const Dropdown: React.FC<DropdownProps> = ({
             </React.Fragment>
           ))}
         </div>
-        <PingDisplay className="pl-3 py-2 border-t border-white/50" />
-        {env == "development" && (
-          <div>{socket?.id ? socket?.id : "No connection"}</div>
-        )}
+        <PingDisplay className="pl-3 py-2 border-t border-color-neutral-500" />
+        {/*{env == "development" && (*/}
+        {/*  <div>{socket?.id ? socket?.id : "No connection"}</div>*/}
+        {/*)}*/}
       </div>
     </div>
   );

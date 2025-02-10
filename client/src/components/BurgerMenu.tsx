@@ -22,17 +22,17 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
   return (
     <button
       className={`flex md:hidden px-3 justify-center items-center h-full w-16
-       transition-colors ${currentMenu === "burger" ? "bg-color-gray-2/100" : ""}`}
+       transition-colors ${currentMenu === "burger" ? "bg-color-neutral-1000" : ""}`}
       onClick={toggleMenu}
     >
       <IoMenu size={40} />
       <div
         className={`${currentMenu === "burger" ? "scale-x-100" : "scale-x-0"} h-fit transform
-        transition-transform origin-left absolute top-16 left-0 w-[75%] sm:w-[60%]
-        bg-color-gray-2/80 shadow-md backdrop-blur-sm z-10`}
+        transition-transform origin-left absolute top-14 left-0 w-[75%] sm:w-[60%]
+        bg-color-neutral-1000/80 shadow-md backdrop-blur-sm z-10`}
       >
         <NavItem
-          href="/home"
+          href="/"
           text="PLAY"
           className="py-6 pl-20"
           onClick={toggleMenu}

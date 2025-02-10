@@ -14,15 +14,15 @@ interface PingDisplayProps {
 
 const getSignalIcon = (ping: number) => {
   if (ping < 200) {
-    return <BiSignal5 size={24} className="fill-color-green-1" />;
+    return <BiSignal5 size={24} className="fill-color-success-500" />;
   } else if (ping < 400) {
-    return <BiSignal4 size={24} className="fill-color-green-1" />;
+    return <BiSignal4 size={24} className="fill-color-success-500" />;
   } else if (ping < 600) {
-    return <BiSignal3 size={24} className="fill-yellow-300" />;
+    return <BiSignal3 size={24} className="fill-color-warning-500" />;
   } else if (ping < 800) {
-    return <BiSignal2 size={24} className="fill-red-800" />;
+    return <BiSignal2 size={24} className="fill-color-danger-500" />;
   } else {
-    return <BiSignal1 size={24} className="fill-red-800" />;
+    return <BiSignal1 size={24} className="fill-color-danger-500" />;
   }
 };
 
@@ -68,7 +68,7 @@ const PingDisplay: React.FC<PingDisplayProps> = ({ className }) => {
       {ping ? (
         getSignalIcon(ping)
       ) : (
-        <BiSignal1 size={24} className="fill-red-800" />
+        <BiSignal1 size={24} className="fill-color-danger-500" />
       )}
       <span>
         <span className="font-semibold">{ping || "-"}</span> ms
