@@ -81,8 +81,9 @@ export const createNewGame = (gameType, isRanked = true) => {
   let timeIncrement = 0;
 
   switch (gameType) {
-    case "0":
-      time *= 3;
+    case "2":
+      time *= 2 * 60;
+      timeIncrement = 1000;
       break;
     case "5":
       time *= 5 * 60;
