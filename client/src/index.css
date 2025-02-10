@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,6 +15,6 @@
 
 @layer base {
     body {
-        @apply bg-gray-900 text-base font-light;
+        @apply bg-color-neutral-900 text-base text-color-accent-100 font-light font-ubuntu;
     }
 }
