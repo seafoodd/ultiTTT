@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Friends from "./pages/Friends";
 import Profile from "./pages/Profile";
@@ -26,7 +26,7 @@ const router = createBrowserRouter(
       children: [
         { path: "", element: <Home /> },
         { path: "/:gameId", element: <Game /> },
-        { path: "/home", element: <Home /> },
+        { path: "/home", element: <Navigate to="/" /> },
         { path: "/about", element: <About /> },
         { path: "/learn", element: <Learn /> },
         { path: "/donate", element: <Donate /> },

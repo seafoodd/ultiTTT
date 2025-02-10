@@ -40,7 +40,7 @@ const LogIn = () => {
         const { token } = res.data;
         cookies.set("token", token, { path: "/" });
         setIsAuth(true);
-        window.location.href = "/home";
+        window.location.href = "/";
       })
       .catch((err) => {
         if (err.response?.status === 429) {

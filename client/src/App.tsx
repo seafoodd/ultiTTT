@@ -13,7 +13,7 @@ const App = () => {
     let title = "ultiTTT"; // Default title
 
     switch (path) {
-      case "/home":
+      case "/":
         title = "Home - ultiTTT";
         break;
       case "/about":

@@ -15,7 +15,7 @@ const Header = () => {
 
   return (
     <div
-      className="bg-color-gray-1 w-full h-16 fixed left-0 top-0 flex
+      className="bg-color-neutral-800/80 w-full h-14 fixed left-0 top-0 flex
       items-center justify-center md:px-16 lg:px-32 xl:px-48 z-40
       backdrop-blur-sm select-none"
     >
@@ -23,26 +23,26 @@ const Header = () => {
       <div className="flex justify-center h-full">
         <div className="hidden md:flex">
           <NavItem
-            href="/home"
+            href="/"
             text="PLAY"
-            className="hover:bg-color-blue-2/80 px-4"
+            className="hover:bg-color-accent-400 px-3"
           />
           <NavItem
             href="/learn"
             text="LEARN"
-            className="hover:bg-color-blue-2/80 px-4"
+            className="hover:bg-color-accent-400 px-3"
           />
           <NavItem
             href="/about"
             text="ABOUT"
-            className="hover:bg-color-blue-2/80 px-4"
+            className="hover:bg-color-accent-400 px-3"
           />
         </div>
 
         <NavItem
           href="/donate"
           text="DONATE"
-          className={`text-yellow-500 ${currentMenu === "search" ? "hidden lg:flex" : ""} hover:text-yellow-100 px-4`}
+          className={`text-color-danger-200 ${currentMenu === "search" ? "hidden lg:flex" : ""} hover:text-color-danger-100 px-3`}
         />
       </div>
 
@@ -53,8 +53,8 @@ const Header = () => {
           setCurrentMenu={setCurrentMenu}
         />
         {isAuth && (
-          <a className="z-50 mr-1" href="/friends">
-            <MdPeopleAlt className="-mb-1" href="/friends" size={22} />
+          <a className="z-50 mr-1.5" href="/friends">
+            <MdPeopleAlt className="" href="/friends" size={26} />
           </a>
         )}
         {isAuth ? (
@@ -65,7 +65,7 @@ const Header = () => {
               setCurrentMenu={setCurrentMenu}
               trigger={
                 <div className="flex justify-center items-center gap-1 cursor-pointer h-full">
-                  <p className="font-medium truncate max-w-24">
+                  <p className="font-normal truncate max-w-24">
                     {currentUser?.username}
                   </p>
                   <IoPersonCircleOutline size={32} />
@@ -93,16 +93,16 @@ const Header = () => {
             />
           </div>
         ) : (
-          <div className="flex justify-center gap-4 pr-4 md:pr-0 z-50">
+          <div className="flex justify-center gap-4 px-3 md:pr-0 z-50">
             <NavItem
               href="/login"
               text="Log In"
-              className="text-blue-500 hover:text-blue-400 text-lg"
+              className="text-color-accent-400 hover:text-blue-400 text-lg"
             />
             <NavItem
               href="/signup"
               text="Sign Up"
-              className="text-gray-400 hover:text-gray-300 text-lg"
+              className="text-color-neutral-300 hover:text-gray-300 text-lg"
             />
           </div>
         )}

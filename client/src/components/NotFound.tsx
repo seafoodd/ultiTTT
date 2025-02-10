@@ -12,7 +12,7 @@ const NotFound = () => {
       <Button
         text="Home"
         icon={<BiHome />}
-        onClick={() => navigate("/home")}
+        onClick={() => navigate("/")}
         className="bg-color-blue-2 px-2 py-2 mt-2"
       />
     </div>

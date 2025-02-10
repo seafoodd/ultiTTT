@@ -85,14 +85,14 @@ const HeaderSearch: React.FC<HeaderSearchProps> = ({
         className={`transition-transform z-50 pr-1 ${currentMenu === "search" ? "-translate-x-16 sm:-translate-x-24" : "translate-x-14"}`}
         onClick={toggleSearch}
       >
-        <BiSearch className="-mb-1" size={22} />
+        <BiSearch className="-mb-0.5" size={24} />
       </button>
       <div
         className={`transition-transform relative ${currentMenu === "search" ? "-translate-x-16 sm:-translate-x-24" : "translate-x-16 text-transparent"}`}
       >
         <input
           ref={inputRef}
-          className={`bg-transparent w-32 h-7 px-2 py-3 rounded-md outline-none origin-right ${currentMenu !== "search" ? "placeholder-transparent" : ""}`}
+          className={`bg-transparent w-32 h-7 px-2 py-3 rounded-md outline-none origin-right ${currentMenu !== "search" ? "placeholder-transparent cursor-default" : ""}`}
           placeholder="Search"
           value={query}
           onChange={handleInputChange}
@@ -104,7 +104,7 @@ const HeaderSearch: React.FC<HeaderSearchProps> = ({
               searchResults.map((result) => (
                 <div
                   key={result.username}
-                  className="flex w-full duration-75 transition-colors bg-color-gray-2 font-medium hover:bg-color-gray-3"
+                  className="flex w-full duration-75 transition-colors bg-color-neutral-1000 font-medium hover:bg-color-neutral-700"
                 >
                   <a
                     className="w-full h-full py-1 flex items-center justify-start px-2"
@@ -117,7 +117,7 @@ const HeaderSearch: React.FC<HeaderSearchProps> = ({
               ))
             ) : (
               <div
-                className={`${searchResults === null ? "hidden" : "flex"} bg-color-gray-2 w-full items-center justify-center`}
+                className={`${searchResults === null ? "hidden" : "flex"} bg-color-neutral-1000 w-full items-center justify-center`}
               >
                 No results
               </div>
