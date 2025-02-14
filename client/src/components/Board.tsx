@@ -33,7 +33,7 @@ const Board: React.FC<BoardReworkProps> = ({
       onClick={() => setVictoryMessage("")}
     >
       <div
-        className="w-72 h-36 rounded-lg bg-color-black-1
+        className="w-72 h-36 rounded-lg bg-color-neutral-900
        flex flex-col justify-center items-center text-xl font-bold"
         onClick={(e) => {
           e.stopPropagation();
@@ -44,7 +44,7 @@ const Board: React.FC<BoardReworkProps> = ({
           onClick={() => {
             window.location.href = "/";
           }}
-          className="bg-color-blue-2 px-3 py-2 mt-4"
+          className="bg-color-accent-400 text-white px-3 py-2 mt-4"
           text="Home"
         />
       </div>
@@ -71,7 +71,7 @@ const Board: React.FC<BoardReworkProps> = ({
     ));
 
   return (
-    <div className="relative grid grid-cols-3 gap-0 w-full md:w-[640px] aspect-square md:rounded-lg overflow-hidden">
+    <div className="relative grid grid-cols-3 gap-0 w-full md:w-[640px] aspect-square md:rounded-lg overflow-hidden ">
       {victoryMessage && currentMoveSelected && renderVictoryMessage()}
       {renderSubBoards()}
     </div>

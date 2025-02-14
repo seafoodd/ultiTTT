@@ -44,8 +44,8 @@ const Square: React.FC<SquareProps> = ({
       onClick={highlight ? onClick : () => {}}
     >
       <div
-        className={`${className} absolute border-gray-500 w-full h-full
-    ${highlight && (turn === "X" ? "bg-blue-900/50" : "bg-red-900/50")}`}
+        className={`${className} absolute border-color-accent-100/50 w-full h-full
+    ${highlight && (turn === "X" ? "bg-color-information-600/25" : "bg-color-danger-600/25")}`}
       ></div>
       <div
         className={`absolute inset-0 justify-center items-center flex
