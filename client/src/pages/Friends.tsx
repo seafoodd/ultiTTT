@@ -40,7 +40,7 @@ const Friends = () => {
     type,
   }) => {
     return (
-      <div className="flex items-center w-full py-1 px-2">
+      <div className="flex items-center justify-between w-full py-1 px-2">
         <a
           href={`/@/${username}`}
           className="font-normal hover:text-blue-300 transition-colors duration-75 mr-2"
@@ -49,20 +49,20 @@ const Friends = () => {
         </a>
         {type === "outgoing" ? (
           <Button
-            icon={<IoClose size={20} />}
-            className="bg-color-gray-3 w-5 h-5"
+            icon={<IoClose size={20} className='p-0.5'/>}
+            className="bg-color-neutral-700 w-5 h-5 rounded-xl"
             onClick={() => sendFriendRequest(username, "add")}
           />
         ) : (
           <div className="flex gap-1 justify-center items-center">
             <Button
-              icon={<IoMdCheckmark size={20} />}
-              className="bg-color-green-1 w-5 h-5"
+              icon={<IoMdCheckmark size={20} className='p-0.5'/>}
+              className="bg-color-accent-400 w-5 h-5 rounded-xl"
               onClick={() => sendFriendRequest(username, "add")}
             />
             <Button
-              icon={<IoClose size={20} />}
-              className="bg-color-red-1 w-5 h-5"
+              icon={<IoClose size={20} className='p-0.5'/>}
+              className="bg-color-neutral-700 w-5 h-5 rounded-xl"
               onClick={() => sendFriendRequest(username, "add")}
             />
           </div>
@@ -83,7 +83,7 @@ const Friends = () => {
       >
         <a
           className="flex items-center mr-auto transition-colors
-              duration-75 hover:text-blue-300 "
+              duration-75 hover:text-color-accent-300 "
           href={`/@/${username}`}
         >
           <GrStatusGoodSmall
@@ -97,10 +97,10 @@ const Friends = () => {
         </a>
         <div>
           <Button
-            className={isOnline ? "hover:text-yellow-300" : "text-gray-500"}
+            className={`${isOnline ? "hover:text-color-accent-400" : ""} text-color-accent-100`}
             disabled={!isOnline}
             onClick={() => {
-              setChallengeUsername(username)
+              setChallengeUsername(username);
               setIsChallengeModalOpen(isOnline);
             }}
             icon={<RiSwordLine />}
@@ -119,10 +119,10 @@ const Friends = () => {
   return (
     <div
       className="flex w-full flex-col lg:flex-row max-w-[1024px]
-    justify-center border-y-2 lg:border-x-2 border-gray-600
-    lg:rounded-xl bg-color-gray-1 min-h-[500px]"
+    justify-center border-y-2 lg:border-x-2 border-color-neutral-400
+    lg:rounded-xl bg-color-neutral-800 min-h-[500px]"
     >
-      <div className="flex-1/3 border-b-2 min-h-40 lg:border-r-2 lg:border-b-0 border-gray-600 py-4">
+      <div className="flex-1/3 border-b-2 min-h-40 lg:border-r-2 lg:border-b-0 border-color-neutral-400 py-4">
         <div className="font-bold text-2xl mb-2">Friends</div>
         <div className="overflow-y-auto max-h-[320px]">
           {friends.length > 0 ? (
@@ -137,11 +137,11 @@ const Friends = () => {
           ) : loading ? (
             <LoadingCircle />
           ) : (
-            <div className="text-gray-500">No friends.</div>
+            <div className="text-color-neutral-300">No friends.</div>
           )}
         </div>
       </div>
-      <div className="flex lg:flex-col justify-center items-center min-h-20 divide-x-2 lg:divide-y-2 lg:divide-x-0 divide-gray-600">
+      <div className="flex lg:flex-col justify-center items-center min-h-20 divide-x-2 lg:divide-y-2 lg:divide-x-0 divide-color-neutral-400">
         <div className="flex flex-col flex-1 py-2 w-full h-full">
           <div className="font-semibold text-md px-1">Incoming Requests</div>
           <div className="overflow-y-auto h-full px-4 max-h-48">
@@ -156,7 +156,7 @@ const Friends = () => {
             ) : loading ? (
               <LoadingCircle />
             ) : (
-              <div className="text-gray-500">No incoming requests.</div>
+              <div className="text-color-neutral-300">No incoming requests.</div>
             )}
           </div>
         </div>
@@ -174,7 +174,7 @@ const Friends = () => {
             ) : loading ? (
               <LoadingCircle />
             ) : (
-              <div className="text-gray-500">No outgoing requests.</div>
+              <div className="text-color-neutral-300">No outgoing requests.</div>
             )}
           </div>
         </div>
