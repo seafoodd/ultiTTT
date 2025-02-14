@@ -20,8 +20,8 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   return (
     <button
-      className={`${className ? className : ""} font-semibold flex justify-center 
-      items-center gap-1 rounded-md h-fit text-xl shadow-md transition-colors text-nowrap`}
+      className={`${className ? className : ""} font-medium flex justify-center 
+      items-center gap-1 rounded-md h-fit text-xl shadow-md text-white transition-colors text-nowrap`}
       onClick={loading ? undefined : onClick}
       disabled={loading || disabled}
     >
