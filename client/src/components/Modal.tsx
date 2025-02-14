@@ -24,7 +24,7 @@ const Modal: React.FC<ModalProps> = ({ children, isOpen, setIsOpen }) => {
           onClick={handleOverlayClick}
         >
           <div
-            className="flex relative w-[400px] h-[400px] bg-color-black-2 rounded-md"
+            className="flex relative w-[380px] h-[400px] bg-color-black-2/80 backdrop-blur-sm rounded-md"
             onClick={handleModalClick}
           >
             <CgClose
