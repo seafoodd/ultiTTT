@@ -77,8 +77,10 @@ export default {
             1000: "#131213",
           },
           symbols: {
-            x: "#1D4ED8",
-            o: "#B91C1C",
+            x: "#385DF2",
+            x_: "#1D4ED8",
+            o: "#F23838",
+            o_: "#B91C1C",
             tie: "#636363",
           },
           blue: {

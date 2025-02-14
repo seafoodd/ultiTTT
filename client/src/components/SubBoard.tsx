@@ -50,7 +50,7 @@ const SubBoard: React.FC<SubBoardProps> = ({
       className={`grid grid-cols-3 relative aspect-square w-full h-full border-gray-400`}
     >
       <div
-        className={`${className} absolute border-gray-400 w-full h-full z-20 pointer-events-none`}
+        className={`${className} absolute border-color-accent-100/90 w-full h-full z-20 pointer-events-none`}
       ></div>
       {subWinner && (
         <div

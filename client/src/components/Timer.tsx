@@ -17,8 +17,8 @@ const Timer: React.FC<TimerProps> = ({ ms, isCompact, className }) => {
   if (isCompact) {
     return (
       <div
-        className={`${className ? className : ""} flex lg:hidden h-8 bg-color-gray-3/40
-       justify-center items-center text-2xl font-semibold p-4 rounded-sm w-20`}
+        className={`${className ? className : ""} flex lg:hidden h-8 bg-color-neutral-800
+       justify-center items-center text-2xl font-semibold px-6 py-5 rounded-sm w-20`}
       >
         {formatTime(seconds)}
       </div>
@@ -27,7 +27,7 @@ const Timer: React.FC<TimerProps> = ({ ms, isCompact, className }) => {
 
   return (
     <div
-      className={`${className ? className : ""} hidden lg:flex h-12 bg-gray-800
+      className={`${className ? className : ""} hidden lg:flex h-12 bg-color-neutral-800
        justify-center items-center text-3xl font-semibold p-4`}
     >
       {formatTime(seconds)}
