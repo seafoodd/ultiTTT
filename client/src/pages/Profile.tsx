@@ -13,6 +13,7 @@ import { useStore } from "../context/StoreContext";
 import LoadingCircle from "../components/LoadingCircle";
 import {IoClose} from "react-icons/io5";
 import {IoMdCheckmark} from "react-icons/io";
+import {RiSwordLine} from "react-icons/ri";
 
 interface UserData {
   username: string;
@@ -62,8 +63,8 @@ const getFriendButton = (
   let disabled = false;
   let text = "Add friend";
   let action: "add" | "remove" = "add";
-  let color: "bg-color-blue-2" | "bg-color-green-2" | "bg-color-red-2" = "bg-color-green-2"
-  let icon = <FaUserPlus size={20} className='-mb-0.5'/>;
+  let color: "bg-color-information-500" | "bg-color-neutral-700" | "bg-color-danger-600" = "bg-color-neutral-700"
+  let icon = <FaUserPlus size={20}/>;
 
   console.log(username, outgoingRequests)
 
@@ -71,16 +72,17 @@ const getFriendButton = (
     disabled = true;
   } else if (friends.includes(username)) {
     text = "Remove friend";
-    color = "bg-color-red-2"
+    color = "bg-color-danger-600"
     action = "remove";
     icon = <FaUserMinus size={20} className='-mb-0.5'/>;
   } else if (outgoingRequests.some((r) => r.username === username)) {
     text = "Cancel request";
-    icon = <IoClose size={26} className='-mb-1 -mx-1'/>;
-    color = "bg-color-red-2"
+    icon = <IoClose size={26} className='-mb-0.5 -mx-1'/>;
+    color = "bg-color-danger-600"
   } else if (incomingRequests.some((r) => r.username === username)) {
-    icon = <IoMdCheckmark size={26} className='-mb-1 -mx-1'/>;
+    icon = <IoMdCheckmark size={26} className='-mb-0.5 -mx-1'/>;
     text = "Accept request";
+    color = "bg-color-information-500"
   }
 
   return (
@@ -176,9 +178,10 @@ const Profile = () => {
           ) : (
             <div className="flex gap-4 justify-start w-full">
               <Button
+                icon={<RiSwordLine size={20} className='-mb-0.5'/>}
                 text="Challenge"
                 onClick={() => setIsChallengeModalOpen(isOnline && !isOwner)}
-                className={`bg-color-blue-2 disabled:bg-color-gray-3 px-4 py-3`}
+                className={`bg-color-accent-400 disabled:bg-color-gray-3 px-4 py-3`}
                 disabled={!isOnline || !isAuth}
               />
               <Modal
