@@ -63,7 +63,7 @@ const Notification = () => {
   if (!challenge) return null;
 
   return (
-    <div className="fixed rounded-xl bottom-6 right-6 z-50 bg-color-blue-2">
+    <div className="fixed rounded-xl bottom-6 right-6 z-50 bg-color-accent-400/75 backdrop-blur-sm">
       <div className="relative py-4 px-6">
         <div className="font-semibold flex">
           <span className="max-w-24 truncate mr-1">{challenge.from}</span>
