@@ -1,5 +1,5 @@
-import { redisClient } from "../index.js";
-import {debugLog} from "./debugUtils.js";
+import {redisClient} from '../index.js';
+import {debugLog} from './debugUtils.js';
 
 /**
  * Represents a player in the matchmaking queue.
@@ -17,17 +17,17 @@ class Player {
  * If the player is already in the queue, updates their ID.
  */
 const addPlayerToQueue = async (player, gameType, isRanked) => {
-  const players = await redisClient.zrange(`matchmaking:${gameType}${isRanked ? "" : ":unrated"}`, 0, -1);
+  const players = await redisClient.zrange(`matchmaking:${gameType}${isRanked ? '' : ':unrated'}`, 0, -1);
 
   const existingPlayer = players.find(
-    (p) => JSON.parse(p).identifier === player.identifier,
+    (p) => JSON.parse(p).identifier === player.identifier
   );
   if (existingPlayer) return;
 
   await redisClient.zadd(
-    `matchmaking:${gameType}${isRanked ? "" : ":unrated"}`,
+    `matchmaking:${gameType}${isRanked ? '' : ':unrated'}`,
     isRanked ? player.rank : Date.now(),
-    JSON.stringify(player),
+    JSON.stringify(player)
   );
 };
 
@@ -37,11 +37,10 @@ const addPlayerToQueue = async (player, gameType, isRanked) => {
  */
 const removePlayerFromQueue = async (identifier, gameType) => {
   const players = await redisClient.zrange(`matchmaking:${gameType}`, 0, -1);
-
   const existingPlayer = players.find(
-    (p) => JSON.parse(p).identifier === identifier,
+    (p) => JSON.parse(p).identifier === identifier
   );
-  if(!existingPlayer) return;
+  if (!existingPlayer) return;
 
   await redisClient.zrem(`matchmaking:${gameType}`, existingPlayer);
 };
@@ -51,8 +50,8 @@ const removePlayerFromQueue = async (identifier, gameType) => {
  * without knowing the gameType.
  */
 const removePlayerFromAllQueues = async (identifier) => {
-  const gameTypes = ["0", "5", "10", "15"];
-  debugLog(`removing ${identifier} from all queues...`)
+  const gameTypes = ['2', '5', '10', '15'];
+  debugLog(`removing ${identifier} from all queues...`);
   for (const gameType of gameTypes) {
     await removePlayerFromQueue(identifier, gameType);
     await removePlayerFromQueue(identifier, `${gameType}:unrated`);
