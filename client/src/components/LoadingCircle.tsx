@@ -1,14 +1,19 @@
 import { Oval } from "react-loader-spinner";
+import React from 'react';
 
-const LoadingCircle = () => {
+interface LoadingCircleProps {
+  size?: number;
+}
+
+const LoadingCircle:React.FC<LoadingCircleProps> = ({size=30}) => {
   return (
     <div className="flex justify-center items-center">
       <Oval
-        height="30"
-        width="30"
+        height={`${size}`}
+        width={`${size}`}
         strokeWidth={6}
-        color="#1d9bf0"
-        secondaryColor="#203b78"
+        color="#845EF6"
+        secondaryColor="#371893"
         ariaLabel="oval-loading"
       />
     </div>
