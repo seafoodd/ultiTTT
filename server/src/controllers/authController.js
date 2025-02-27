@@ -85,6 +85,20 @@ export const register = async (req, res) => {
         password: hashedPassword,
         username,
         displayName,
+        perfs: {
+          create: {
+            bullet: { create: {} },
+            blitz: { create: {} },
+            rapid: { create: {} },
+            standard: { create: {} },
+          },
+        },
+        socials:{
+          create:{}
+        },
+        profile:{
+          create:{}
+        }
       },
     });
 

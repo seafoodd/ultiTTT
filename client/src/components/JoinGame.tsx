@@ -126,28 +126,28 @@ const JoinGame = () => {
           </div>
           <div className="grid grid-cols-2 gap-5 mb-5">
             <GameTypeButton
-              onClick={() => searchMatch('2', isRated)}
+              onClick={() => searchMatch('bullet', isRated)}
               timeText="2 + 1"
               typeText="Bullet"
-              isSearching={currentSearching === '2'}
+              isSearching={currentSearching === 'bullet'}
             />
             <GameTypeButton
-              onClick={() => searchMatch('5', isRated)}
+              onClick={() => searchMatch('blitz', isRated)}
               timeText="5 + 3"
               typeText="Blitz"
-              isSearching={currentSearching === '5'}
+              isSearching={currentSearching === 'blitz'}
             />
             <GameTypeButton
-              onClick={() => searchMatch('10', isRated)}
+              onClick={() => searchMatch('rapid', isRated)}
               timeText="10 + 5"
               typeText="Rapid"
-              isSearching={currentSearching === '10'}
+              isSearching={currentSearching === 'rapid'}
             />
             <GameTypeButton
-              onClick={() => searchMatch('15', isRated)}
+              onClick={() => searchMatch('standard', isRated)}
               timeText="15 + 10"
-              typeText="Normal"
-              isSearching={currentSearching === '15'}
+              typeText="Standard"
+              isSearching={currentSearching === 'standard'}
             />
           </div>
           <button

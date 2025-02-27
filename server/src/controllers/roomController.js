@@ -24,6 +24,7 @@ import {
  */
 export const handleSendChallenge = async (socket, gameType, username) => {
   try {
+    console.log("SEND CHALLENGE")
     const gameId = await generateGameId(8);
     const game = createNewGame(gameType, false);
     game.invitedUsername = username;
@@ -155,7 +156,10 @@ export const handleSearchMatch = async (socket, user, gameType, isRanked) => {
       return;
     }
 
-    const player = new Player(socket.username, socket.identifier, isRanked ? user.elo : null);
+    const elo = user.perfs[gameType].elo;
+    console.log(socket.username, elo)
+
+    const player = new Player(socket.username, socket.identifier, isRanked ? elo : null);
     await addPlayerToQueue(player, gameType, isRanked);
     socket.emit("searchStarted");
 

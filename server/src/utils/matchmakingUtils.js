@@ -5,10 +5,10 @@ import {debugLog} from './debugUtils.js';
  * Represents a player in the matchmaking queue.
  */
 class Player {
-  constructor(username, identifier, rank) {
+  constructor(username, identifier, elo) {
     this.username = username;
     this.identifier = identifier;
-    this.rank = rank;
+    this.elo = elo;
   }
 }
 
@@ -26,7 +26,7 @@ const addPlayerToQueue = async (player, gameType, isRanked) => {
 
   await redisClient.zadd(
     `matchmaking:${gameType}${isRanked ? '' : ':unrated'}`,
-    isRanked ? player.rank : Date.now(),
+    isRanked ? player.elo : Date.now(),
     JSON.stringify(player)
   );
 };
@@ -50,7 +50,7 @@ const removePlayerFromQueue = async (identifier, gameType) => {
  * without knowing the gameType.
  */
 const removePlayerFromAllQueues = async (identifier) => {
-  const gameTypes = ['2', '5', '10', '15'];
+  const gameTypes = ['bullet', 'blitz', 'rapid', 'standard'];
   debugLog(`removing ${identifier} from all queues...`);
   for (const gameType of gameTypes) {
     await removePlayerFromQueue(identifier, gameType);
@@ -60,7 +60,7 @@ const removePlayerFromAllQueues = async (identifier) => {
 
 
 /**
- * Finds a match for a player within a specified rank gap.
+ * Finds a match for a player within a specified elo gap.
  * Expands the gap incrementally if no match is found within the timeout.
  */
 const findMatch = async (
@@ -72,17 +72,24 @@ const findMatch = async (
   const step = 40;
   const timeout = 3000;
 
+
   let gap = initialGap;
   let startTime = Date.now();
 
   while (gap <= maxGap) {
-    const minRank = player.rank - gap;
-    const maxRank = player.rank + gap;
+    const minRank = player.elo - gap;
+    const maxRank = player.elo + gap;
     const players = await redisClient.zrangebyscore(
       `matchmaking:${gameType}`,
       minRank,
       maxRank,
     );
+
+    const parsedPlayers = players.map(p => JSON.parse(p));
+    if (!parsedPlayers.some(p => p.username === player.username)) {
+      console.log("break",parsedPlayers, player.username)
+      break
+    }
 
     for (let i = 0; i < players.length; i++) {
       const player1 = JSON.parse(players[i]);
@@ -91,6 +98,7 @@ const findMatch = async (
         if (player1.identifier !== player2.identifier) {
           await redisClient.zrem(`matchmaking:${gameType}`, players[i]);
           await redisClient.zrem(`matchmaking:${gameType}`, players[j]);
+          console.log("finding rated match", player.elo, gap)
           return [player1, player2];
         }
       }
@@ -99,6 +107,7 @@ const findMatch = async (
     if (Date.now() - startTime > timeout) {
       gap += step;
       startTime = Date.now();
+      console.log('**************************\ngap increase', player, gap, players)
     }
   }
 
@@ -108,7 +117,7 @@ const findMatch = async (
 const findUnratedMatch = async (gameType) => {
   const timeout = 3000;
   const startTime = Date.now();
-
+  console.log("finding unrated match")
   while (Date.now() - startTime <= timeout) {
     const players = await redisClient.zrange(`matchmaking:${gameType}:unrated`, 0, -1);
 
