@@ -11,6 +11,8 @@ import searchRoutes from "./routes/searchRoutes.js";
 import {rateLimitMiddleware} from "./utils/rateLimitingUtils.js";
 import friendRoutes from "./routes/friendRoutes.js";
 import {restartTimers} from "./utils/redisUtils.js";
+import bodyParser from "body-parser";
+import paypalRoutes from "./routes/paypalRoutes.js";
 
 configDotenv();
 
@@ -34,13 +36,14 @@ export const io = new Server(server, {
 
 app.use(cors({ origin: "*" }));
 app.use(express.json());
-
+app.use(bodyParser.json());
 app.use(rateLimitMiddleware);
 
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/search", searchRoutes)
 app.use("/friends", friendRoutes);
+app.use("/paypal-webhook", paypalRoutes);
 
 initializeSocket();
 await restartTimers();

@@ -4,6 +4,17 @@ export const getByUsername = async (req, res) => {
   const { username } = req.params;
 
   try {
+    const user = await fetchUserByUsername(username);
+    if(!user) return res.status(404).send("User not found!");
+
+    return res.status(200).json(user);
+  } catch (e) {
+    return res.status(500).json({ error: e.message || "Something went wrong." });
+  }
+};
+
+export const fetchUserByUsername = async (username) => {
+  try {
     const user = await prisma.user.findUnique({
       where: {
         username: username,
@@ -21,18 +32,17 @@ export const getByUsername = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return null;
     }
 
     user.elo = Math.round(user.elo);
-
-    res.status(200).json(user);
     return user;
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: "Something went wrong." });
+    throw new Error("Something went wrong.");
   }
 };
+
 
 export const getGameHistory = async (req, res) => {
   const { username } = req.params;
