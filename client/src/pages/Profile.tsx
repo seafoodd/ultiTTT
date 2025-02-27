@@ -128,6 +128,7 @@ const Profile = () => {
     });
 
     socket.emit("isUserOnline", username, (online: boolean) => {
+      console.log("online")
       setIsOnline(online);
     });
   }, [username, socket]);

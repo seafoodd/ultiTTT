@@ -8,7 +8,7 @@ interface ChallengeModalProps {
 }
 
 const ChallengeModal: React.FC<ChallengeModalProps> = ({ username }) => {
-  const [gameType, setGameType] = useState<string>("10");
+  const [gameType, setGameType] = useState<string>("rapid");
   const navigate = useNavigate();
   const { socket } = useSocket();
 
@@ -35,26 +35,26 @@ const ChallengeModal: React.FC<ChallengeModalProps> = ({ username }) => {
       <p className="mt-12 font-medium font-xl">Minutes per player:</p>
       <div className="grid grid-cols-2 gap-3 justify-center items-center mt-4">
         <button
-          onClick={() => setGameType("2")}
-          className={`${gameType === "2" ? "bg-color-accent-400 text-white border-color-accent-400" : "hover:bg-color-accent-400/50 border-white"} text-xl font-bold w-20 h-16 border rounded-md`}
+          onClick={() => setGameType("bullet")}
+          className={`${gameType === "bullet" ? "bg-color-accent-400 text-white border-color-accent-400" : "hover:bg-color-accent-400/50 border-white"} text-xl font-bold w-20 h-16 border rounded-md`}
         >
           2 + 1
         </button>
         <button
-          onClick={() => setGameType("5")}
-          className={`${gameType === "5" ? "bg-color-accent-400 text-white border-color-accent-400" : "hover:bg-color-accent-400/50 border-white"} text-xl font-bold w-20 h-16 border rounded-md`}
+          onClick={() => setGameType("blitz")}
+          className={`${gameType === "blitz" ? "bg-color-accent-400 text-white border-color-accent-400" : "hover:bg-color-accent-400/50 border-white"} text-xl font-bold w-20 h-16 border rounded-md`}
         >
           5 + 3
         </button>
         <button
-          onClick={() => setGameType("10")}
-          className={`${gameType === "10" ? "bg-color-accent-400 text-white border-color-accent-400" : "hover:bg-color-accent-400/50 border-white"} text-xl font-bold w-20 h-16 border rounded-md`}
+          onClick={() => setGameType("rapid")}
+          className={`${gameType === "rapid" ? "bg-color-accent-400 text-white border-color-accent-400" : "hover:bg-color-accent-400/50 border-white"} text-xl font-bold w-20 h-16 border rounded-md`}
         >
           10 + 5
         </button>
         <button
-          onClick={() => setGameType("15")}
-          className={`${gameType === "15" ? "bg-color-accent-400 text-white border-color-accent-400" : "hover:bg-color-accent-400/50 border-white"} text-xl font-bold w-20 h-16 border rounded-md`}
+          onClick={() => setGameType("standard")}
+          className={`${gameType === "standard" ? "bg-color-accent-400 text-white border-color-accent-400" : "hover:bg-color-accent-400/50 border-white"} text-xl font-bold w-20 h-16 border rounded-md`}
         >
           15 + 10
         </button>

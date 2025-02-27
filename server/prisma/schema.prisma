@@ -10,29 +10,95 @@ datasource db {
 model User {
   username               String          @id @map("_id")
   email                  String          @unique
-  password               String
   displayName            String
-  location               String?
-  dateOfBirth            DateTime?
-  avatarUrl              String          @default("/media/default_images/default-avatar.png")
+  password               String
+  supporter              Boolean         @default(false)
+  profile                ProfileDetails?
+  socials                Socials?
   createdAt              DateTime        @default(now())
   updatedAt              DateTime        @updatedAt
-  elo                    Float           @default(1000)
-  rd                     Float           @default(200)
-  vol                    Float           @default(0.06)
-  gameHistoryX           Game[]          @relation("PlayerXGames")
-  gameHistoryO           Game[]          @relation("PlayerOGames")
+  perfs                  Performance?
+  playtime               Int             @default(0)
   friendships1           Friend[]        @relation("User1Friends")
   friendships2           Friend[]        @relation("User2Friends")
   sentFriendRequests     FriendRequest[] @relation("SentFriendRequests")
   receivedFriendRequests FriendRequest[] @relation("ReceivedFriendRequests")
+  games                  GamePlayer[]
+  suspended              Boolean         @default(false)
+  disabled               Boolean         @default(false)
+}
+
+model ProfileDetails {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String  @unique
+  location String?
+  bio      String?
+  user     User    @relation(fields: [userId], references: [username], onDelete: Cascade)
+}
+
+model Socials {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId  String  @unique
+  youtube String?
+  twitch  String?
+  reddit  String?
+  discord String?
+  twitter String?
+  user    User    @relation(fields: [userId], references: [username], onDelete: Cascade)
+}
+
+model Performance {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [username], onDelete: Cascade)
+
+  bullet   BulletPerf?
+  blitz    BlitzPerf?
+  rapid    RapidPerf?
+  standard StandardPerf?
+}
+
+model BulletPerf {
+  id     String      @id @default(auto()) @map("_id") @db.ObjectId
+  perfId String      @unique @db.ObjectId
+  elo    Float       @default(1000)
+  rd     Float       @default(200)
+  vol    Float       @default(0.06)
+  perf   Performance @relation(fields: [perfId], references: [id], onDelete: Cascade)
+}
+
+model BlitzPerf {
+  id     String      @id @default(auto()) @map("_id") @db.ObjectId
+  perfId String      @unique @db.ObjectId
+  elo    Float       @default(1000)
+  rd     Float       @default(200)
+  vol    Float       @default(0.06)
+  perf   Performance @relation(fields: [perfId], references: [id], onDelete: Cascade)
+}
+
+model RapidPerf {
+  id     String      @id @default(auto()) @map("_id") @db.ObjectId
+  perfId String      @unique @db.ObjectId
+  elo    Float       @default(1000)
+  rd     Float       @default(200)
+  vol    Float       @default(0.06)
+  perf   Performance @relation(fields: [perfId], references: [id], onDelete: Cascade)
+}
+
+model StandardPerf {
+  id     String      @id @default(auto()) @map("_id") @db.ObjectId
+  perfId String      @unique @db.ObjectId
+  elo    Float       @default(1000)
+  rd     Float       @default(200)
+  vol    Float       @default(0.06)
+  perf   Performance @relation(fields: [perfId], references: [id], onDelete: Cascade)
 }
 
 model Friend {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  user1         User     @relation("User1Friends", fields: [user1Username], references: [username])
+  user1         User     @relation("User1Friends", fields: [user1Username], references: [username], onDelete: Cascade)
   user1Username String
-  user2         User     @relation("User2Friends", fields: [user2Username], references: [username])
+  user2         User     @relation("User2Friends", fields: [user2Username], references: [username], onDelete: Cascade)
   user2Username String
   createdAt     DateTime @default(now())
 
@@ -41,27 +107,41 @@ model Friend {
 
 model FriendRequest {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  from         User     @relation("SentFriendRequests", fields: [fromUsername], references: [username])
+  from         User     @relation("SentFriendRequests", fields: [fromUsername], references: [username], onDelete: Cascade)
   fromUsername String
-  to           User     @relation("ReceivedFriendRequests", fields: [toUsername], references: [username])
+  to           User     @relation("ReceivedFriendRequests", fields: [toUsername], references: [username], onDelete: Cascade)
   toUsername   String
   createdAt    DateTime @default(now())
 }
 
 model Game {
-  id               String   @id @map("_id")
-  board            Json
-  winner           String?
-  moveHistory      Json
-  createdAt        DateTime @default(now())
-  playerX          User?    @relation("PlayerXGames", fields: [playerXUsername], references: [username], onDelete: SetNull)
-  playerXUsername  String?
-  playerXElo       Int
-  playerXEloChange Int
-  playerO          User?    @relation("PlayerOGames", fields: [playerOUsername], references: [username], onDelete: SetNull)
-  playerOUsername  String?
-  playerOElo       Int
-  playerOEloChange Int
-  isRanked         Boolean  @default(true)
-  status           String   @default("finished")
+  id          String       @id @map("_id")
+  board       Json
+  winner      String?
+  moveHistory Json
+  createdAt   DateTime     @default(now())
+  players     GamePlayer[]
+  gameType    GameType
+  isRanked    Boolean      @default(true)
+  status      String       @default("finished")
+}
+
+enum GameType {
+  blitz
+  rapid
+  bullet
+  standard
+}
+
+model GamePlayer {
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  gameId          String @unique
+  userId          String @unique
+  symbol          String
+  playerElo       Int
+  playerEloChange Int
+  game            Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user            User   @relation(fields: [userId], references: [username], onDelete: Cascade)
+
+  @@unique([gameId, userId])
 }

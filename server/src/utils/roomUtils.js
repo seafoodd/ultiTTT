@@ -81,19 +81,19 @@ export const createNewGame = (gameType, isRanked = true) => {
   let timeIncrement = 0;
 
   switch (gameType) {
-    case "2":
+    case "bullet":
       time *= 2 * 60;
       timeIncrement = 1000;
       break;
-    case "5":
+    case "blitz":
       time *= 5 * 60;
       timeIncrement = 3000;
       break;
-    case "10":
+    case "rapid":
       time *= 10 * 60;
       timeIncrement = 5000;
       break;
-    case "15":
+    case "standard":
       time *= 15 * 60;
       timeIncrement = 10000;
       break;
@@ -111,5 +111,6 @@ export const createNewGame = (gameType, isRanked = true) => {
     currentSubBoard: null,
     timers: { X: time, O: time },
     isRanked: isRanked,
+    gameType: gameType,
   };
 };

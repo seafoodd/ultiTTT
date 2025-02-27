@@ -93,15 +93,15 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
           <div className="flex-shrink flex flex-col w-full md:justify-between md:flex-row items-center">
             <div className="flex gap-6 sm:gap-2 items-center">
               <PlayerInfo
-                player={game.playerX}
-                elo={game.playerXElo}
-                eloChange={game.playerXEloChange}
+                player={game.players[0]}
+                elo={game.players[0].playerElo}
+                eloChange={game.players[0].playerEloChange}
               />
               <span>vs</span>
               <PlayerInfo
-                player={game.playerO}
-                elo={game.playerOElo}
-                eloChange={game.playerOEloChange}
+                player={game.players[1]}
+                elo={game.players[1].playerElo}
+                eloChange={game.players[1].playerEloChange}
               />
             </div>
             <div className="text-xl font-medium w-24 flex items-center justify-center mt-2">
@@ -125,9 +125,9 @@ const PlayerInfo: React.FC<{
       <a
         className={`text-xl font-bold ${player ? "" : "text-white/70 pointer-events-none"}
         max-w-32 truncate`}
-        href={`/@/${player?.username}`}
+        href={`/@/${player?.userId}`}
       >
-        {player ? player.username : "deleted"}
+        {player ? player.userId : "deleted"}
       </a>
       <div className="text-gray-400 font-normal text-md">
         ({elo}
