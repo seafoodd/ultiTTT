@@ -1,7 +1,14 @@
-import {debugLog} from "./debugUtils.js";
-import {io, redisClient} from "../index.js";
+import { debugLog } from "./debugUtils.js";
+import { io, redisClient } from "../index.js";
 
-export const emitWithRetry = (socket, event, data, retries = 3, timeout = 1000, acknowledgedPlayers = new Set()) => {
+export const emitWithRetry = (
+  socket,
+  event,
+  data,
+  retries = 3,
+  timeout = 1000,
+  acknowledgedPlayers = new Set(),
+) => {
   const attemptEmit = (remainingRetries) => {
     if (remainingRetries <= 0) {
       console.error(`Failed to emit ${event} after multiple attempts`);
@@ -37,11 +44,11 @@ export const emitToUser = async (socket, username, event, data) => {
       emitWithRetry(playerSocket, event, data);
     }
   });
-}
+};
 
 export const emitToGuest = async (socket, event, data) => {
   socket.emit(event, data);
-}
+};
 
 /**
  * Emit the current game state to all players in the game.
@@ -49,13 +56,14 @@ export const emitToGuest = async (socket, event, data) => {
  * @param {Object} game - The game object.
  */
 export const emitGameState = (gameId, game) => {
-    io.to(gameId).emit("gameState", {
-      board: game.board,
-      moveHistory: game.moveHistory,
-      currentSubBoard: game.currentSubBoard,
-      players: game.players,
-      timers: game.timers,
-      invitedUsername: game.invitedUsername,
-      isRanked: game.isRanked,
-    });
-  };
+  io.to(gameId).emit("gameState", {
+    t: "init",
+    board: game.board,
+    moveHistory: game.moveHistory,
+    currentSubBoard: game.currentSubBoard,
+    players: game.players,
+    timers: game.timers,
+    invitedUsername: game.invitedUsername,
+    isRanked: game.isRanked,
+  });
+};

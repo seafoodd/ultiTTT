@@ -9,9 +9,9 @@ import {
 import Timer from "./Timer";
 import Board from "./Board";
 import { ImCross } from "react-icons/im";
-import {useAuth} from "../context/AuthContext";
-import {useSocket} from "../context/SocketContext";
-import {handleResign} from "../utils/gameUtils";
+import { useAuth } from "../context/AuthContext";
+import { useSocket } from "../context/SocketContext";
+import { handleResign } from "../utils/gameUtils";
 import MoveHistory from "./MoveHistory";
 
 interface GameViewProps {
@@ -28,6 +28,7 @@ interface GameViewProps {
   currentSubBoard: number | null;
   setCurrentMoveIndex: any;
   gameId: string;
+  gameFinished: boolean;
 }
 
 export const GameView: React.FC<GameViewProps> = ({
@@ -43,9 +44,10 @@ export const GameView: React.FC<GameViewProps> = ({
   setVictoryMessage,
   currentSubBoard,
   setCurrentMoveIndex,
-  gameId
+  gameId,
+  gameFinished,
 }) => {
-  const {currentUser} = useAuth();
+  const { currentUser } = useAuth();
   const { socket } = useSocket();
 
   return (
@@ -56,6 +58,7 @@ export const GameView: React.FC<GameViewProps> = ({
       </div>
       <div className="w-full">
         <Board
+          gameFinished={gameFinished}
           lastMove={moveHistory[currentMoveIndex - 1]}
           currentMoveSelected={currentMoveIndex === moveHistory.length}
           board={board}
@@ -84,7 +87,11 @@ export const GameView: React.FC<GameViewProps> = ({
             <div className="max-w-40 truncate">{opponentUsername}</div>
           </div>
           <div className="h-full overflow-y-hidden lg:overflow-y-scroll lg:overflow-x-hidden">
-            <MoveHistory moveHistory={moveHistory} currentMoveIndex={currentMoveIndex} setCurrentMoveIndex={setCurrentMoveIndex}/>
+            <MoveHistory
+              moveHistory={moveHistory}
+              currentMoveIndex={currentMoveIndex}
+              setCurrentMoveIndex={setCurrentMoveIndex}
+            />
           </div>
           <div className="flex justify-center gap-4 items-center py-4 lg:py-2">
             <button

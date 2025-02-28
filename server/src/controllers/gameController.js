@@ -72,10 +72,11 @@ export const handleMove = async (
     }
 
     io.to(gameId).emit("gameState", {
-      board: redisGame.board,
+      t: "move",
+      // board: redisGame.board,
       moveHistory: redisGame.moveHistory,
-      currentSubBoard: redisGame.currentSubBoard,
-      players: redisGame.players,
+      // currentSubBoard: redisGame.currentSubBoard,
+      // players: redisGame.players,
       timers: redisGame.timers,
     });
 
@@ -102,7 +103,9 @@ export const handleResign = async (socket, gameId) => {
       return;
     }
 
-    const opponent = game.players.find((p) => p.identifier !== socket.identifier);
+    const opponent = game.players.find(
+      (p) => p.identifier !== socket.identifier,
+    );
     if (!opponent) return;
     await finishGame(game, gameId, opponent.symbol, game.isRanked, "resign");
     io.to(gameId).emit("gameResult", {
