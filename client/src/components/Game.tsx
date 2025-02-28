@@ -7,8 +7,10 @@ import NotFound from "./NotFound";
 import WaitingLobby from "./WaitingLobby";
 import LoadingCircle from "./LoadingCircle";
 import { GameView } from "./GameView";
+import { playSound } from "../utils/soundUtils";
 
 interface GameState {
+  t: "init" | "move";
   board: { subWinner: string; squares: string[] }[];
   player: string;
   turn: string;
@@ -61,6 +63,11 @@ const Game = () => {
   const [gameNotFound, setGameNotFound] = useState<boolean>(false);
   const [gameFinished, setGameFinished] = useState<boolean>(false);
 
+  const [moveSound] = useState(() => new Audio("/sounds/Move.mp3"));
+  const [notificationSound] = useState(
+    () => new Audio("/sounds/GameFound.mp3"),
+  );
+
   useEffect(() => {
     let animationFrameId: number;
     let start: number;
@@ -108,7 +115,7 @@ const Game = () => {
     );
 
     const handleError = () => {
-      setLoading(false)
+      setLoading(false);
       setGameNotFound(true);
     };
 
@@ -117,29 +124,52 @@ const Game = () => {
       callback: (ack: string) => void = () => {},
     ) => {
       callback("ACK");
-      setBoard(gameState.board);
+      console.log(gameState);
       setTurn(gameState.moveHistory.length % 2 === 0 ? "X" : "O");
       setMoveHistory(gameState.moveHistory);
-      const opponent = gameState.players.find(
-        (p) => p.identifier !== currentUser.identifier,
-      );
-      if (opponent) {
-        setOpponentUsername(opponent.username);
-      }
       setCurrentMoveIndex(gameState.moveHistory.length);
-      setCurrentSubBoard(gameState.currentSubBoard);
-      setInvitedUsername(gameState.invitedUsername);
       setTimers(gameState.timers);
-      const currentPlayer = gameState.players.find(
-        (p: Player) => p.identifier === currentUser.identifier,
+
+      if (gameState.t === "init") {
+        setInvitedUsername(gameState.invitedUsername);
+
+        const opponent = gameState.players.find(
+          (player) => player.identifier !== currentUser.identifier,
+        );
+        if (opponent) {
+          setOpponentUsername(opponent.username);
+        }
+        const currentPlayer = gameState.players.find(
+          (p: Player) => p.identifier === currentUser.identifier,
+        );
+        // console.log("currentPlayer", currentPlayer)
+        if (currentPlayer) {
+          setSymbol(currentPlayer.symbol);
+        }
+        if (gameState.players.length === 2) {
+          setPlayersJoined(true);
+        }
+      }
+
+      const newBoard = getBoardAtMove(
+        gameState.moveHistory.length,
+        gameState.moveHistory,
       );
-      console.log("currentPlayer", currentPlayer)
-      if (currentPlayer) {
-        setSymbol(currentPlayer.symbol);
+      setBoard(newBoard);
+      const lastSquareIndex =
+        gameState.moveHistory.length > 0
+          ? gameState.moveHistory[gameState.moveHistory.length - 1].squareIndex
+          : null;
+      setCurrentSubBoard(
+        lastSquareIndex !== null && newBoard[lastSquareIndex].subWinner === ""
+          ? lastSquareIndex
+          : null,
+      );
+
+      if (gameState.t === "move") {
+        playSound(moveSound);
       }
-      if (gameState.players.length === 2) {
-        setPlayersJoined(true);
-      }
+
       setLoading(false);
     };
 
@@ -151,6 +181,8 @@ const Game = () => {
             : "Game tied!"
           : `Player ${result.winner} wins!`,
       );
+
+      playSound(notificationSound);
       setGameFinished(true);
     };
 
@@ -165,13 +197,14 @@ const Game = () => {
   }, [gameId, token, socket, location, currentUser]);
 
   const chooseSquare = (subBoardIndex: number, squareIndex: number) => {
-    if (!socket) return;
+    if (!socket || gameFinished) return;
 
     if (turn !== symbol || board[subBoardIndex].squares[squareIndex] !== "") {
       console.log(`Not a valid move: ${turn} !== ${symbol}`);
       return;
     }
 
+    playSound(moveSound);
     socket.emit("makeMove", { gameId, subBoardIndex, squareIndex });
   };
 
@@ -199,6 +232,7 @@ const Game = () => {
 
   return (
     <GameView
+      gameFinished={gameFinished}
       board={board}
       turn={turn}
       timers={timers}

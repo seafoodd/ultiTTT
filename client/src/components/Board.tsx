@@ -11,6 +11,7 @@ interface BoardReworkProps {
   chooseSquare: (subBoardIndex: number, squareIndex: number) => void;
   currentSubBoard: number | null;
   currentMoveSelected: boolean;
+  gameFinished: boolean;
   lastMove: { subBoardIndex: number; squareIndex: number };
 }
 
@@ -24,6 +25,7 @@ const Board: React.FC<BoardReworkProps> = ({
   victoryMessage,
   setVictoryMessage,
   player,
+  gameFinished,
 }) => {
   const renderVictoryMessage = () => (
     <div
@@ -63,6 +65,7 @@ const Board: React.FC<BoardReworkProps> = ({
         lastMove={lastMove}
         subBoardIndex={i}
         highlightCurrent={
+          !gameFinished &&
           currentMoveSelected &&
           (i === currentSubBoard || currentSubBoard === null)
         }
