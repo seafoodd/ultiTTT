@@ -156,10 +156,7 @@ export const handleSearchMatch = async (socket, user, gameType, isRanked) => {
       return;
     }
 
-    const elo = user.perfs[gameType].elo;
-    console.log(socket.username, elo)
-
-    const player = new Player(socket.username, socket.identifier, isRanked ? elo : null);
+    const player = new Player(socket.username, socket.identifier, isRanked ? user.perfs[gameType].elo : null);
     await addPlayerToQueue(player, gameType, isRanked);
     socket.emit("searchStarted");
 
