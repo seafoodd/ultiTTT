@@ -107,7 +107,7 @@ const findMatch = async (
     if (Date.now() - startTime > timeout) {
       gap += step;
       startTime = Date.now();
-      console.log('**************************\ngap increase', player, gap, players)
+      // console.log('**************************\ngap increase', player, gap, players)
     }
   }
 
