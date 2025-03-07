@@ -34,3 +34,12 @@ export const restartTimers = async () => {
         await startTimer(io, key, redisClient);
     }
 };
+
+export const printAllRedisUsers = async () => {
+    try {
+        const keys = await redisClient.keys("user:*");
+        console.log("online users:",keys)
+    } catch (e) {
+        console.error("Error fetching usernames:", e.message);
+    }
+};
