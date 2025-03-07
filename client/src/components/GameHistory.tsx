@@ -85,7 +85,7 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
         <div
           key={index}
           ref={index === gameHistory.length - 1 ? lastGameElementRef : null}
-          className="flex flex-col sm:flex-row items-center gap-4 sm:gap-32 border border-white/20 p-4 w-full"
+          className="flex flex-col sm:flex-row items-center gap-4 sm:gap-32 bg-color-neutral-850 mb-4 p-4 w-full rounded-md"
         >
           <div className="flex-none">
             <BoardPreview board={game.board} />
@@ -137,7 +137,8 @@ const PlayerInfo: React.FC<{
               eloChange >= 0 ? "text-color-green-1" : "text-color-red-1"
             }
           >
-            {" "}{eloChange > 0 && "+"}
+            {" "}
+            {eloChange > 0 && "+"}
             {eloChange}
           </span>
         ) : (
