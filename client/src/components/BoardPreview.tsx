@@ -32,10 +32,10 @@ const getBackgroundColorClass = (subWinner: string) => {
 };
 
 const SubBoardPreview: React.FC<{ subWinner: string; className: string; squares: string[] }> = ({ subWinner, className, squares }) => (
-  <div className={`grid grid-cols-3 relative aspect-square w-full h-full border-gray-400`}>
-    <div className={`${className} absolute border-gray-400 w-full h-full z-10`}></div>
+  <div className={`grid grid-cols-3 relative aspect-square w-full h-full border-color-neutral-200`}>
+    <div className={`${className} absolute border-color-neutral-200 w-full h-full z-20`}></div>
     {subWinner && (
-      <div className={`absolute w-full h-full p-2 ${getBackgroundColorClass(subWinner)}`}>
+      <div className={`absolute w-full h-full p-2 z-10 ${getBackgroundColorClass(subWinner)}`}>
         {renderSubWinner[subWinner]}
       </div>
     )}
@@ -56,15 +56,15 @@ const renderIcon: { [key: string]: React.ReactNode | string } = {
 };
 
 const SquarePreview: React.FC<{ value: string; className: string }> = ({ value, className }) => (
-  <button className={`relative aspect-square w-full h-full flex items-center justify-center -z-10`}>
-    <div className={`${className} absolute border-gray-500 w-full h-full`}></div>
+  <button className={`relative aspect-square w-full h-full flex items-center justify-center`}>
+    <div className={`${className} absolute border-color-neutral-300 w-full h-full`}></div>
     <div className="w-full h-full p-0.5">{renderIcon[value]}</div>
   </button>
 );
 
 const BoardPreview: React.FC<BoardPreviewProps> = ({ board, size = 216 }) => (
   <div
-    className={`relative grid grid-cols-3 gap-0 rounded-md overflow-hidden`}
+    className={`relative grid grid-cols-3 gap-0 rounded-md overflow-hidden border border-color-neutral-200`}
     style={{ width: `${size}px`, height: `${size}px` }}
   >
     {board.map((subBoard, i) => (
