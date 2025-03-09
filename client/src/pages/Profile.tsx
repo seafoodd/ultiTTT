@@ -15,13 +15,47 @@ import { IoMdCheckmark } from "react-icons/io";
 import { RiSwordLine } from "react-icons/ri";
 import { HiStatusOnline } from "react-icons/hi";
 import { AiFillHeart, AiOutlineTwitch } from "react-icons/ai";
+import { formatDate, timeAgo } from "../utils/formatUtils";
+import { FaHeartCrack } from "react-icons/fa6";
+import { BiSolidStar } from "react-icons/bi";
+import ProfileStats from "../components/ProfileStats";
+
+interface Perf {
+  elo: number;
+  wins: number;
+  winsR: number;
+  losses: number;
+  lossesR: number;
+  draws: number;
+  drawsR: number;
+  playtime: number;
+  all: number;
+  allR: number;
+}
 
 interface UserData {
   username: string;
-  location: string;
-  dateOfBirth: Date;
-  avatarUrl: string;
-  elo: number;
+  displayName: string;
+  createdAt: Date;
+  lastOnline: Date;
+  supporter: boolean;
+  profile: {
+    bio: string;
+    location: string;
+  };
+  socials: {
+    youtube: string | null;
+    twitch: string | null;
+    reddit: string | null;
+    discord: string | null;
+    twitter: string | null;
+  };
+  perfs: {
+    bullet: Perf;
+    blitz: Perf;
+    rapid: Perf;
+    standard: Perf;
+  };
 }
 
 const fetchUserData = async (
@@ -131,6 +165,7 @@ const Profile = () => {
       console.log(err);
     });
 
+    console.log("isUserOnline", username);
     socket.emit("isUserOnline", username, (online: boolean) => {
       console.log("online");
       setIsOnline(online);
@@ -148,23 +183,29 @@ const Profile = () => {
   return (
     <div className="flex w-full flex-row justify-center gap-6 max-w-[1440px]">
       <div className="max-w-[1073px] w-full">
-        <div className="bg-color-neutral-800 mb-6 w-full sm:rounded-md">
+        <div className="bg-color-neutral-800 mb-6 w-full lg:rounded-md">
           <div className="sm:pt-3 h-full lg:px-9 flex flex-col lg:flex-row justify-between">
             <div className="w-full">
               <div className="flex flex-col sm:flex-row px-2 lg:pr-8 justify-center lg:justify-start gap-1 sm:gap-8 min-h-28 w-full">
-                <div className="sm:bg-color-neutral-850 sm:rounded-md p-1.5 sm:p-3 lg:min-w-56">
-                  <div className="text-2xl font-medium text-start">
-                    {userData!.username}
+                <div className="sm:bg-color-neutral-850 sm:rounded-md p-1.5 sm:p-3 min-w-64 md:min-w-72">
+                  <div className="text-2xl font-medium text-start flex gap-1.5 items-center">
+                    {userData!.username}{" "}
+                    {userData!.supporter ? (
+                      <a href={"/donate"}>
+                        <BiSolidStar className="text-color-accent-300" />
+                      </a>
+                    ) : (
+                      ""
+                    )}
                   </div>
                   <div className="text-color-neutral-300 text-start text-[13px] sm:text-[15px] sm:text-wrap sm:line-clamp-3 truncate max-w-[90%] sm:max-w-80 max-h-24">
-                    🙂👍hello everyone this is my pprofiel 88 888888888888 88888
-                    888888888 8888888888 888888hgfffffffffffffffffffffffffff
+                    {userData!.profile.bio ? userData!.profile.bio : "No bio."}
                   </div>
                 </div>
-                <div className="sm:bg-color-neutral-850 sm:rounded-md justify-center items-center my-2 sm:my-0 flex lg:mx-auto sm:px-9 gap-4 lg:gap-8 text-[14px] min-w-fit sm:text-[16px]">
-                  <div className="flex flex-col items-center justify-end h-16 lg:h-24 font-normal text-color-neutral-200">
+                <div className="sm:bg-color-neutral-850 sm:rounded-md justify-center mr-0 sm:mr-1 md:mr-0 items-center my-2 sm:my-0 flex lg:mx-auto sm:px-4 gap-4 lg:gap-8 text-[14px] min-w-fit sm:text-[16px]">
+                  <div className="flex flex-col items-center justify-between h-16 lg:h-24 font-normal text-color-neutral-200">
                     <HiStatusOnline
-                      className={`${isOnline ? "text-color-green-1" : ""} w-9 h-9 sm:w-11 sm:h-11`}
+                      className={`${isOnline ? "text-color-green-1" : ""} w-9 h-9 sm:w-11 sm:h-11 mt-1.5`}
                     />
                     {isOnline ? (
                       <div className="flex gap-x-1 lg:flex-col">
@@ -174,19 +215,38 @@ const Profile = () => {
                     ) : (
                       <>
                         <div className="hidden lg:flex">Last online</div>
-                        <div>6 days ago</div>
+                        <div>{timeAgo(userData!.lastOnline)}</div>
                       </>
                     )}
                   </div>
                   <div className="flex flex-col items-center justify-end h-16 lg:h-24 font-normal text-color-neutral-200">
                     <MdCake className="w-10 h-10 sm:w-12 sm:h-12" />
                     <div className="hidden lg:flex">Member since</div>
-                    <div>Apr 17, 2025</div>
+                    <div className="text-nowrap">
+                      {formatDate(userData!.createdAt)}
+                    </div>
                   </div>
                   <div className="flex flex-col items-center justify-end h-16 lg:h-24 font-normal text-color-neutral-200">
-                    <AiFillHeart className="w-9 h-9 sm:w-11 sm:h-11" />
-                    <div className="hidden lg:flex">Supporter for</div>
-                    <div>3 months</div>
+                    <a href="/donate">
+                      {userData!.supporter ? (
+                        <AiFillHeart className="w-9 h-9 sm:w-11 sm:h-11 text-color-accent-300" />
+                      ) : (
+                        <FaHeartCrack className="w-8 h-8 sm:w-10 sm:h-10" />
+                      )}
+                    </a>
+                    <div className={`lg:h-12 `}>
+                      {userData!.supporter ? (
+                        "Supporter"
+                      ) : (
+                        <>
+                          No
+                          <b className="font-normal  inline sm:hidden md:inline">
+                            t a
+                          </b>{" "}
+                          <br className="hidden lg:flex" /> Supporter
+                        </>
+                      )}{" "}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -277,16 +337,35 @@ const Profile = () => {
             </div>
           </div>
         </div>
-        <div className="flex xl:hidden bg-color-neutral-800 w-full h-[200px] mb-6 sm:rounded-md">
-          Stats
+        <div className='2xl:hidden flex flex-col justify-center bg-color-neutral-800 lg:rounded-md mb-6 pt-2 p-4 sm:px-12 lg:px-24'>
+          <h1 className="text-[20px] font-bold mb-3">Stats</h1>
+
+
+          <div className=" flex flex-wrap w-full justify-between ">
+
+          {(["bullet", "blitz", "rapid", "standard"] as const).map(
+            (gameType) => (
+              <div className="flex flex-col gap-1 sm:text-lg" key={gameType}>
+                <h1 className="capitalize font-normal">{gameType}</h1>
+                  <div className="text-[20px] font-medium">
+                    {Math.round(userData!.perfs[gameType].elo)}
+                  </div>
+                  <div className='text-[18px] text-color-neutral-200'>{userData!.perfs[gameType].allR} games</div>
+              </div>
+            ),
+          )}
+        </div>
         </div>
 
-        <div className="bg-color-neutral-800 max-w-[1073px] w-full sm:rounded-md overflow-hidden p-8">
+        <div className="bg-color-neutral-800 max-w-[1073px] w-full lg:rounded-md overflow-hidden p-8">
           <GameHistory username={username!} />
         </div>
       </div>
-      <div className="hidden xl:flex bg-color-neutral-800 max-w-[344px] w-full h-[700px] rounded-md">
-        Stats
+      <div className="hidden 2xl:flex flex-col items-center bg-color-neutral-800 max-w-[344px] w-full h-[700px] rounded-md">
+        <h1 className="text-[20px] font-bold mt-2.5">Stats</h1>
+        <div className="flex flex-col gap-3 mt-4">
+          <ProfileStats userData={userData} />
+        </div>
       </div>
     </div>
   );

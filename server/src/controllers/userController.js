@@ -27,6 +27,19 @@ export const fetchUserByUsername = async (username) => {
     }
 
     console.log(user);
+    for (const gameType of ["bullet", "blitz", "rapid", "standard"]) {
+      user.perfs[gameType].all =
+        user.perfs[gameType].wins +
+        user.perfs[gameType].winsR +
+        user.perfs[gameType].losses +
+        user.perfs[gameType].lossesR +
+        user.perfs[gameType].draws +
+        user.perfs[gameType].drawsR;
+      user.perfs[gameType].allR =
+        user.perfs[gameType].winsR +
+        user.perfs[gameType].lossesR +
+        user.perfs[gameType].drawsR;
+    }
     return user;
   } catch (e) {
     console.error(e);

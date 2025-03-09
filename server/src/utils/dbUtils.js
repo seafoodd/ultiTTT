@@ -250,6 +250,8 @@ export const getPublicUserInfo = async (username, fieldsToSelect = {}) => {
     baseSelect.displayName = true;
     baseSelect.createdAt = true;
     baseSelect.updatedAt = true;
+    baseSelect.lastOnline = true;
+    baseSelect.supporter = true;
   }
 
   if (fieldsToSelect.perfs) {
