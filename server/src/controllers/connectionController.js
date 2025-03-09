@@ -1,6 +1,7 @@
 import { io, redisClient } from "../index.js";
 import { removePlayerFromAllQueues } from "../utils/matchmakingUtils.js";
-import {printAllRedisUsers} from "../utils/redisUtils.js";
+import { printAllRedisUsers } from "../utils/redisUtils.js";
+import prisma from "../../prisma/prismaClient.js";
 
 /**
  * Handle user connection by adding the user to the online users set and storing the socket ID.
@@ -53,6 +54,13 @@ export const handleDisconnect = async (socket) => {
     if (socketIds.length <= 1) {
       await redisClient.del(`user:${socket.identifier}`);
       await removePlayerFromAllQueues(socket.identifier);
+      await prisma.user.update({
+        where: { username: socket.identifier },
+        data: {
+          lastOnline: new Date(),
+        },
+      });
+
       console.log(socket.username, "has disconnected");
     }
   } catch (e) {
@@ -68,7 +76,7 @@ export const handleDisconnect = async (socket) => {
  */
 export const handleIsUserOnline = async (username, callback) => {
   const isOnline = await redisClient.exists(`user:${username}`);
-  await printAllRedisUsers()
-  console.log(username, "is", isOnline)
+  await printAllRedisUsers();
+  console.log(username, "is", isOnline);
   callback(isOnline === 1);
 };
