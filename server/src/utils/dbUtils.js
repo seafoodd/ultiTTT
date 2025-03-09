@@ -8,13 +8,13 @@ export const saveGameResult = async (
   gameId,
   game,
   overallWinner,
-  isRanked,
+  isRated,
   status,
 ) => {
   try {
     const duration = game.startedAt ? Date.now() - game.startedAt : 0;
 
-    console.log("ABSABBABSSASHASJHSJ", game, overallWinner, gameId, isRanked, status)
+    console.log("ABSABBABSSASHASJHSJ", game, overallWinner, gameId, isRated, status)
 
     const [playerX, playerO] = await Promise.all(
       game.players.map((player) =>
@@ -50,7 +50,7 @@ export const saveGameResult = async (
 
       let newEloX, newEloO, newRdX, newRdO, newVolX, newVolO;
 
-      if (isRanked) {
+      if (isRated) {
         const {
           newElo: newEloXCalc,
           newRd: newRdXCalc,
@@ -141,7 +141,7 @@ export const saveGameResult = async (
           ],
         },
         duration,
-        isRanked,
+        isRated,
         status,
       },
     });

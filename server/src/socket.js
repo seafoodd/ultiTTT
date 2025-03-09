@@ -75,7 +75,7 @@ export const initializeSocket = () => {
     );
     socket.on(
       "searchMatch",
-      requireAuth((gameType, isRanked) => handleSearchMatch(socket, gameType, isRanked)),
+      requireAuth((gameType, isRated) => handleSearchMatch(socket, gameType, isRated)),
     );
     socket.on(
       "createFriendlyGame",

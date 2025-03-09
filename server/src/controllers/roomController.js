@@ -153,11 +153,11 @@ export const handleCancelSearch = async (socket) => {
  * Handle searching for a match.
  * @param {Object} socket - The socket object.
  * @param {string} gameType - The type of game.
- * @param {boolean} isRanked
+ * @param {boolean} isRated
  */
-export const handleSearchMatch = async (socket, gameType, isRanked) => {
+export const handleSearchMatch = async (socket, gameType, isRated) => {
   try {
-    if (isRanked && socket.role === "guest") {
+    if (isRated && socket.role === "guest") {
       socket.emit("error", "Unauthorized");
       return;
     }
@@ -167,19 +167,19 @@ export const handleSearchMatch = async (socket, gameType, isRanked) => {
     const player = new Player(
       socket.username,
       socket.identifier,
-      isRanked ? user.perfs[gameType].elo : null,
+      isRated ? user.perfs[gameType].elo : null,
     );
-    await addPlayerToQueue(player, gameType, isRanked);
+    await addPlayerToQueue(player, gameType, isRated);
     socket.emit("searchStarted");
 
-    const match = isRanked
+    const match = isRated
       ? await findMatch(player, gameType)
       : await findUnratedMatch(gameType);
 
     if (match) {
       const [player1, player2] = match;
       const gameId = await generateGameId();
-      const game = createNewGame(gameType, isRanked);
+      const game = createNewGame(gameType, isRated);
       console.log("created new game:", socket.username);
 
       for (const { username, identifier } of [player1, player2]) {

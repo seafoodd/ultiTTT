@@ -73,10 +73,10 @@ export const generateGameId = async (
 /**
  * Create a new game object based on the game type.
  * @param {string} gameType - The type of game (minutes).
- * @param isRanked - Is the game ranked?
+ * @param isRated - Is the game ranked?
  * @returns {Object} The new game object.
  */
-export const createNewGame = (gameType, isRanked = true) => {
+export const createNewGame = (gameType, isRated = true) => {
   let time = 1000;
   let timeIncrement = 0;
 
@@ -110,7 +110,7 @@ export const createNewGame = (gameType, isRanked = true) => {
     timeIncrement: timeIncrement,
     currentSubBoard: null,
     timers: { X: time, O: time },
-    isRanked: isRanked,
+    isRated: isRated,
     gameType: gameType,
     startedAt: null,
   };

@@ -52,7 +52,7 @@ const JoinGame = () => {
     };
   }, [socket]);
 
-  const searchMatch = async (gameType: string, isRanked: boolean = true) => {
+  const searchMatch = async (gameType: string, isRated: boolean = true) => {
     if (!socket) return;
 
     const isAuth = await verifyToken();
@@ -64,7 +64,7 @@ const JoinGame = () => {
     if (currentSearching) return cancelSearch();
 
     try {
-      socket.emit("searchMatch", gameType, isRanked);
+      socket.emit("searchMatch", gameType, isRated);
 
       socket.off("searchStarted");
 
