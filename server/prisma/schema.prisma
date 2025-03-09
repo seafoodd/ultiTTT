@@ -149,7 +149,7 @@ model Game {
   createdAt   DateTime     @default(now())
   players     GamePlayer[]
   gameType    GameType
-  isRanked    Boolean      @default(true)
+  isRated     Boolean      @default(true)
   duration    Int
   status      String       @default("finished")
 }

@@ -104,7 +104,7 @@ export const handleResign = async (socket, gameId) => {
       (p) => p.identifier !== socket.identifier,
     );
     if (!opponent) return;
-    await finishGame(game, gameId, opponent.symbol, game.isRanked, "resign");
+    await finishGame(game, gameId, opponent.symbol, game.isRated, "resign");
     io.to(gameId).emit("gameResult", {
       winner: opponent.symbol,
       status: "resign",
@@ -139,7 +139,7 @@ export const handleOverallWin = async (io, game, gameId) => {
         game,
         gameId,
         overallWinner,
-        game.isRanked,
+        game.isRated,
         overallWinner ? "finished" : "tie",
       );
     }
@@ -201,7 +201,7 @@ export const startTimer = async (io, gameId, redisClient) => {
       redisGame,
       gameId,
       redisGame.turn === "X" ? "O" : "X",
-      redisGame.isRanked,
+      redisGame.isRated,
       "byTime",
     );
   }, 100);

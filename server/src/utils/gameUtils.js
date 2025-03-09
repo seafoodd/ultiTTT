@@ -76,12 +76,12 @@ export const finishGame = async (
   game,
   gameId,
   winnerSymbol,
-  isRanked,
+  isRated,
   status,
 ) => {
   try {
     await redisClient.del(`game:${gameId}`);
-    await saveGameResult(gameId, game, winnerSymbol, isRanked, status);
+    await saveGameResult(gameId, game, winnerSymbol, isRated, status);
     debugLog(`saved the game with id ${gameId} (status: ${status})`);
   } catch (e) {
     console.error("Error saving game result:", e);

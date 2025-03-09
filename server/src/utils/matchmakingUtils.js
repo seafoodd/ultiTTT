@@ -16,8 +16,8 @@ class Player {
  * Adds a player to the matchmaking queue.
  * If the player is already in the queue, updates their ID.
  */
-const addPlayerToQueue = async (player, gameType, isRanked) => {
-  const players = await redisClient.zrange(`matchmaking:${gameType}${isRanked ? '' : ':unrated'}`, 0, -1);
+const addPlayerToQueue = async (player, gameType, isRated) => {
+  const players = await redisClient.zrange(`matchmaking:${gameType}${isRated ? '' : ':unrated'}`, 0, -1);
 
   const existingPlayer = players.find(
     (p) => JSON.parse(p).identifier === player.identifier
@@ -25,8 +25,8 @@ const addPlayerToQueue = async (player, gameType, isRanked) => {
   if (existingPlayer) return;
 
   await redisClient.zadd(
-    `matchmaking:${gameType}${isRanked ? '' : ':unrated'}`,
-    isRanked ? player.elo : Date.now(),
+    `matchmaking:${gameType}${isRated ? '' : ':unrated'}`,
+    isRated ? player.elo : Date.now(),
     JSON.stringify(player)
   );
 };

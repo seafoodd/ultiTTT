@@ -64,6 +64,6 @@ export const emitGameState = (gameId, game) => {
     players: game.players,
     timers: game.timers,
     invitedUsername: game.invitedUsername,
-    isRanked: game.isRanked,
+    isRated: game.isRated,
   });
 };
