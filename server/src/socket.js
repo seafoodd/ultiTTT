@@ -32,6 +32,7 @@ export const initializeSocket = () => {
     let user = null;
     try {
       user = await getUserByToken(token);
+      socket.role = user.role
       await handleConnect(socket, user);
     } catch (e) {
       debugError("Token verification failed:", e.message);
@@ -57,7 +58,7 @@ export const initializeSocket = () => {
     socket.on(
       "declineChallenge",
       requireAuth((gameId, fromUsername) =>
-        handleDeclineChallenge(socket, user, gameId, fromUsername),
+        handleDeclineChallenge(socket, gameId, fromUsername),
       ),
     );
     socket.on("disconnect", () => handleDisconnect(socket));
@@ -74,7 +75,7 @@ export const initializeSocket = () => {
     );
     socket.on(
       "searchMatch",
-      requireAuth((gameType, isRanked) => handleSearchMatch(socket, user, gameType, isRanked)),
+      requireAuth((gameType, isRanked) => handleSearchMatch(socket, gameType, isRanked)),
     );
     socket.on(
       "createFriendlyGame",

@@ -176,6 +176,10 @@ export const startTimer = async (io, gameId, redisClient) => {
       return;
     }
 
+    if (!redisGame.startedAt) {
+      redisGame.startedAt = Date.now();
+    }
+
     redisGame.timers[redisGame.turn] -= 100;
 
     if (redisGame.timers[redisGame.turn] > 0) {

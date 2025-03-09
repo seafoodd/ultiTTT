@@ -1,5 +1,6 @@
 import { io, redisClient } from "../index.js";
 import { removePlayerFromAllQueues } from "../utils/matchmakingUtils.js";
+import {printAllRedisUsers} from "../utils/redisUtils.js";
 
 /**
  * Handle user connection by adding the user to the online users set and storing the socket ID.
@@ -67,5 +68,7 @@ export const handleDisconnect = async (socket) => {
  */
 export const handleIsUserOnline = async (username, callback) => {
   const isOnline = await redisClient.exists(`user:${username}`);
+  await printAllRedisUsers()
+  console.log(username, "is", isOnline)
   callback(isOnline === 1);
 };
