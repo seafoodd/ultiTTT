@@ -236,13 +236,6 @@ export const getPublicUserInfo = async (username, fieldsToSelect = {}) => {
       },
     };
 
-    baseSelect.username = true;
-    baseSelect.displayName = true;
-    baseSelect.createdAt = true;
-    baseSelect.updatedAt = true;
-  }
-
-  if (fieldsToSelect.socials) {
     baseSelect.socials = {
       select: {
         youtube: true,
@@ -252,6 +245,11 @@ export const getPublicUserInfo = async (username, fieldsToSelect = {}) => {
         twitter: true,
       },
     };
+
+    baseSelect.username = true;
+    baseSelect.displayName = true;
+    baseSelect.createdAt = true;
+    baseSelect.updatedAt = true;
   }
 
   if (fieldsToSelect.perfs) {
