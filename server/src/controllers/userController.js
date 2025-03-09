@@ -20,7 +20,6 @@ export const fetchUserByUsername = async (username) => {
   try {
     const user = await getPublicUserInfo(username, {
       profile: true,
-      socials: true,
       perfs: true,
     });
     if (!user) {
