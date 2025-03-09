@@ -29,6 +29,12 @@ const JoinGame = () => {
   }, [isAuth]);
 
   useEffect(() => {
+    cancelSearch().catch((e) => {
+      console.error("Error canceling search:", e);
+    });
+  }, [isRated]);
+
+  useEffect(() => {
     if (!socket) return;
 
     const matchFoundListener = (
@@ -55,7 +61,7 @@ const JoinGame = () => {
       return;
     }
 
-    if (currentSearching) return await cancelSearch();
+    if (currentSearching) return cancelSearch();
 
     try {
       socket.emit("searchMatch", gameType, isRanked);
@@ -173,7 +179,9 @@ const JoinGame = () => {
               className="relative"
               onSubmit={(e) => {
                 e.preventDefault();
-                cancelSearch();
+                cancelSearch().catch((e) => {
+                  console.error("Error canceling search:", e);
+                });
                 if (gameCodeRef.current) {
                   navigate(`/${gameCodeRef.current.value}`);
                 }
