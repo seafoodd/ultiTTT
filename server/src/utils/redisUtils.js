@@ -20,6 +20,7 @@ export const saveGameToRedis = async (gameId, game) => {
             invitedUsername: game.invitedUsername,
             isRanked: game.isRanked,
             gameType: game.gameType,
+            startedAt: game.startedAt,
         }),
         "EX",
         3600,

@@ -81,10 +81,13 @@ export const register = async (req, res) => {
 
     const user = await prisma.user.create({
       data: {
-        email,
-        password: hashedPassword,
         username,
         displayName,
+        email,
+        password: hashedPassword,
+        socials: {
+          create: {},
+        },
         perfs: {
           create: {
             bullet: { create: {} },
@@ -93,17 +96,23 @@ export const register = async (req, res) => {
             standard: { create: {} },
           },
         },
-        socials:{
-          create:{}
+        profile: {
+          create: {},
         },
-        profile:{
-          create:{}
-        }
       },
     });
 
+    // for (const gameType of ["bullet", "blitz", "rapid", "standard"]) {
+    //   await prisma.performance.create({
+    //     data: {
+    //       userId: username,
+    //       gameType: gameType,
+    //     },
+    //   });
+    // }
+
     const token = jwt.sign(
-      { identifier: username, userId: user.userId },
+      { identifier: username, role: "user" },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "24h" },
     );
@@ -191,7 +200,11 @@ export const verifyToken = (req, res) => {
   const user = req.user;
   res.status(200).json({
     message: "Token is valid",
-    user: { username: user.username, identifier: user.identifier, role: user.role },
+    user: {
+      username: user.username,
+      identifier: user.identifier,
+      role: user.role,
+    },
   });
   return req.user.username;
 };

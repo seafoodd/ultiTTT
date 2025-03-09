@@ -112,5 +112,6 @@ export const createNewGame = (gameType, isRanked = true) => {
     timers: { X: time, O: time },
     isRanked: isRanked,
     gameType: gameType,
+    startedAt: null,
   };
 };

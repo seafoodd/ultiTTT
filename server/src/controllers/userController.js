@@ -1,60 +1,33 @@
 import prisma from "../../prisma/prismaClient.js";
+import { getPublicUserInfo } from "../utils/dbUtils.js";
 
 export const getByUsername = async (req, res) => {
   const { username } = req.params;
 
   try {
     const user = await fetchUserByUsername(username);
-    if(!user) return res.status(404).send("User not found!");
+    if (!user) return res.status(404).send("User not found!");
 
     return res.status(200).json(user);
   } catch (e) {
-    return res.status(500).json({ error: e.message || "Something went wrong." });
+    return res
+      .status(500)
+      .json({ error: e.message || "Something went wrong." });
   }
 };
 
 export const fetchUserByUsername = async (username) => {
   try {
-    const user = await prisma.user.findUnique({
-      where: { username },
-      select: {
-        username: true,
-        displayName: true,
-        createdAt: true,
-        updatedAt: true,
-        profile: {
-          select: {
-            location: true,
-            bio: true,
-          },
-        },
-        socials: {
-          select: {
-            youtube: true,
-            twitch: true,
-            reddit: true,
-            discord: true,
-            twitter: true,
-          },
-        },
-        perfs: {
-          select: {
-            bullet: { select: { elo: true } },
-            blitz: { select: { elo: true } },
-            rapid: { select: { elo: true } },
-            standard: { select: { elo: true } },
-          },
-        },
-      },
+    const user = await getPublicUserInfo(username, {
+      profile: true,
+      socials: true,
+      perfs: true,
     });
-
-
-    console.log(user);
     if (!user) {
       return null;
     }
 
-    user.elo = Math.round(user.elo);
+    console.log(user);
     return user;
   } catch (e) {
     console.error(e);
@@ -62,12 +35,11 @@ export const fetchUserByUsername = async (username) => {
   }
 };
 
-
 export const getGameHistory = async (req, res) => {
   const { username } = req.params;
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;  // Offset calculation
+  const skip = (page - 1) * limit; // Offset calculation
 
   try {
     const user = await prisma.user.findUnique({
@@ -109,7 +81,7 @@ export const getGameHistory = async (req, res) => {
       take: limit,
       orderBy: {
         game: {
-          createdAt: 'desc',  // Order by latest game first
+          createdAt: "desc",
         },
       },
     });
