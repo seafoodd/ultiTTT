@@ -73,10 +73,7 @@ export const handleMove = async (
 
     io.to(gameId).emit("gameState", {
       t: "move",
-      // board: redisGame.board,
       moveHistory: redisGame.moveHistory,
-      // currentSubBoard: redisGame.currentSubBoard,
-      // players: redisGame.players,
       timers: redisGame.timers,
     });
 
