@@ -73,6 +73,8 @@ export default {
             700: "#3E3D40",
             800: "#2C2B2D",
             850: "#272728",
+            875: "#252526",
+            885: "#232324",
             900: "#19181A",
             1000: "#131213",
           },
@@ -82,6 +84,13 @@ export default {
             o: "#F23838",
             o_: "#B91C1C",
             tie: "#636363",
+          },
+          socials: {
+            twitch: "#A78BF9",
+            youtube: "#F23838",
+            discord: "#6481F6",
+            reddit: "#FF4500",
+            twitter: "#FFFFFF",
           },
           blue: {
             1: "#1D4ED8",
