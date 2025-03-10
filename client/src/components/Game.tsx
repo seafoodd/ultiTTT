@@ -64,8 +64,8 @@ const Game = () => {
   const [gameFinished, setGameFinished] = useState<boolean>(false);
 
   const [moveSound] = useState(() => new Audio("/sounds/Move.mp3"));
-  const [notificationSound] = useState(
-    () => new Audio("/sounds/GameFound.mp3"),
+  const [gameFinishedSound] = useState(
+    () => new Audio("/sounds/GameFinished.mp3"),
   );
 
   useEffect(() => {
@@ -182,7 +182,7 @@ const Game = () => {
           : `Player ${result.winner} wins!`,
       );
 
-      playSound(notificationSound);
+      playSound(gameFinishedSound);
       setGameFinished(true);
     };
 
