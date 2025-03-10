@@ -8,7 +8,11 @@ const calculateWinRate = (wins: number, losses: number, draws: number) => {
   return (wins / totalGames) * 100;
 };
 
-const ProfileStats = ({ userData }) => {
+interface ProfileStatsProps {
+  userData: any;
+}
+
+const ProfileStats: React.FC<ProfileStatsProps> = ({ userData }) => {
   return (
     <>
       {(["bullet", "blitz", "rapid", "standard"] as const).map((gameType) => (

@@ -14,11 +14,12 @@ import { IoClose } from "react-icons/io5";
 import { IoMdCheckmark } from "react-icons/io";
 import { RiSwordLine } from "react-icons/ri";
 import { HiStatusOnline } from "react-icons/hi";
-import { AiFillHeart, AiOutlineTwitch } from "react-icons/ai";
+import { AiFillHeart } from "react-icons/ai";
 import { formatDate, timeAgo } from "../utils/formatUtils";
 import { FaHeartCrack } from "react-icons/fa6";
 import { BiSolidStar } from "react-icons/bi";
 import ProfileStats from "../components/ProfileStats";
+import Socials from "../components/Socials";
 
 interface Perf {
   elo: number;
@@ -183,11 +184,11 @@ const Profile = () => {
   return (
     <div className="flex w-full flex-row justify-center gap-6 max-w-[1440px]">
       <div className="max-w-[1073px] w-full">
-        <div className="bg-color-neutral-800 mb-6 w-full lg:rounded-md">
+        <div className="bg-color-neutral-800 border-y-[2px] lg:border-y-0 border-color-neutral-500 mb-6 w-full lg:rounded-md">
           <div className="sm:pt-3 h-full lg:px-9 flex flex-col lg:flex-row justify-between">
             <div className="w-full">
               <div className="flex flex-col sm:flex-row px-2 lg:pr-8 justify-center lg:justify-start gap-1 sm:gap-8 min-h-28 w-full">
-                <div className="sm:bg-color-neutral-850 sm:rounded-md p-1.5 sm:p-3 min-w-64 md:min-w-72">
+                <div className="sm:bg-color-neutral-850 sm:rounded-md p-1.5 sm:p-3 min-w-64 md:min-w-72 sm:border-b-[3px] border-color-accent-300">
                   <div className="text-2xl font-medium text-start flex items-center">
                     <span className="mr-1.5 truncate max-w-80">
                       {userData!.username}
@@ -204,7 +205,7 @@ const Profile = () => {
                     {userData!.profile.bio ? userData!.profile.bio : "No bio."}
                   </div>
                 </div>
-                <div className="sm:bg-color-neutral-850 sm:rounded-md justify-center mr-0 sm:mr-1 md:mr-0 items-center my-2 sm:my-0 flex lg:mx-auto sm:px-4 lg:px-9 gap-4 lg:gap-8 text-[14px] min-w-fit sm:text-[16px]">
+                <div className="sm:bg-color-neutral-850 sm:rounded-md sm:border-b-[3px] border-color-accent-300 justify-center mr-0 sm:mr-1 md:mr-0 items-center my-2 sm:my-0 flex lg:mx-auto sm:px-4 lg:px-9 gap-4 lg:gap-8 text-[14px] min-w-fit sm:text-[16px]">
                   <div className="flex flex-col items-center justify-between h-16 lg:h-24 font-normal text-color-neutral-200">
                     <HiStatusOnline
                       className={`${isOnline ? "text-color-green-1" : ""} w-9 h-9 sm:w-11 sm:h-11 mt-1.5`}
@@ -297,49 +298,10 @@ const Profile = () => {
                 )}
               </div>
             </div>
-            <div className="bg-color-neutral-850 lg:rounded-md flex lg:flex-col p-1 lg:p-3 min-w-40 lg:mb-6 flex-wrap justify-center lg:justify-start gap-x-8 gap-y-1 px-8">
-              <div className="hidden lg:flex justify-start font-medium text-[20px] mb-2">
-                Links
-              </div>
-              <a
-                href="#"
-                className="flex gap-0.5 justify-start items-center text-[14px] text-color-neutral-200 font-normal"
-              >
-                <AiOutlineTwitch size={20} className="text-color-accent-400" />
-                Twitch
-              </a>
-              <a
-                href="#"
-                className="flex gap-0.5 justify-start items-center text-[14px] text-color-neutral-200 font-normal"
-              >
-                <AiOutlineTwitch size={20} className="text-color-accent-400" />
-                Youtube
-              </a>
-              <a
-                href="#"
-                className="flex gap-0.5 justify-start items-center text-[14px] text-color-neutral-200 font-normal"
-              >
-                <AiOutlineTwitch size={20} className="text-color-accent-400" />
-                Discord
-              </a>
-              <a
-                href="#"
-                className="flex gap-0.5 justify-start items-center text-[14px] text-color-neutral-200 font-normal"
-              >
-                <AiOutlineTwitch size={20} className="text-color-accent-400" />
-                Reddit
-              </a>
-              <a
-                href="#"
-                className="flex gap-0.5 justify-start items-center text-[14px] text-color-neutral-200 font-normal"
-              >
-                <AiOutlineTwitch size={20} className="text-color-accent-400" />
-                Twitter
-              </a>
-            </div>
+            <Socials socials={userData!.socials} />
           </div>
         </div>
-        <div className="2xl:hidden flex flex-col justify-center bg-color-neutral-800 lg:rounded-md mb-6 pt-2 p-4 sm:px-12 lg:px-24">
+        <div className="2xl:hidden flex flex-col justify-center border-y-[2px] lg:border-y-0 border-color-neutral-500 bg-color-neutral-800  lg:rounded-md mb-6 pt-2 p-4 sm:px-12 lg:px-24">
           <h1 className="text-[20px] font-bold mb-3">Stats</h1>
 
           <div className=" flex flex-wrap w-full justify-between ">
@@ -359,7 +321,7 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className="bg-color-neutral-800 max-w-[1073px] w-full lg:rounded-md overflow-hidden p-8">
+        <div className="bg-color-neutral-800 max-w-[1073px] border-y-[2px] lg:border-y-0 border-color-neutral-500 w-full lg:rounded-md overflow-hidden py-8 sm:px-8">
           <GameHistory username={username!} />
         </div>
       </div>
