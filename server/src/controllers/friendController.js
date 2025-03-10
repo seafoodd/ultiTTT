@@ -4,6 +4,12 @@ export const sendFriendRequest = async (req, res) => {
   const { username } = req.params;
   const from = req.user.username;
 
+  if (username === from) {
+    return res
+      .status(403)
+      .json({ error: "You cannot add yourself as a friend. :(" });
+  }
+
   try {
     const toUser = await prisma.user.findUnique({
       where: { username },
@@ -152,8 +158,8 @@ export const removeFriend = async (req, res) => {
 // };
 
 export const getFriends = async (req, res) => {
-  if(!req.user) return;
-  if(req.user.role === "guest") {
+  if (!req.user) return;
+  if (req.user.role === "guest") {
     return res.status(403).json({ error: "Unauthorized" });
   }
   const username = req.user.username;
