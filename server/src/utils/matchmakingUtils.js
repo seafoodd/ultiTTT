@@ -1,9 +1,6 @@
 import { redisClient } from "../index.js";
 import { debugLog } from "./debugUtils.js";
 
-/**
- * Represents a player in the matchmaking queue.
- */
 class Player {
   constructor(username, identifier, elo) {
     this.username = username;
@@ -12,22 +9,8 @@ class Player {
   }
 }
 
-/**
- * Adds a player to the matchmaking queue.
- */
 const addPlayerToQueue = async (player, gameType, isRated) => {
-  // const players = await redisClient.zrange(
-  //   `matchmaking:${gameType}${isRated ? "" : ":unrated"}`,
-  //   0,
-  //   -1,
-  // );
-  //
-  // const existingPlayer = players.find(
-  //   (p) => JSON.parse(p).identifier === player.identifier,
-  // );
-  // if (existingPlayer) return;
-
-  await removePlayerFromAllQueues(player.identifier)
+  await removePlayerFromAllQueues(player.identifier);
 
   await redisClient.zadd(
     `matchmaking:${gameType}${isRated ? "" : ":unrated"}`,
@@ -36,9 +19,6 @@ const addPlayerToQueue = async (player, gameType, isRated) => {
   );
 };
 
-/**
- * Removes a player from the matchmaking queue.
- */
 const removePlayerFromQueue = async (identifier, gameType) => {
   const players = await redisClient.zrange(`matchmaking:${gameType}`, 0, -1);
   const existingPlayer = players.find(
@@ -49,10 +29,6 @@ const removePlayerFromQueue = async (identifier, gameType) => {
   await redisClient.zrem(`matchmaking:${gameType}`, existingPlayer);
 };
 
-/**
- * Removes a player from all the matchmaking queues
- * without knowing the gameType.
- */
 const removePlayerFromAllQueues = async (identifier) => {
   const gameTypes = ["bullet", "blitz", "rapid", "standard"];
   debugLog(`removing ${identifier} from all queues...`);
@@ -62,10 +38,6 @@ const removePlayerFromAllQueues = async (identifier) => {
   }
 };
 
-/**
- * Finds a match for a player within a specified elo gap.
- * Expands the gap incrementally if no match is found within the timeout.
- */
 const findMatch = async (player, gameType) => {
   const initialGap = 40;
   const maxGap = 400;
