@@ -202,7 +202,7 @@ const Profile = () => {
                     {userData!.profile.bio ? userData!.profile.bio : "No bio."}
                   </div>
                 </div>
-                <div className="sm:bg-color-neutral-850 sm:rounded-md justify-center mr-0 sm:mr-1 md:mr-0 items-center my-2 sm:my-0 flex lg:mx-auto sm:px-4 gap-4 lg:gap-8 text-[14px] min-w-fit sm:text-[16px]">
+                <div className="sm:bg-color-neutral-850 sm:rounded-md justify-center mr-0 sm:mr-1 md:mr-0 items-center my-2 sm:my-0 flex lg:mx-auto sm:px-4 lg:px-9 gap-4 lg:gap-8 text-[14px] min-w-fit sm:text-[16px]">
                   <div className="flex flex-col items-center justify-between h-16 lg:h-24 font-normal text-color-neutral-200">
                     <HiStatusOnline
                       className={`${isOnline ? "text-color-green-1" : ""} w-9 h-9 sm:w-11 sm:h-11 mt-1.5`}
@@ -250,7 +250,7 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-center lg:justify-start lg:ml-8 items-center my-6 gap-4 flex-wrap mx-2">
+              <div className="flex justify-center lg:justify-start lg:ml-8 items-center my-6 lg:my-8 gap-4 flex-wrap mx-2">
                 {isOwner ? (
                   <>
                     <Button
@@ -337,24 +337,24 @@ const Profile = () => {
             </div>
           </div>
         </div>
-        <div className='2xl:hidden flex flex-col justify-center bg-color-neutral-800 lg:rounded-md mb-6 pt-2 p-4 sm:px-12 lg:px-24'>
+        <div className="2xl:hidden flex flex-col justify-center bg-color-neutral-800 lg:rounded-md mb-6 pt-2 p-4 sm:px-12 lg:px-24">
           <h1 className="text-[20px] font-bold mb-3">Stats</h1>
 
-
           <div className=" flex flex-wrap w-full justify-between ">
-
-          {(["bullet", "blitz", "rapid", "standard"] as const).map(
-            (gameType) => (
-              <div className="flex flex-col gap-1 sm:text-lg" key={gameType}>
-                <h1 className="capitalize font-normal">{gameType}</h1>
+            {(["bullet", "blitz", "rapid", "standard"] as const).map(
+              (gameType) => (
+                <div className="flex flex-col gap-1 sm:text-lg" key={gameType}>
+                  <h1 className="capitalize font-normal">{gameType}</h1>
                   <div className="text-[20px] font-medium">
                     {Math.round(userData!.perfs[gameType].elo)}
                   </div>
-                  <div className='text-[18px] text-color-neutral-200'>{userData!.perfs[gameType].allR} games</div>
-              </div>
-            ),
-          )}
-        </div>
+                  <div className="text-[18px] text-color-neutral-200">
+                    {userData!.perfs[gameType].allR} games
+                  </div>
+                </div>
+              ),
+            )}
+          </div>
         </div>
 
         <div className="bg-color-neutral-800 max-w-[1073px] w-full lg:rounded-md overflow-hidden p-8">
