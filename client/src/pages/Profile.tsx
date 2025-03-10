@@ -188,8 +188,10 @@ const Profile = () => {
             <div className="w-full">
               <div className="flex flex-col sm:flex-row px-2 lg:pr-8 justify-center lg:justify-start gap-1 sm:gap-8 min-h-28 w-full">
                 <div className="sm:bg-color-neutral-850 sm:rounded-md p-1.5 sm:p-3 min-w-64 md:min-w-72">
-                  <div className="text-2xl font-medium text-start flex gap-1.5 items-center">
-                    {userData!.username}{" "}
+                  <div className="text-2xl font-medium text-start flex items-center">
+                    <span className="mr-1.5 truncate max-w-80">
+                      {userData!.username}
+                    </span>{" "}
                     {userData!.supporter ? (
                       <a href={"/donate"}>
                         <BiSolidStar className="text-color-accent-300" />
@@ -295,7 +297,7 @@ const Profile = () => {
                 )}
               </div>
             </div>
-            <div className="bg-color-neutral-850 lg:rounded-md flex lg:flex-col p-1 lg:p-3 min-w-40 lg:mb-6 flex-wrap justify-center gap-x-8 gap-y-1 px-8">
+            <div className="bg-color-neutral-850 lg:rounded-md flex lg:flex-col p-1 lg:p-3 min-w-40 lg:mb-6 flex-wrap justify-center lg:justify-start gap-x-8 gap-y-1 px-8">
               <div className="hidden lg:flex justify-start font-medium text-[20px] mb-2">
                 Links
               </div>
