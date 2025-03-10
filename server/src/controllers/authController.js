@@ -25,7 +25,7 @@ export const register = async (req, res) => {
   }
 
   const usernameRegex = /^[a-zA-Z0-9_]+$/; // (alphanumeric and underscores only)
-  const maxUsernameLength = 32;
+  const maxUsernameLength = 24;
   const minUsernameLength = 3;
   if (username.length < minUsernameLength) {
     return res.status(400).json({
