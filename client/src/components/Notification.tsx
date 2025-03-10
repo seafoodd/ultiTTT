@@ -67,7 +67,7 @@ const Notification = () => {
       <div className="relative py-4 px-6">
         <div className="font-semibold flex">
           <span className="max-w-24 truncate mr-1">{challenge.from}</span>
-          challenged you to a {challenge.gameType} minute game!
+          challenged you to a {challenge.gameType} game!
         </div>
         <div className="flex font-bold justify-center items-center gap-8">
           <button onClick={() => respondChallenge(true)}>Accept</button>
