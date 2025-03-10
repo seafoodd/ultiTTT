@@ -78,6 +78,8 @@ export const getGameHistory = async (req, res) => {
             createdAt: true,
             status: true,
             gameType: true,
+            duration: true,
+            isRated: true,
             players: {
               select: {
                 userId: true,
