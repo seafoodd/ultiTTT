@@ -53,3 +53,11 @@ export const formatDate = (date: string | Date) => {
 
   return inputDate.toLocaleDateString("en-US", options);
 };
+
+export const gameDuration = (durationMs:number) => {
+  const totalSeconds = Math.floor(durationMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
