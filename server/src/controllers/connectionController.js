@@ -33,7 +33,6 @@ export const handleDisconnect = async (socket) => {
 
   try {
     const socketIds = await redisClient.smembers(`user:${socket.identifier}`);
-    console.log(socketIds);
 
     const invalidSocketIds = socketIds.filter(
       (id) => !io.sockets.sockets.has(id),
@@ -46,16 +45,12 @@ export const handleDisconnect = async (socket) => {
 
     await redisClient.srem(`user:${socket.identifier}`, socket.id);
 
-    console.log(
-      socket.username,
-      "has disconnected a socket with id",
-      socket.id,
-    );
     if (socketIds.length <= 1) {
       await redisClient.del(`user:${socket.identifier}`);
       await removePlayerFromAllQueues(socket.identifier);
+      if (socket.role === "guest") return;
       await prisma.user.update({
-        where: { username: socket.identifier },
+        where: { username: socket.username },
         data: {
           lastOnline: new Date(),
         },

@@ -32,7 +32,7 @@ const LogIn = () => {
     })
       .then((res) => {
         const { token } = res.data;
-        cookies.set("token", token, { path: "/" });
+        cookies.set("token", token, { path: "/", sameSite: "lax", secure: true, maxAge: rememberMe ? 365 * 24 * 60 * 60 : undefined });
         setIsAuth(true);
         window.location.href = "/";
       })

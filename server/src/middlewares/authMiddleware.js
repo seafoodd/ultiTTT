@@ -7,7 +7,6 @@ export const authenticateToken = async (req, res, next) => {
 
   try {
     const user = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    console.log(user);
     let dbUser = null;
     if (user.role === "user") {
       dbUser = await prisma.user.findFirst({

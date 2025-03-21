@@ -45,7 +45,8 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
           console.log(response)
           if (response.status === 200) {
             token = response.data.token
-            cookies.set("token", token, { path: "/" });
+            // cookies.set("token", token, { path: "/"});
+            cookies.set("token", token, { path: "/", sameSite: "lax", secure: true });
             console.log("received guest token",token)
           }
         } catch (error) {

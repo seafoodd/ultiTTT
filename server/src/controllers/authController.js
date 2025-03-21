@@ -114,7 +114,7 @@ export const register = async (req, res) => {
     const token = jwt.sign(
       { identifier: username, role: "user" },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "24h" },
+      { expiresIn: "7d" },
     );
 
     res.status(201).json({ ...user, token });
@@ -158,11 +158,10 @@ export const login = async (req, res) => {
       return res.status(401).json({ error: "Invalid username or password" });
     }
 
-    const tokenOptions = rememberMe ? {} : { expiresIn: "24h" };
     const token = jwt.sign(
       { identifier: identifier, role: "user" },
       process.env.ACCESS_TOKEN_SECRET,
-      tokenOptions,
+      rememberMe ? undefined : { expiresIn: "7d" },
     );
 
     res.status(200).json({ token });
