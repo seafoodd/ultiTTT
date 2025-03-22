@@ -1,9 +1,10 @@
 import React from 'react';
+import UnderConstruction from "../components/UnderConstruction";
 
 const Donate = () => {
   return (
     <div>
-      Donate
+      <UnderConstruction/>
     </div>
   );
 };
