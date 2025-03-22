@@ -35,19 +35,12 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
       if (!token) {
         try {
           const response = await axios.post(
-            `${import.meta.env.VITE_API_URL}/auth/guestLogin`,
-            {
-              headers: {
-                Authorization: token,
-              },
-            },
+            `${import.meta.env.VITE_API_URL}/auth/guestLogin`
           );
           console.log(response)
           if (response.status === 200) {
             token = response.data.token
-            // cookies.set("token", token, { path: "/"});
             cookies.set("token", token, { path: "/", sameSite: "lax", secure: true });
-            console.log("received guest token",token)
           }
         } catch (error) {
           if (axios.isAxiosError(error) && error.response?.status === 403) {
@@ -57,7 +50,6 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
         }
       }
       try {
-        console.log("verifying", token)
         const response = await axios.get(
           `${import.meta.env.VITE_API_URL}/auth/verifyToken`,
           {
@@ -66,10 +58,8 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
             },
           },
         );
-        console.log(response.data)
         if (response.status === 200) {
           setCurrentUser(response.data.user);
-          console.log("current user", response.data.user)
           if(response.data.user.role !== "guest"){
             setIsAuth(true);
           }
