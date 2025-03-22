@@ -22,7 +22,7 @@ const Socials: React.FC<SocialsProps> = ({ socials }) => {
       url: socials.youtube,
       Icon: AiFillYoutube,
       needsBackground: true,
-      inset: 6,
+      inset: 5,
     },
     { key: "discord", url: socials.discord, Icon: FaDiscord },
     {
@@ -52,9 +52,9 @@ const Socials: React.FC<SocialsProps> = ({ socials }) => {
               className="flex gap-0.5 justify-start items-center text-[14px] text-color-neutral-200 font-normal"
             >
               {needsBackground ? (
-                <div className="relative w-[20px] h-[20px]">
+                <div className="relative w-[20px] h-[20px] justify-center flex items-center">
                   <div
-                    className={`absolute inset-[${inset}px] bg-white rounded-full`}
+                    className={`absolute bg-white rounded-full inset-[${inset}px]`}
                   ></div>
                   <Icon
                     size={20}
@@ -62,7 +62,10 @@ const Socials: React.FC<SocialsProps> = ({ socials }) => {
                   />
                 </div>
               ) : (
-                <Icon size={20} className={`text-color-socials-${key}`} />
+                <Icon
+                  size={20}
+                  className={`text-color-socials-${key} ${key === "twitter" ? "w-[18px] h-[20px] ml-[1px]" : ""}`}
+                />
               )}
               {key.charAt(0).toUpperCase() + key.slice(1)}
             </a>
