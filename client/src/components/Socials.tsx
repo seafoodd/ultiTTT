@@ -16,23 +16,11 @@ interface SocialsProps {
 
 const Socials: React.FC<SocialsProps> = ({ socials }) => {
   const socialLinks = [
-    { key: "twitch", url: socials.twitch, Icon: AiOutlineTwitch },
-    {
-      key: "youtube",
-      url: socials.youtube,
-      Icon: AiFillYoutube,
-      needsBackground: true,
-      inset: 5,
-    },
-    { key: "discord", url: socials.discord, Icon: FaDiscord },
-    {
-      key: "reddit",
-      url: socials.reddit,
-      Icon: RiRedditFill,
-      needsBackground: true,
-      inset: 4,
-    },
-    { key: "twitter", url: socials.twitter, Icon: BsTwitterX },
+    { key: "twitch", url: socials.twitch, Icon: AiOutlineTwitch, colorClass: "text-color-socials-twitch" },
+    { key: "youtube", url: socials.youtube, Icon: AiFillYoutube, colorClass: "text-color-socials-youtube", needsBackground: true },
+    { key: "discord", url: socials.discord, Icon: FaDiscord, colorClass: "text-color-socials-discord" },
+    { key: "reddit", url: socials.reddit, Icon: RiRedditFill, colorClass: "text-color-socials-reddit", needsBackground: true},
+    { key: "twitter", url: socials.twitter, Icon: BsTwitterX, colorClass: "text-color-socials-twitter" },
   ];
 
   const hasSocials = socialLinks.some((social) => social.url);
@@ -43,28 +31,28 @@ const Socials: React.FC<SocialsProps> = ({ socials }) => {
         <div className="hidden lg:flex justify-start font-medium text-[20px] mb-2">
           Links
         </div>
-        {socialLinks.map(({ key, url, Icon, needsBackground, inset }) =>
+        {socialLinks.map(({ key, url, Icon, colorClass, needsBackground }) =>
           url ? (
             <a
               key={key}
               href={url}
               target="_blank"
-              className="flex gap-0.5 justify-start items-center text-[14px] text-color-neutral-200 font-normal"
+              className="flex gap-0.5 justify-start items-center text-[14px] font-normal"
             >
               {needsBackground ? (
                 <div className="relative w-[20px] h-[20px] justify-center flex items-center">
                   <div
-                    className={`absolute bg-white rounded-full inset-[${inset}px]`}
+                    className={`absolute bg-white rounded-full w-[15px] h-[10.5px]`}
                   ></div>
                   <Icon
                     size={20}
-                    className={`relative text-color-socials-${key}`}
+                    className={`relative ${colorClass}`}
                   />
                 </div>
               ) : (
                 <Icon
                   size={20}
-                  className={`text-color-socials-${key} ${key === "twitter" ? "w-[18px] h-[20px] ml-[1px]" : ""}`}
+                  className={` ${colorClass} ${key === "twitter" ? "w-[18px] h-[20px] ml-[1px]" : ""}`}
                 />
               )}
               {key.charAt(0).toUpperCase() + key.slice(1)}
