@@ -20,72 +20,8 @@ import { FaHeartCrack } from "react-icons/fa6";
 import { BiSolidStar } from "react-icons/bi";
 import ProfileStats from "../components/ProfileStats";
 import Socials from "../components/Socials";
-
-interface Perf {
-  elo: number;
-  wins: number;
-  winsR: number;
-  losses: number;
-  lossesR: number;
-  draws: number;
-  drawsR: number;
-  playtime: number;
-  all: number;
-  allR: number;
-}
-
-interface UserData {
-  username: string;
-  displayName: string;
-  createdAt: Date;
-  lastOnline: Date;
-  supporter: boolean;
-  profile: {
-    bio: string;
-    location: string;
-  };
-  socials: {
-    youtube: string | null;
-    twitch: string | null;
-    reddit: string | null;
-    discord: string | null;
-    twitter: string | null;
-  };
-  perfs: {
-    bullet: Perf;
-    blitz: Perf;
-    rapid: Perf;
-    standard: Perf;
-  };
-}
-
-const fetchUserData = async (
-  username: string,
-  setUserData: React.Dispatch<React.SetStateAction<UserData | null>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-) => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/users/${username}`,
-    );
-    if (!response.ok) {
-      if (response.status === 404) {
-        setError("The player doesn't exist");
-      } else {
-        setError("Something went wrong");
-      }
-    } else {
-      const data = await response.json();
-      setUserData(data);
-    }
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-    setError("Something went wrong");
-  } finally {
-    setLoading(false);
-  }
-};
+import {UserData} from "../utils/interfaces";
+import {fetchUserData} from "../utils/dbUtils";
 
 const getFriendButton = (
   friends: string[],
@@ -104,8 +40,6 @@ const getFriendButton = (
     | "bg-color-neutral-700"
     | "bg-color-danger-600" = "bg-color-neutral-700";
   let icon = <FaUserPlus size={20} />;
-
-  console.log(username, outgoingRequests);
 
   if (!isAuth) {
     disabled = true;
@@ -153,20 +87,19 @@ const Profile = () => {
   const [isOnline, setIsOnline] = useState(false);
   const [isChallengeModalOpen, setIsChallengeModalOpen] =
     useState<boolean>(false);
-  const { currentUser } = useAuth();
+  const { currentUser, token } = useAuth();
   const [isOwner, setIsOwner] = useState<boolean>(false);
   useEffect(() => {
     setIsOwner(username === currentUser?.username);
   }, [currentUser]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !token) return;
 
-    fetchUserData(username!, setUserData, setError, setLoading).catch((err) => {
+    fetchUserData(username!, token, setUserData, setError, setLoading).catch((err) => {
       console.log(err);
     });
 
-    console.log("isUserOnline", username);
     socket.emit("isUserOnline", username, (online: boolean) => {
       console.log("online");
       setIsOnline(online);

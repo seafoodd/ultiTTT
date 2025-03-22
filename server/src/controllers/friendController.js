@@ -1,6 +1,11 @@
 import prisma from "../../prisma/prismaClient.js";
 
 export const sendFriendRequest = async (req, res) => {
+  if (!req.user) return;
+  if (req.user.role === "guest") {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
   const { username } = req.params;
   const from = req.user.username;
 
@@ -99,6 +104,11 @@ export const sendFriendRequest = async (req, res) => {
 };
 
 export const removeFriend = async (req, res) => {
+  if (!req.user) return;
+  if (req.user.role === "guest") {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
   const { username } = req.params;
   const from = req.user.username;
 
@@ -160,7 +170,7 @@ export const removeFriend = async (req, res) => {
 export const getFriends = async (req, res) => {
   if (!req.user) return;
   if (req.user.role === "guest") {
-    return res.status(403).json({ error: "Unauthorized" });
+    return res.status(403).json({ error: "Forbidden" });
   }
   const username = req.user.username;
 

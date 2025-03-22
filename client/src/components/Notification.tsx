@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CgClose } from "react-icons/cg";
 import { useSocket } from "../context/SocketContext";
+import useNotification from "../hooks/useNotification";
 
 const Notification = () => {
   const [challenge, setChallenge] = useState<{
@@ -10,6 +11,7 @@ const Notification = () => {
   } | null>(null);
 
   const { socket } = useSocket();
+  const {showChallenge} = useNotification()
 
   useEffect(() => {
     if (!socket) return;
@@ -27,7 +29,8 @@ const Notification = () => {
       callback: (ack: string) => void,
     ) => {
       callback("ACK");
-      setChallenge({ from, gameId, gameType });
+      // setChallenge({ from, gameId, gameType });
+      showChallenge(gameType, from, gameId)
       console.log("challenge", from, gameId, gameType);
     };
     socket.on("receiveChallenge", receiveChallengeListener);

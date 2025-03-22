@@ -13,6 +13,7 @@ import friendRoutes from "./routes/friendRoutes.js";
 import {restartTimers} from "./utils/redisUtils.js";
 import bodyParser from "body-parser";
 import paypalRoutes from "./routes/paypalRoutes.js";
+import accountRoutes from "./routes/accountRoutes.js";
 
 configDotenv();
 
@@ -40,6 +41,7 @@ app.use(bodyParser.json());
 app.use(rateLimitMiddleware);
 
 app.use("/auth", authRoutes);
+app.use("/account", accountRoutes);
 app.use("/users", userRoutes);
 app.use("/search", searchRoutes)
 app.use("/friends", friendRoutes);

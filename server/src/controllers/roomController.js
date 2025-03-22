@@ -15,7 +15,7 @@ import {
   Player,
   removePlayerFromAllQueues,
 } from "../utils/matchmakingUtils.js";
-import { getPublicUserInfo } from "../utils/dbUtils.js";
+import {getUserInfo} from "../utils/dbUtils.js";
 
 /**
  * Handle sending a challenge to another user.
@@ -158,11 +158,11 @@ export const handleCancelSearch = async (socket) => {
 export const handleSearchMatch = async (socket, gameType, isRated) => {
   try {
     if (isRated && socket.role === "guest") {
-      socket.emit("error", "Unauthorized");
+      socket.emit("error", "Forbidden");
       return;
     }
 
-    const user = await getPublicUserInfo(socket.username, { perfs: true });
+    const user = await getUserInfo(socket.username, { perfs: true });
 
     const player = new Player(
       socket.username,

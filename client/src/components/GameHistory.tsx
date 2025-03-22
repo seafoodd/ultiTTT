@@ -13,6 +13,25 @@ const resultMessages = {
   aborted: <div className="text-color-gray-3 w-full">Aborted</div>,
 };
 
+const gameTime = {
+  bullet: "2+1",
+  blitz: "5+3",
+  rapid: "10+5",
+  normal: "15+10",
+};
+
+interface Game {
+  moveHistory: any[];
+  gameType: "bullet" | "blitz" | "rapid" | "normal";
+  isRated: boolean;
+  gameResult: string;
+  id: string;
+  players: any;
+  createdAt: Date;
+  duration: number;
+  board: any;
+}
+
 const fetchGameHistory = async (
   username: string,
   page: number,
@@ -67,13 +86,13 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
 
   return (
     <div className="flex items-center flex-col w-full">
-      {gameHistory.map((game, index) => (
+      {gameHistory.map((game: Game, index) => (
         <div
           key={index}
           ref={index === gameHistory.length - 1 ? lastGameElementRef : null}
           className="flex flex-col gap-y-6 justify-center md:flex-row bg-color-neutral-850 border-b-[3px] border-color-neutral-900 mb-4 py-2 sm:px-2 w-full sm:rounded-md items-center"
         >
-          <div className="flex-none flex gap-x-4 md:gap-x-0">
+          <div className="flex-none flex gap-x-2 md:gap-x-0 ml-3 sm:ml-0">
             <BoardPreview board={game.board} size={170} />
             <div className="flex flex-col pt-3 px-4 lg:px-6">
               <div className="font-normal flex justify-center my-2 text-[30px] text-start text-nowrap">
@@ -81,13 +100,15 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
                   game.gameResult as keyof typeof resultMessages
                 ] || resultMessages.tie}
               </div>
-              <div className="text-color-neutral-300 font-normal mb-8 text-nowrap">
-                5+3 • Blitz • Rated
+              <div className="text-color-neutral-300 font-normal mb-8 text-nowrap w-40 text-start">
+                {gameTime[game.gameType]} •{" "}
+                {game.gameType.charAt(0).toUpperCase() + game.gameType.slice(1)}{" "}
+                • {game.isRated ? "Rated" : "Unrated"}
               </div>
               <Button
                 href={`/${game.id}`}
                 icon={<AiFillPlayCircle size={22} className="mt-[1px]" />}
-                className="py-2.5 bg-color-information-500"
+                className="py-2.5 bg-color-information-500 max-w-32"
                 text="Replay"
               />
             </div>

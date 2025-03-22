@@ -1,11 +1,12 @@
 import prisma from "../../prisma/prismaClient.js";
-import { getPublicUserInfo } from "../utils/dbUtils.js";
+import { getUserInfo } from "../utils/dbUtils.js";
 
 export const getByUsername = async (req, res) => {
   const { username } = req.params;
+  const isOwner = username === req.user.username;
 
   try {
-    const user = await fetchUserByUsername(username);
+    const user = await fetchUserByUsername(username, isOwner);
     if (!user) return res.status(404).send("User not found!");
 
     return res.status(200).json(user);
@@ -16,11 +17,12 @@ export const getByUsername = async (req, res) => {
   }
 };
 
-export const fetchUserByUsername = async (username) => {
+export const fetchUserByUsername = async (username, isOwner) => {
   try {
-    const user = await getPublicUserInfo(username, {
+    const user = await getUserInfo(username, {
       profile: true,
       perfs: true,
+      private: isOwner
     });
     if (!user) {
       return null;

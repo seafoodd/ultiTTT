@@ -1,7 +1,11 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 import Home from "./pages/Home";
 import Friends from "./pages/Friends";
 import Profile from "./pages/Profile";
@@ -17,6 +21,12 @@ import { Root } from "react-dom/client";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { SocketProvider } from "./context/SocketContext";
 import { StoreProvider } from "./context/StoreContext";
+import ProfileSettings from "./components/ProfileSettings";
+import ChangeEmailSettings from "./components/ChangeEmailSettings";
+import AppearanceSettings from "./components/AppearanceSettings";
+import ChangeUsernameSettings from "./components/ChangeUsernameSettings";
+import ChangePasswordSettings from "./components/ChangePasswordSettings";
+import { NotificationProvider } from "./context/NotificationContext";
 
 const router = createBrowserRouter(
   [
@@ -54,8 +64,26 @@ const router = createBrowserRouter(
             </ProtectedRoute>
           ),
         },
-        { path: "/@/:username", element: <Profile /> },
-        { path: "/settings", element: <Settings /> },
+        {
+          path: "/@/:username",
+          element: <Profile />,
+        },
+        {
+          path: "/settings",
+          element: (
+            <ProtectedRoute redirectTo={"/"} require="auth">
+              <Settings />
+            </ProtectedRoute>
+          ),
+          children: [
+            { path: "", element: <ProfileSettings /> },
+            { path: "profile", element: <ProfileSettings /> },
+            { path: "appearance", element: <AppearanceSettings /> },
+            { path: "change-password", element: <ChangePasswordSettings /> },
+            { path: "change-username", element: <ChangeUsernameSettings /> },
+            { path: "change-email", element: <ChangeEmailSettings /> },
+          ],
+        },
       ],
     },
   ],
@@ -78,9 +106,11 @@ if (rootElement) {
   root.render(
     <AuthProvider>
       <SocketProvider>
-        <StoreProvider>
-          <RouterProvider router={router} />
-        </StoreProvider>
+        <NotificationProvider>
+          <StoreProvider>
+            <RouterProvider router={router} />
+          </StoreProvider>
+        </NotificationProvider>
       </SocketProvider>
     </AuthProvider>,
   );
@@ -91,6 +121,8 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker
       .register("/service-worker.js")
       .then(() => console.log("Service Worker Registered ✅"))
-      .catch((err) => console.error("Service Worker Registration Failed ❌", err));
+      .catch((err) =>
+        console.error("Service Worker Registration Failed ❌", err),
+      );
   });
 }

@@ -10,7 +10,7 @@ const floodingLimiter = new RateLimiterMemory({
 });
 const globalRateLimiter = new RateLimiterMemory({
   points: 20,
-  duration: 1,
+  duration: 5,
 });
 
 const preventBruteforce = async (ip) => {

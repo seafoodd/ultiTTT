@@ -10,6 +10,7 @@ interface ButtonProps {
   icon?: any;
   disabled?: boolean;
   loading?: boolean;
+  type?: "submit" | "reset" | "button";
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -21,6 +22,7 @@ const Button: React.FC<ButtonProps> = ({
   title = undefined,
   disabled,
   loading = false,
+  type = undefined,
 }) => {
   if (onClick) {
     return (
@@ -55,6 +57,25 @@ const Button: React.FC<ButtonProps> = ({
           text && <div className="h-full">{text}</div>
         )}
       </a>
+    );
+  }
+
+  if (type){
+    return (
+      <button
+        className={` ${className ? className : ""} font-medium flex justify-center 
+      items-center gap-1 rounded-md h-fit text-[18px] transition-colors text-nowrap`}
+        disabled={loading || disabled}
+        title={title}
+        type={type}
+      >
+        {icon && <div className="h-full">{icon}</div>}
+        {loading ? (
+          <LoadingCircle />
+        ) : (
+          text && <div className="h-full">{text}</div>
+        )}
+      </button>
     );
   }
 

@@ -3,6 +3,7 @@ import { FaDiscord } from "react-icons/fa";
 import { RiRedditFill } from "react-icons/ri";
 import { BsTwitterX } from "react-icons/bs";
 import React from "react";
+import useNotification from "../hooks/useNotification";
 
 interface SocialsProps {
   socials: {
@@ -15,12 +16,42 @@ interface SocialsProps {
 }
 
 const Socials: React.FC<SocialsProps> = ({ socials }) => {
+  const { showSuccess } = useNotification();
+
   const socialLinks = [
-    { key: "twitch", url: socials.twitch, Icon: AiOutlineTwitch, colorClass: "text-color-socials-twitch" },
-    { key: "youtube", url: socials.youtube, Icon: AiFillYoutube, colorClass: "text-color-socials-youtube", needsBackground: true },
-    { key: "discord", url: socials.discord, Icon: FaDiscord, colorClass: "text-color-socials-discord" },
-    { key: "reddit", url: socials.reddit, Icon: RiRedditFill, colorClass: "text-color-socials-reddit", needsBackground: true},
-    { key: "twitter", url: socials.twitter, Icon: BsTwitterX, colorClass: "text-color-socials-twitter" },
+    {
+      key: "twitch",
+      url: socials.twitch,
+      Icon: AiOutlineTwitch,
+      colorClass: "text-color-socials-twitch",
+    },
+    {
+      key: "youtube",
+      url: socials.youtube,
+      Icon: AiFillYoutube,
+      colorClass: "text-color-socials-youtube",
+      needsBackground: true,
+    },
+    {
+      key: "discord",
+      url: socials.discord,
+      Icon: FaDiscord,
+      colorClass: "text-color-socials-discord",
+      notLink: true,
+    },
+    {
+      key: "reddit",
+      url: socials.reddit,
+      Icon: RiRedditFill,
+      colorClass: "text-color-socials-reddit",
+      needsBackground: true,
+    },
+    {
+      key: "twitter",
+      url: socials.twitter,
+      Icon: BsTwitterX,
+      colorClass: "text-color-socials-twitter",
+    },
   ];
 
   const hasSocials = socialLinks.some((social) => social.url);
@@ -31,33 +62,44 @@ const Socials: React.FC<SocialsProps> = ({ socials }) => {
         <div className="hidden lg:flex justify-start font-medium text-[20px] mb-2">
           Links
         </div>
-        {socialLinks.map(({ key, url, Icon, colorClass, needsBackground }) =>
-          url ? (
-            <a
-              key={key}
-              href={url}
-              target="_blank"
-              className="flex gap-0.5 justify-start items-center text-[14px] font-normal"
-            >
-              {needsBackground ? (
-                <div className="relative w-[20px] h-[20px] justify-center flex items-center">
-                  <div
-                    className={`absolute bg-white rounded-full w-[15px] h-[10.5px]`}
-                  ></div>
+        {socialLinks.map(
+          ({ key, url, Icon, colorClass, needsBackground, notLink }) =>
+            url ? (
+              <a
+                key={key}
+                href={notLink ? undefined : url}
+                onClick={
+                  notLink
+                    ? () => {
+                        navigator.clipboard.writeText(url);
+                        showSuccess("Username copied to clipboard");
+                      }
+                    : undefined
+                }
+                title={notLink ? "Copy to clipboard" : "Go to website"}
+                target="_blank"
+                className="flex gap-0.5 justify-start items-center text-[14px] font-normal cursor-pointer"
+              >
+                {needsBackground ? (
+                  <div className="relative w-[20px] h-[20px] justify-center flex items-center">
+                    <div
+                      className={`absolute bg-white rounded-full w-[15px] h-[10.5px]`}
+                    ></div>
+                    <Icon size={20} className={`relative ${colorClass}`} />
+                  </div>
+                ) : (
                   <Icon
                     size={20}
-                    className={`relative ${colorClass}`}
+                    className={` ${colorClass} ${key === "twitter" ? "w-[18px] h-[20px] ml-[1px]" : ""}`}
                   />
-                </div>
-              ) : (
-                <Icon
-                  size={20}
-                  className={` ${colorClass} ${key === "twitter" ? "w-[18px] h-[20px] ml-[1px]" : ""}`}
-                />
-              )}
-              {key.charAt(0).toUpperCase() + key.slice(1)}
-            </a>
-          ) : null,
+                )}
+                {notLink ? (
+                  <span className="max-w-32 truncate ml-[1px]">{url}</span>
+                ) : (
+                  key.charAt(0).toUpperCase() + key.slice(1)
+                )}
+              </a>
+            ) : null,
         )}
       </div>
     )

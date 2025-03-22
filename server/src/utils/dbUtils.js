@@ -225,7 +225,7 @@ const selectPerformanceFields = ["bullet", "blitz", "rapid", "standard"].reduce(
   {},
 );
 
-export const getPublicUserInfo = async (username, fieldsToSelect = {}) => {
+export const getUserInfo = async (username, fieldsToSelect = {}) => {
   const baseSelect = {};
 
   if (fieldsToSelect.profile) {
@@ -258,6 +258,11 @@ export const getPublicUserInfo = async (username, fieldsToSelect = {}) => {
     baseSelect.perfs = {
       select: selectPerformanceFields,
     };
+  }
+
+  if (fieldsToSelect.private) {
+    baseSelect.email = true;
+
   }
 
   return prisma.user.findUnique({
