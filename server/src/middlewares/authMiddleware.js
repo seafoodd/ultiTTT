@@ -25,7 +25,7 @@ export const authenticateToken = async (req, res, next) => {
       req.user = {
         username: "Guest",
         identifier: user.identifier,
-        role: user.role,
+        role: "guest",
       };
     }
 
