@@ -51,7 +51,7 @@ export const GameView: React.FC<GameViewProps> = ({
   const { socket } = useSocket();
 
   return (
-    <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-4 md:w-[640px] lg:h-[640px]">
+    <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-4 sm:w-[640px] lg:h-[640px] -mt-2 sm:mt-8">
       <div className="flex lg:hidden items-center justify-between w-full px-4">
         <div className="max-w-40 truncate">{opponentUsername}</div>
         <Timer ms={symbol === "X" ? timers.O : timers.X} isCompact />
@@ -82,7 +82,7 @@ export const GameView: React.FC<GameViewProps> = ({
             className="rounded-t-md shadow-2xl w-32"
           />
         </div>
-        <div className="flex lg:flex-col flex-col-reverse w-full rounded-r-md bg-color-neutral-800 lg:h-[600px]">
+        <div className="fixed left-0 bottom-0 lg:relative lg:bottom-auto lg:left-auto flex lg:flex-col flex-col-reverse w-full lg:rounded-r-md bg-color-neutral-800 lg:h-[600px]">
           <div className="hidden lg:flex border-b-2 border-color-accent-300 px-4 items-center font-medium">
             <div className="max-w-40 truncate">{opponentUsername}</div>
           </div>
@@ -93,7 +93,7 @@ export const GameView: React.FC<GameViewProps> = ({
               setCurrentMoveIndex={setCurrentMoveIndex}
             />
           </div>
-          <div className="flex justify-center gap-4 items-center py-4 lg:py-2">
+          <div className="flex justify-center gap-4 items-center py-2 lg:py-2">
             <button
               className="disabled:text-white/30 h-full"
               onClick={() => setCurrentMoveIndex(0)}

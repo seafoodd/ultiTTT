@@ -74,7 +74,7 @@ const Board: React.FC<BoardReworkProps> = ({
     ));
 
   return (
-    <div className="relative grid grid-cols-3 gap-0 w-full md:w-[640px] aspect-square md:rounded-lg overflow-hidden ">
+    <div className="relative grid grid-cols-3 gap-0 w-full max-w-[640px] md:w-[640px] aspect-square md:rounded-lg overflow-hidden">
       {victoryMessage && currentMoveSelected && renderVictoryMessage()}
       {renderSubBoards()}
     </div>
