@@ -6,7 +6,7 @@ const validateURL = (url, platform) => {
     youtube:
       /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/(watch\?v=[\w-]+|[^#]+)?$/,
     twitch: /^(https?:\/\/)?(www\.)?twitch\.tv\/[\w_]+$/,
-    reddit: /^(https?:\/\/)?(www\.)?reddit\.com\/user\/[\w]+$/,
+    reddit: /^(https?:\/\/)?(www\.)?reddit\.com\/user\/\w+$/,
     twitter: /^(https?:\/\/)?(www\.)?x\.com\/[\w_]+$/,
     discord: /^[a-zA-Z0-9_]{2,32}$/,
   };
@@ -42,7 +42,7 @@ export const updateProfile = async (req, res) => {
 
   try {
     await prisma.user.update({
-      where: { username: req.user.username },
+      where: { username: req.user.identifier },
       data: {
         profile: {
           update: {
