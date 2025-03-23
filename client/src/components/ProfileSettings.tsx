@@ -14,7 +14,7 @@ const patterns = {
   youtube:
     /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/(watch\?v=[\w-]+|[^#]+)?$/,
   twitch: /^(https?:\/\/)?(www\.)?twitch\.tv\/[\w_]+$/,
-  reddit: /^(https?:\/\/)?(www\.)?reddit\.com\/user\/[\w]+$/,
+  reddit: /^(https?:\/\/)?(www\.)?reddit\.com\/user\/\w+$/,
   twitter: /^(https?:\/\/)?(www\.)?x\.com\/[\w_]+$/,
   discord: /^[a-zA-Z0-9_]{2,32}$/,
 };
