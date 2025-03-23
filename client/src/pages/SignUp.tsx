@@ -68,7 +68,7 @@ const LogIn = () => {
   return (
     <div
       className="relative flex flex-col bg-color-neutral-850 p-8 rounded-md
-      justify-center mt-24 shadow-color-neutral-800 drop-shadow-lg"
+      justify-center mt-24 shadow-color-neutral-800 drop-shadow-lg h-fit"
     >
       <h1 className="absolute top-0 left-0 w-full text-color-accent-100 text-2xl font-medium py-2 border-b-2 border-color-accent-300">
         Sign Up
