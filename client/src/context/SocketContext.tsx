@@ -14,7 +14,6 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const { token } = useAuth();
-  console.log(token)
 
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL;
