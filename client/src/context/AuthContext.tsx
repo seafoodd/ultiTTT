@@ -37,10 +37,14 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
           const response = await axios.post(
             `${import.meta.env.VITE_API_URL}/auth/guestLogin`,
           );
-          console.log(response)
+          console.log(response);
           if (response.status === 200) {
-            token = response.data.token
-            cookies.set("token", token, { path: "/", sameSite: "lax", secure: true });
+            token = response.data.token;
+            cookies.set("token", token, {
+              path: "/",
+              sameSite: "lax",
+              secure: true,
+            });
           }
         } catch (error) {
           if (axios.isAxiosError(error) && error.response?.status === 403) {
@@ -60,7 +64,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
         );
         if (response.status === 200) {
           setCurrentUser(response.data.user);
-          if(response.data.user.role !== "guest"){
+          if (response.data.user.role !== "guest") {
             setIsAuth(true);
           }
         }
@@ -80,8 +84,6 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
     cookies.remove("username");
     cookies.remove("hashedPassword");
     setIsAuth(false);
-
-    window.location.href = "/";
   };
 
   return (

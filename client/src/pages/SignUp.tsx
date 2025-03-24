@@ -1,24 +1,20 @@
 import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import Cookies from "universal-cookie";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoadingCircle from "../components/LoadingCircle";
 import useRateLimit from "../hooks/useRateLimit";
 
 const LogIn = () => {
-  const { setIsAuth } = useAuth();
-  const cookies = new Cookies();
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-
   const [email, setEmail] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [passwordConfirm, setPasswordConfirm] = useState<string>("");
   const { rateLimitTimeLeft, setRateLimitTimeLeft } = useRateLimit();
-
+  const [emailConfirmationWindow, setEmailConfirmationWindow] =
+    useState<boolean>(false);
 
   const signUp = (event: React.FormEvent) => {
     event.preventDefault();
@@ -36,11 +32,8 @@ const LogIn = () => {
       username,
       password,
     })
-      .then((res) => {
-        const { token } = res.data;
-        cookies.set("token", token, { path: "/", sameSite: "lax", secure: true, maxAge: 365 * 24 * 60 * 60 });
-        setIsAuth(true);
-        window.location.href = "/";
+      .then(() => {
+        setEmailConfirmationWindow(true);
       })
       .catch((err) => {
         if (err.response?.status === 429) {
@@ -64,6 +57,34 @@ const LogIn = () => {
     }
     return <span>Sign Up</span>;
   };
+
+  if (emailConfirmationWindow) {
+    return (
+      <div
+        className="relative flex flex-col bg-color-neutral-850 p-8 sm:rounded-md
+         mt-24 shadow-color-neutral-800 drop-shadow-lg h-fit max-w-[480px]"
+      >
+        <h2 className="text-white text-center text-2xl font-semibold mb-6">
+          Please confirm your email
+        </h2>
+        <p className="text-gray-300 text-center mb-6 font-normal text-lg">
+          We’ve sent a confirmation email to your inbox. Please click the link
+          in the email to verify your account and complete the registration
+          process.
+        </p>
+        <p className="text-gray-300 text-center font-normal text-lg">
+          If you haven't received the email, please check your spam folder, or{" "}
+          <a
+            href="/resend-verification"
+            className="text-blue-400 hover:underline"
+          >
+            request a new one
+          </a>
+          .
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div

@@ -3,7 +3,7 @@ import { getUserInfo } from "../utils/dbUtils.js";
 
 export const getByUsername = async (req, res) => {
   const { username } = req.params;
-  const isOwner = username === req.user.username;
+  const isOwner = username === req.user.identifier;
 
   try {
     const user = await fetchUserByUsername(username, isOwner);

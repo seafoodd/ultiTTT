@@ -39,6 +39,9 @@ const App = () => {
       case "/signup":
         title = "Sign Up - ultiTTT";
         break;
+      case "/confirmation":
+        title = "Confirmation - ultiTTT";
+        break;
       case "/privacy-policy":
         title = "Privacy Policy - ultiTTT";
         break;
