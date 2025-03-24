@@ -43,9 +43,7 @@ const Board: React.FC<BoardReworkProps> = ({
       >
         {victoryMessage}
         <Button
-          onClick={() => {
-            window.location.href = "/";
-          }}
+          href="/"
           className="bg-color-accent-400 text-white px-3 py-2 mt-4"
           text="Home"
         />

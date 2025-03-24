@@ -7,13 +7,13 @@ const NotFound = () => {
   const navigate = useNavigate();
 
   return (
-    <div className='flex flex-col items-center'>
-      <div className="font-semibold text-xl">404 - Page Not Found</div>
+    <div className='flex flex-col items-center gap-4 mt-12'>
+      <div className="font-medium text-3xl">404 - Page Not Found</div>
       <Button
         text="Home"
-        icon={<BiHome />}
+        icon={<BiHome className='h-full' />}
         onClick={() => navigate("/")}
-        className="bg-color-blue-2 px-2 py-2 mt-2"
+        className="bg-color-accent-400 px-4 py-2 mt-2"
       />
     </div>
   );

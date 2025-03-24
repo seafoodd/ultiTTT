@@ -1,5 +1,6 @@
 import React from "react";
 import PingDisplay from "./PingDisplay";
+import { Link } from "react-router-dom";
 
 interface Option {
   name: string;
@@ -58,13 +59,13 @@ const Dropdown: React.FC<DropdownProps> = ({
                   <span className="ml-2">{option.name}</span>
                 </div>
               ) : (
-                <a
+                <Link
                   className="flex items-center px-4 py-2.5 text-sm transition-colors duration-75 hover:bg-color-accent-400 font-medium cursor-pointer"
-                  href={option.href}
+                  to={option.href ? option.href : "/"}
                 >
                   {option.icon}
                   <span className="ml-2">{option.name}</span>
-                </a>
+                </Link>
               )}
             </React.Fragment>
           ))}
