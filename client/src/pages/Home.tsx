@@ -6,23 +6,20 @@ import { useAuth } from "../context/AuthContext";
 import { BiRightArrowAlt } from "react-icons/bi";
 import { playSound } from "../utils/soundUtils";
 import GameTypeButton from "../components/GameTypeButton";
+import LoadingCircle from "../components/LoadingCircle";
 
 const Home = () => {
   const navigate = useNavigate();
   const { socket } = useSocket();
   const { isAuth } = useAuth();
+  const [friendlyGameLoading, setFriendlyGameLoading] =
+    useState<boolean>(false);
   const [isRated, setIsRated] = useState<boolean>(isAuth);
   const gameCodeRef = useRef<HTMLInputElement>(null);
   const [currentSearching, setCurrentSearching] = useState<string>();
   const [notificationSound] = useState(
     () => new Audio("/sounds/GameFound.mp3"),
   );
-
-  const handleJoinWithCode = () => {
-    if (gameCodeRef.current) {
-      window.location.href = `/${gameCodeRef.current.value}`;
-    }
-  };
 
   useEffect(() => {
     setIsRated(isAuth);
@@ -87,6 +84,8 @@ const Home = () => {
     }
 
     try {
+      await cancelSearch();
+      setFriendlyGameLoading(true);
       socket.emit("createFriendlyGame", gameType);
 
       socket.off("friendlyGameCreated");
@@ -95,8 +94,8 @@ const Home = () => {
         "friendlyGameCreated",
         (gameId, callback: (ack: string) => void) => {
           callback("ACK");
-          cancelSearch();
-          window.location.href = `/${gameId}`;
+          setFriendlyGameLoading(false);
+          navigate(`/${gameId}`);
         },
       );
     } catch (e) {
@@ -162,9 +161,9 @@ const Home = () => {
           </div>
           <button
             className="bg-color-neutral-800 hover:bg-color-neutral-600 transition-colors flex items-center text-color-accent-100 justify-center p-2 font-normal text-xl rounded-md h-12 mb-5"
-            onClick={() => friendlyGame("10")}
+            onClick={() => friendlyGame("rapid")}
           >
-            PLAY WITH A FRIEND
+            {friendlyGameLoading ? <LoadingCircle /> : "PLAY WITH A FRIEND"}
           </button>
           <button
             className="bg-color-neutral-800 enabled:hover:bg-color-neutral-600 transition-colors flex items-center text-color-neutral-300 justify-center p-2 font-normal text-xl rounded-md h-12 mb-5"
@@ -173,8 +172,8 @@ const Home = () => {
           >
             PLAY WITH THE COMPUTER
           </button>
-          <div className="bg-color-neutral-800 flex flex-col items-center justify-center text-color-accent-100 p-2 font-normal text-xl rounded-md h-24 mb-5">
-            <p className="-mt-2.5 mb-2">JOIN WITH A CODE</p>
+          <div className="bg-color-neutral-800 flex flex-col items-center justify-center text-color-accent-100 p-2  text-xl rounded-md h-24 mb-5">
+            <p className="-mt-2.5 mb-2 font-normal">JOIN WITH A CODE</p>
             <form
               className="relative"
               onSubmit={(e) => {
@@ -188,18 +187,19 @@ const Home = () => {
               }}
             >
               <input
-                className="bg-color-neutral-700 w-[300px] h-[38px] outline-none rounded-md px-2 pr-8"
+                className="bg-color-neutral-700 w-[300px] h-[38px] outline-none rounded-md px-2 text-center font-normal text-[19px]"
                 type="text"
-                name="code"
                 minLength={8}
                 required
+                placeholder="Enter game code"
                 ref={gameCodeRef}
               />
-              <BiRightArrowAlt
-                size={28}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-color-neutral-300 cursor-pointer"
-                onClick={handleJoinWithCode}
-              />
+              <button type="submit">
+                <BiRightArrowAlt
+                  size={28}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-color-neutral-300 cursor-pointer"
+                />
+              </button>
             </form>
           </div>
         </div>

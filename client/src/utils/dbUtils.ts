@@ -1,9 +1,9 @@
 import React from "react";
-import {UserData} from "./interfaces";
+import { UserData } from "./interfaces";
 
 export const fetchUserData = async (
   username: string,
-  token:string,
+  token: string,
   setUserData: React.Dispatch<React.SetStateAction<UserData | null>>,
   setError: React.Dispatch<React.SetStateAction<string | null>>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -20,8 +20,6 @@ export const fetchUserData = async (
     if (!response.ok) {
       if (response.status === 404) {
         setError("The player doesn't exist");
-      } else {
-        setError("Something went wrong");
       }
     } else {
       const data = await response.json();

@@ -19,7 +19,7 @@ const WaitingLobby: React.FC<WaitingLobbyProps> = ({
   const navigate = useNavigate();
 
   return isDeclined ? (
-    <div className="mt-8 flex flex-col justify-center items-center">
+    <div className="mt-12 flex flex-col justify-center items-center">
       <h1 className="font-semibold text-xl">
         {invitedUsername ? (
           <span className="max-w-40 truncate">{invitedUsername}</span>
@@ -47,10 +47,10 @@ const WaitingLobby: React.FC<WaitingLobbyProps> = ({
             to join...
           </div>
         ) : (
-          <div>
-            <span className="font-semibold mx-1">
+          <div className='mt-12 px-4'>
+            <div className="font-semibold text-lg sm:text-xl mx-1 mb-4">
               To invite someone to play, send this link:
-            </span>
+            </div>
             <CopyField
               text={`${env === "production" ? "https://ultittt.org" : "http://localhost:5173"}/${gameId}`}
             />

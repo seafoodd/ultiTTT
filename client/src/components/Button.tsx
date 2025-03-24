@@ -1,5 +1,6 @@
 import React from "react";
 import LoadingCircle from "./LoadingCircle";
+import { Link } from "react-router-dom";
 
 interface ButtonProps {
   onClick?: () => void;
@@ -44,10 +45,10 @@ const Button: React.FC<ButtonProps> = ({
   }
   if (href) {
     return (
-      <a
+      <Link
         className={`${className ? className : ""} font-medium flex justify-center 
       items-center gap-1 rounded-md h-fit text-[18px] text-white transition-colors text-nowrap`}
-        href={href}
+        to={href}
         title={title}
       >
         {icon && <div className="h-full">{icon}</div>}
@@ -56,11 +57,11 @@ const Button: React.FC<ButtonProps> = ({
         ) : (
           text && <div className="h-full">{text}</div>
         )}
-      </a>
+      </Link>
     );
   }
 
-  if (type){
+  if (type) {
     return (
       <button
         className={` ${className ? className : ""} font-medium flex justify-center 

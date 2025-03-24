@@ -17,11 +17,11 @@ import { HiStatusOnline } from "react-icons/hi";
 import { AiFillHeart } from "react-icons/ai";
 import { formatDate, timeAgo } from "../utils/formatUtils";
 import { FaHeartCrack } from "react-icons/fa6";
-import { BiSolidStar } from "react-icons/bi";
+import { BiHome, BiSolidStar } from "react-icons/bi";
 import ProfileStats from "../components/ProfileStats";
 import Socials from "../components/Socials";
-import {UserData} from "../utils/interfaces";
-import {fetchUserData} from "../utils/dbUtils";
+import { UserData } from "../utils/interfaces";
+import { fetchUserData } from "../utils/dbUtils";
 
 const getFriendButton = (
   friends: string[],
@@ -96,9 +96,11 @@ const Profile = () => {
   useEffect(() => {
     if (!socket || !token) return;
 
-    fetchUserData(username!, token, setUserData, setError, setLoading).catch((err) => {
-      console.log(err);
-    });
+    fetchUserData(username!, token, setUserData, setError, setLoading).catch(
+      (err) => {
+        console.log(err);
+      },
+    );
 
     socket.emit("isUserOnline", username, (online: boolean) => {
       console.log("online");
@@ -111,7 +113,17 @@ const Profile = () => {
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return (
+      <div className="flex flex-col items-center gap-4 mt-12">
+        <div className="text-3xl font-medium">{error}</div>
+        <Button
+          text="Home"
+          icon={<BiHome className="h-full" />}
+          href="/"
+          className="bg-color-accent-400 px-4 py-2 mt-2"
+        />
+      </div>
+    );
   }
 
   return (

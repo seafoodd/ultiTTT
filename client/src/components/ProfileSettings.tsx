@@ -139,10 +139,10 @@ const ProfileSettings = () => {
       <div className="flex flex-col items-start sm:flex-row gap-2 mb-3">
         <div className="text-start flex-none w-40 font-medium">Email</div>
         <div className="flex gap-2">
-        <div>{userData?.email}</div>
-        <Link to="/settings/change-email" className="text-color-accent-300">
-          Change
-        </Link>
+          <div>{userData?.email}</div>
+          <Link to="/settings/change-email" className="text-color-accent-300">
+            Change
+          </Link>
         </div>
       </div>
 
