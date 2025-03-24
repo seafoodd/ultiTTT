@@ -27,6 +27,7 @@ import AppearanceSettings from "./components/AppearanceSettings";
 import ChangeUsernameSettings from "./components/ChangeUsernameSettings";
 import ChangePasswordSettings from "./components/ChangePasswordSettings";
 import { NotificationProvider } from "./context/NotificationContext";
+import Confirmation from "./pages/Confirmation";
 
 const router = createBrowserRouter(
   [
@@ -63,6 +64,10 @@ const router = createBrowserRouter(
               <SignUp />
             </ProtectedRoute>
           ),
+        },
+        {
+          path: "/confirmation",
+          element: <Confirmation />,
         },
         {
           path: "/@/:username",

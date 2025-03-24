@@ -7,7 +7,7 @@ export const sendFriendRequest = async (req, res) => {
   }
 
   const { username } = req.params;
-  const from = req.user.username;
+  const from = req.user.identifier;
 
   if (username === from) {
     return res
@@ -85,7 +85,7 @@ export const sendFriendRequest = async (req, res) => {
           id: existingRequest.id,
         },
       });
-      return res.status(200).json({ error: "Friend request cancelled" });
+      return res.status(200).json({ message: "Friend request cancelled" });
     }
 
     await prisma.friendRequest.create({
@@ -110,7 +110,7 @@ export const removeFriend = async (req, res) => {
   }
 
   const { username } = req.params;
-  const from = req.user.username;
+  const from = req.user.identifier;
 
   try {
     const existingFriendship = await prisma.friend.findFirst({
@@ -172,7 +172,7 @@ export const getFriends = async (req, res) => {
   if (req.user.role === "guest") {
     return res.status(403).json({ error: "Forbidden" });
   }
-  const username = req.user.username;
+  const username = req.user.identifier;
 
   try {
     const user = await prisma.user.findUnique({

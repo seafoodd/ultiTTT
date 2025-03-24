@@ -14,7 +14,10 @@ export const authenticateToken = async (req, res, next) => {
           OR: [{ email: user.identifier }, { username: user.identifier }],
         },
       });
-      if (!dbUser) return res.sendStatus(404);
+      if (!dbUser) return res.sendStatus(401);
+      if(!dbUser.verified){
+        return res.status(403).json({error: "Please confirm your email"});
+      }
       req.user = {
         username: dbUser.displayName,
         identifier: dbUser.username,

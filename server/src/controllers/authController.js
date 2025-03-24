@@ -6,6 +6,7 @@ import {
   preventBruteforce,
 } from "../utils/rateLimitingUtils.js";
 import { nanoid } from "nanoid";
+import { getStylizedEmailMessage, transporter } from "../utils/emailUtils.js";
 
 /**
  * Register a new user.
@@ -58,7 +59,6 @@ export const register = async (req, res) => {
     if (existingEmail) {
       return res.status(400).json({ error: "Email is already taken" });
     }
-    // TODO: add email verification.
 
     const existingUsername = await prisma.user.findUnique({
       where: { username },
@@ -112,12 +112,27 @@ export const register = async (req, res) => {
     // }
 
     const token = jwt.sign(
-      { identifier: username, role: "user" },
+      { identifier: username, t: "verify-email" },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "24h" },
     );
 
-    res.status(201).json({ ...user, token });
+    transporter
+      .sendMail({
+        to: email,
+        subject: "Confirm Your Email - ultiTTT",
+        html: getStylizedEmailMessage(username, token),
+      })
+      .then(() => {
+        console.log("Sending confirmation email to", email);
+      })
+      .catch((e) => {
+        console.log("Nodemailer error", e);
+      });
+
+    res.status(201).json({
+      message: "Account created successfully. Please verify your email",
+    });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Something went wrong" });
@@ -151,6 +166,10 @@ export const login = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({ error: "Invalid username or password" });
+    }
+
+    if (!user.verified) {
+      return res.status(403).json({ error: "Please confirm your email" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -188,6 +207,57 @@ export const guestLogin = async (req, res) => {
   }
 };
 
+export const confirmEmail = async (req, res) => {
+  const token = req.headers["authorization"];
+  if (!token) return res.sendStatus(401);
+
+  try {
+    const user = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    if (user.t !== "verify-email") {
+      return res.status(401).json({ error: "Invalid confirmation URL" });
+    }
+    const dbUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email: user.identifier }, { username: user.identifier }],
+      },
+    });
+    if (!dbUser) {
+      return res.status(401).json({ error: "Invalid confirmation URL" });
+    }
+    if (dbUser.verified) {
+      return res.status(409).json({ error: "The email is already verified" });
+    }
+
+    await prisma.user.update({
+      where: { username: user.identifier },
+      data: {
+        verified: true,
+      },
+    });
+
+    const authToken = jwt.sign(
+      { identifier: user.identifier, role: "user" },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "7d" },
+    );
+
+    return res
+      .status(200)
+      .json({ message: "Email successfully verified", token: authToken });
+  } catch (e) {
+    if (e.name === "JsonWebTokenError") {
+      return res.status(401).json({ error: "Invalid confirmation URL" });
+    }
+
+    if (e.name === "TokenExpiredError") {
+      return res.status(401).json({ error: "Confirmation URL has expired" });
+    }
+
+    console.error(e);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
 /**
  * Verify a token.
  * There's a middleware before this function, that's why it
@@ -205,5 +275,5 @@ export const verifyToken = (req, res) => {
       role: user.role,
     },
   });
-  return req.user.username;
+  return req.user.identifier;
 };
