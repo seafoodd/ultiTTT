@@ -79,7 +79,7 @@ export const register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         username,
         displayName,
@@ -101,15 +101,6 @@ export const register = async (req, res) => {
         },
       },
     });
-
-    // for (const gameType of ["bullet", "blitz", "rapid", "standard"]) {
-    //   await prisma.performance.create({
-    //     data: {
-    //       userId: username,
-    //       gameType: gameType,
-    //     },
-    //   });
-    // }
 
     const token = jwt.sign(
       { identifier: username, t: "verify-email" },
