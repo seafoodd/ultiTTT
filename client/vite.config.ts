@@ -15,6 +15,12 @@ export default defineConfig({
   build: {
     outDir: "build",
     sourcemap: true,
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        maintenance: 'maintenance.html',
+      },
+    },
   },
   plugins: [react()],
   css: {
