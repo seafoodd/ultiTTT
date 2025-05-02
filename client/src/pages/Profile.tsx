@@ -36,26 +36,26 @@ const getFriendButton = (
   let text = "Add friend";
   let action: "add" | "remove" = "add";
   let color:
-    | "bg-color-information-500"
-    | "bg-color-neutral-700"
-    | "bg-color-danger-600" = "bg-color-neutral-700";
+    | "bg-color-information-500 hover:bg-color-information-600"
+    | "bg-color-neutral-700 hover:bg-color-neutral-600"
+    | "bg-color-danger-600 hover:bg-color-danger-700" = "bg-color-neutral-700 hover:bg-color-neutral-600";
   let icon = <FaUserPlus size={20} />;
 
   if (!isAuth) {
     disabled = true;
   } else if (friends.includes(username)) {
     text = "Remove friend";
-    color = "bg-color-neutral-700";
+    color = "bg-color-neutral-700 hover:bg-color-neutral-600";
     action = "remove";
     icon = <FaUserMinus size={20} className="-mb-0.5" />;
   } else if (outgoingRequests.some((r) => r.username === username)) {
     text = "Cancel request";
     icon = <IoClose size={26} className="-mb-0.5 -mx-1" />;
-    color = "bg-color-danger-600";
+    color = "bg-color-danger-600 hover:bg-color-danger-700";
   } else if (incomingRequests.some((r) => r.username === username)) {
     icon = <IoMdCheckmark size={26} className="-mb-0.5 -mx-1" />;
     text = "Accept request";
-    color = "bg-color-information-500";
+    color = "bg-color-information-500 hover:bg-color-information-600";
   }
 
   return (
@@ -205,7 +205,7 @@ const Profile = () => {
                       icon={<FaEdit size={18} />}
                       text="Edit"
                       href="/settings"
-                      className="bg-color-neutral-700 px-6 py-2"
+                      className="bg-color-neutral-700 px-6 py-2 hover:bg-color-neutral-600"
                     />
                   </>
                 ) : (
@@ -217,7 +217,7 @@ const Profile = () => {
                       onClick={() =>
                         setIsChallengeModalOpen(isOnline && !isOwner)
                       }
-                      className={`bg-color-accent-400 disabled:bg-color-neutral-600 text-color-neutral-100 disabled:text-color-neutral-200 px-6 py-2`}
+                      className={`bg-color-accent-400 hover:bg-color-accent-500 disabled:bg-color-neutral-600 text-color-neutral-100 disabled:text-color-neutral-200 px-6 py-2`}
                       disabled={!isOnline || !isAuth}
                     />
                     <Modal

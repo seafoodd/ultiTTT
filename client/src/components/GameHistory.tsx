@@ -119,7 +119,7 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
                 <Button
                   href={`/${game.id}`}
                   icon={<AiFillPlayCircle size={22} className="mt-[1px]" />}
-                  className="py-2.5 bg-color-information-500 max-w-32"
+                  className="py-2.5 bg-color-information-500 max-w-32 hover:bg-color-information-600"
                   text="Replay"
                 />
               </div>
@@ -143,7 +143,7 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
                     <div className="flex font-normal w-full text-[24px] justify-center items-center gap-4">
                       <Link
                         to={`/@/${game.players[0].userId}`}
-                        className="text-color-information-500 w-full max-w-[180px] text-end truncate"
+                        className="text-color-information-500 w-full max-w-[180px] text-end truncate hover:underline"
                       >
                         {game.players[0].userId}
                       </Link>
@@ -155,7 +155,7 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
                       </div>
                       <Link
                         to={`/@/${game.players[1].userId}`}
-                        className="text-color-danger-500 w-full max-w-[180px] text-start truncate"
+                        className="text-color-danger-500 w-full max-w-[180px] text-start truncate hover:underline"
                       >
                         {game.players[1].userId}
                       </Link>

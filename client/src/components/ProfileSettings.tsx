@@ -129,7 +129,7 @@ const ProfileSettings = () => {
           <div>{userData?.username}</div>
           <Link
             to="/settings/change-username"
-            className="text-color-accent-300"
+            className="text-color-accent-300 hover:underline"
           >
             Change
           </Link>
@@ -140,7 +140,7 @@ const ProfileSettings = () => {
         <div className="text-start flex-none w-40 font-medium">Email</div>
         <div className="flex gap-2">
           <div>{userData?.email}</div>
-          <Link to="/settings/change-email" className="text-color-accent-300">
+          <Link to="/settings/change-email" className="text-color-accent-300 hover:underline">
             Change
           </Link>
         </div>
@@ -200,7 +200,7 @@ const ProfileSettings = () => {
         type="submit"
         text="Save"
         icon={<FaEdit size={18} />}
-        className="mt-2 bg-color-neutral-800 px-6 py-2 w-32"
+        className="mt-2 bg-color-neutral-800 px-6 py-2 w-32 hover:bg-color-neutral-700"
       />
     </form>
   );
