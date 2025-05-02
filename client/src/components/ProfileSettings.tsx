@@ -72,7 +72,7 @@ const ProfileSettings = () => {
     e.preventDefault();
     const newErrorFields: string[] = [];
 
-    if (biography.length > 120) {
+    if (biography && biography.length > 120) {
       showError("The bio is too long");
       newErrorFields.push("bio");
     }
@@ -163,7 +163,7 @@ const ProfileSettings = () => {
           value={selectedCountry}
           onChange={(e) => setSelectedCountry(e.target.value)}
         >
-          <option value=""></option>
+          <option value="-">-</option>
           {countryOptions.map((country) => (
             <option key={country.code} value={country.code}>
               {country.name}

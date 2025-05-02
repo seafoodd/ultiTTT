@@ -34,7 +34,8 @@ const LogIn = () => {
         const { token } = res.data;
         cookies.set("token", token, { path: "/", sameSite: "lax", secure: true, maxAge: rememberMe ? 365 * 24 * 60 * 60 : undefined });
         setIsAuth(true);
-        window.location.href = "/";
+        navigate("/")
+        // window.location.href = "/";
       })
       .catch((err) => {
         if (err.response?.status === 429) {

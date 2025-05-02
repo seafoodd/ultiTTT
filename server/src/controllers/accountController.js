@@ -23,6 +23,7 @@ export const updateProfile = async (req, res) => {
   }
 
   const socials = req.body.socials || {};
+  const country = req.body.country;
 
   for (const [platform, url] of Object.entries(socials)) {
     if (url && !validateURL(url, platform)) {
@@ -32,11 +33,11 @@ export const updateProfile = async (req, res) => {
     }
   }
 
-  if (req.body.bio.length > 120) {
+  if (req.body.bio && req.body.bio.length > 120) {
     return res.status(400).json({ error: `The bio is too long` });
   }
 
-  if (!getCountryData(req.body.country).name) {
+  if (country && country !== "-" && !getCountryData(country).name) {
     return res.status(400).json({ error: `Provided country doesn't exist` });
   }
 
@@ -47,7 +48,7 @@ export const updateProfile = async (req, res) => {
         profile: {
           update: {
             bio: req.body.bio,
-            location: req.body.country,
+            location: country === "-" ? null : country,
           },
         },
         socials: {

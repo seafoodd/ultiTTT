@@ -91,7 +91,7 @@ const Profile = () => {
   const [isOwner, setIsOwner] = useState<boolean>(false);
   useEffect(() => {
     setIsOwner(username === currentUser?.username);
-  }, [currentUser]);
+  }, [currentUser, username, socket]);
 
   useEffect(() => {
     if (!socket || !token) return;

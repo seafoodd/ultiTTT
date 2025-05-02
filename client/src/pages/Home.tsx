@@ -120,14 +120,14 @@ const Home = () => {
           <div className="flex justify-center items-center text-xl font-normal mb-5">
             <button
               title={isAuth ? undefined : "Log in to play rated games"}
-              className={`flex-1 py-1.5 disabled:text-color-neutral-300 ${isRated ? "border-b-2 border-color-accent-300/70" : ""}`}
+              className={`flex-1 mr-4 h-[42px] disabled:text-color-neutral-300 ${isRated ? "relative border-b-2 border-color-accent-300/70 before:absolute before:content-['►'] before:text-color-accent-200 before:left-0 after:absolute after:content-['◄'] after:right-0 after:text-color-accent-200 " : ""}`}
               onClick={() => isAuth && setIsRated(true)}
               disabled={!isAuth}
             >
               Rated
             </button>
             <button
-              className={`flex-1 py-1.5 ${isRated ? "" : "border-b-2 border-color-accent-300/70"}`}
+              className={`flex-1 ml-4 h-[42px] ${isRated ? "" : "relative border-b-2 border-color-accent-300/70 before:absolute before:content-['►'] before:text-color-accent-200 before:left-0 after:absolute after:content-['◄'] after:right-0 after:text-color-accent-200"}`}
               onClick={() => setIsRated(false)}
             >
               Unrated

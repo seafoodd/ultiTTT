@@ -167,6 +167,7 @@ const Game = () => {
       );
 
       if (gameState.t === "move") {
+        console.log("play sound 1", gameState)
         playSound(moveSound);
       }
 
@@ -204,7 +205,8 @@ const Game = () => {
       return;
     }
 
-    playSound(moveSound);
+    // console.log("play sound 2")
+    // playSound(moveSound);
     socket.emit("makeMove", { gameId, subBoardIndex, squareIndex });
   };
 

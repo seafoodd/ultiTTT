@@ -19,12 +19,12 @@ const gameTime = {
   bullet: "2+1",
   blitz: "5+3",
   rapid: "10+5",
-  normal: "15+10",
+  standard: "15+10",
 };
 
 interface Game {
   moveHistory: any[];
-  gameType: "bullet" | "blitz" | "rapid" | "normal";
+  gameType: "bullet" | "blitz" | "rapid" | "standard";
   isRated: boolean;
   gameResult: string;
   id: string;
