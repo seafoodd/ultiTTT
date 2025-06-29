@@ -7,6 +7,7 @@ import {
 } from "../utils/rateLimitingUtils.js";
 import { nanoid } from "nanoid";
 import { sendVerificationEmail } from "../utils/emailUtils.js";
+import disposableDomains from 'disposable-email-domains';
 
 /**
  * Register a new user.
@@ -21,7 +22,9 @@ export const register = async (req, res) => {
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email) || email.length > 254) {
+  const domain = email.split('@')[1].toLowerCase().trim()
+
+  if (!emailRegex.test(email) || email.length > 254 || disposableDomains.includes(domain)) {
     return res.status(400).json({ error: "Invalid email" });
   }
 
