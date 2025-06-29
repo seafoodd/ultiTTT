@@ -1,5 +1,6 @@
 import { env } from "../index.js";
 import axios from "axios";
+import disposableDomains from "disposable-email-domains";
 
 export const sendVerificationEmail = async (username, email, token) => {
   const emailHtml = getStylizedEmailMessage(username, token);
@@ -31,6 +32,8 @@ export const sendVerificationEmail = async (username, email, token) => {
     return false;
   }
 };
+
+export const disposableDomainsSet = new Set(disposableDomains);
 
 const getStylizedEmailMessage = (username, token) => {
   const confirmUrl = `${env === "development" ? "http://localhost:5173" : "https://ultittt.org"}/confirmation?token=${token}`;

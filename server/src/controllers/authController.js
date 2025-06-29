@@ -6,8 +6,7 @@ import {
   preventBruteforce,
 } from "../utils/rateLimitingUtils.js";
 import { nanoid } from "nanoid";
-import { sendVerificationEmail } from "../utils/emailUtils.js";
-import disposableDomains from 'disposable-email-domains';
+import {disposableDomainsSet, sendVerificationEmail} from "../utils/emailUtils.js";
 
 /**
  * Register a new user.
@@ -24,7 +23,7 @@ export const register = async (req, res) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const domain = email.split('@')[1].toLowerCase().trim()
 
-  if (!emailRegex.test(email) || email.length > 254 || disposableDomains.includes(domain)) {
+  if (!emailRegex.test(email) || email.length > 254 || disposableDomainsSet.has(domain)) {
     return res.status(400).json({ error: "Invalid email" });
   }
 
