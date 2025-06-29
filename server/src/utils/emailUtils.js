@@ -1,15 +1,38 @@
-import nodemailer from "nodemailer";
 import { env } from "../index.js";
+import axios from "axios";
 
-export const transporter = nodemailer.createTransport({
-  service: "Gmail",
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS,
-  },
-});
+export const sendVerificationEmail = async (username, email, token) => {
+  const emailHtml = getStylizedEmailMessage(username, token);
 
-export const getStylizedEmailMessage = (username, token) => {
+  try {
+    const response = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: { email: process.env.BREVO_SENDER_EMAIL, name: "ultiTTT" },
+        to: [{ email, name: username }],
+        subject: "Confirm your ultiTTT account",
+        htmlContent: emailHtml,
+      },
+      {
+        headers: {
+          "api-key": process.env.BREVO_API_KEY,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    console.log("Email sent:", response.data);
+    return true;
+  } catch (error) {
+    console.error(
+      "Error sending email:",
+      error.response?.data || error.message,
+    );
+    return false;
+  }
+};
+
+const getStylizedEmailMessage = (username, token) => {
   const confirmUrl = `${env === "development" ? "http://localhost:5173" : "https://ultittt.org"}/confirmation?token=${token}`;
 
   return `

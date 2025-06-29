@@ -6,7 +6,7 @@ import {
   preventBruteforce,
 } from "../utils/rateLimitingUtils.js";
 import { nanoid } from "nanoid";
-import { getStylizedEmailMessage, transporter } from "../utils/emailUtils.js";
+import { sendVerificationEmail } from "../utils/emailUtils.js";
 
 /**
  * Register a new user.
@@ -108,18 +108,7 @@ export const register = async (req, res) => {
       { expiresIn: "24h" },
     );
 
-    transporter
-      .sendMail({
-        to: email,
-        subject: "Confirm Your Email - ultiTTT",
-        html: getStylizedEmailMessage(username, token),
-      })
-      .then(() => {
-        console.log("Sending confirmation email to", email);
-      })
-      .catch((e) => {
-        console.log("Nodemailer error", e);
-      });
+    await sendVerificationEmail(username, email, token);
 
     res.status(201).json({
       message: "Account created successfully. Please verify your email",
