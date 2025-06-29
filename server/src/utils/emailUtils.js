@@ -1,6 +1,6 @@
 import { env } from "../index.js";
 import axios from "axios";
-import disposableDomains from "disposable-email-domains";
+import disposableDomains from "disposable-email-domains" assert { type: "json" };
 
 export const sendVerificationEmail = async (username, email, token) => {
   const emailHtml = getStylizedEmailMessage(username, token);
