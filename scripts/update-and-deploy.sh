@@ -44,3 +44,4 @@ if $SERVER_CHANGED; then
 fi
 
 print_status "Redeployment complete." "info"
+echo ""

@@ -24,3 +24,4 @@ if [ -f '$FLAG_FILE' ]; then
 else
   print_status 'The site is now in MAINTENANCE mode.' 'info'
 fi
+echo ""
