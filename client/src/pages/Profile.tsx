@@ -169,7 +169,7 @@ const Profile = () => {
                   </div>
                   <div className="flex flex-col items-center justify-end h-16 lg:h-24 font-normal text-color-neutral-200">
                     <MdCake className="w-10 h-10 sm:w-12 sm:h-12" />
-                    <div className="hidden lg:flex">Meber since</div>
+                    <div className="hidden lg:flex">Member since</div>
                     <div className="text-nowrap">
                       {formatDate(userData!.createdAt)}
                     </div>
