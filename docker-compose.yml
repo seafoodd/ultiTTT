@@ -27,9 +27,9 @@ services:
     env_file:
       - .env
     volumes:
-      - ./mongodb-keyfile:/etc/mongo/mongodb-keyfile:ro
       - mongo-data:/data/db
       - ./scripts:/scripts
+      - ./mongodb-keyfile:/etc/mongo/mongodb-keyfile:ro
     command: mongod --bind_ip_all --replSet rs0 --auth --keyFile /etc/mongo/mongodb-keyfile
     networks:
       - ultittt-network
