@@ -23,13 +23,20 @@ const OFFLINE_PAGE = "/maintenance.html";
 const OFFLINE_IMAGE = "/images/unavailable-image.jpg";
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-      caches.open(CACHE_NAME).then((cache) => {
-        return cache.addAll([...urlsToCache, OFFLINE_PAGE, OFFLINE_IMAGE]);
-      })
-  );
-  self.skipWaiting();
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(async (cache) => {
+            for (const url of [...urlsToCache, OFFLINE_PAGE, OFFLINE_IMAGE]) {
+                try {
+                    await cache.add(url);
+                } catch (err) {
+                    console.warn(`Failed to cache ${url}:`, err);
+                }
+            }
+        }),
+    );
+    self.skipWaiting();
 });
+
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
