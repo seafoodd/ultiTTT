@@ -8,7 +8,7 @@ REPO_ROOT="$(dirname "$(realpath "$0")")/.."
 cd "$REPO_ROOT"
 
 print_status "Pulling latest changes from Git..." "info"
-run_step_cmd "Git fetch origin" git fetch origin > /dev/null
+run_step_cmd "Git fetch origin" git fetch origin > /dev/null 2>&1
 
 CHANGED_FILES=$(git diff --name-only HEAD origin/$(git rev-parse --abbrev-ref HEAD))
 
@@ -38,8 +38,8 @@ fi
 if $SERVER_CHANGED; then
   print_status "Detected changes in server/docker-compose. Rebuilding Docker services..." "info"
   cd "$REPO_ROOT"
-  run_step_cmd "Pull Docker images" docker-compose pull > /dev/null
-  run_step_cmd "Rebuild and restart Docker services" docker-compose up -d --build > /dev/null
+  run_step_cmd "Pull Docker images" docker-compose pull > /dev/null 2>&1
+  run_step_cmd "Rebuild and restart Docker services" docker-compose up -d --build > /dev/null 2>&1
   print_status "Server services rebuilt and restarted." "ok"
   echo ""
 fi
