@@ -20,7 +20,7 @@ run_step_cmd "Toggle maintenance flag" bash -c "
   fi
 "
 if [ -f '$FLAG_FILE' ]; then
-  echo 'The site is now ONLINE.'
+  print_status 'The site is now ONLINE.' 'info'
 else
-  echo 'The site is now in MAINTENANCE mode.'
+  print_status 'The site is now in MAINTENANCE mode.' 'info'
 fi

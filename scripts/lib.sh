@@ -10,6 +10,8 @@ print_status() {
 
   if [ "$status" = "ok" ]; then
     echo -e "[  ${GREEN}OK${RESET}  ] $message"
+  elif [ "$status" = "info" ]; then
+    echo -e "[ INFO ] $message"
   else
     echo -e "[ ${RED}FAIL${RESET} ] $message"
   fi
@@ -26,7 +28,7 @@ run_step_cmd() {
   else
     echo -ne "\r"
     print_status "$message" "fail"
-    echo "Exiting due to failure."
+    print_status "Exiting due to failure." "info"
     exit 1
   fi
 }

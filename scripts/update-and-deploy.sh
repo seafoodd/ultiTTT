@@ -7,7 +7,7 @@ source "$(dirname "$0")/lib.sh"
 REPO_ROOT="$(dirname "$(realpath "$0")")/.."
 cd "$REPO_ROOT"
 
-echo "[INFO] Pulling latest changes from Git..."
+print_status "Pulling latest changes from Git..." "info"
 run_step_cmd "Git fetch origin" git fetch origin
 
 CHANGED_FILES=$(git diff --name-only HEAD origin/$(git rev-parse --abbrev-ref HEAD))
@@ -29,14 +29,14 @@ done <<< "$CHANGED_FILES"
 echo ""
 
 if $CLIENT_CHANGED; then
-  echo "[INFO] Detected changes in client. Rebuilding and deploying client..."
+  print_status "Detected changes in client. Rebuilding and deploying client..." "info"
   cd "$REPO_ROOT/scripts"
   sudo ./build-and-deploy-to-nginx.sh
   echo ""
 fi
 
 if $SERVER_CHANGED; then
-  echo "[INFO] Detected changes in server/docker-compose. Rebuilding Docker services..."
+  print_status "Detected changes in server/docker-compose. Rebuilding Docker services..." "info"
   cd "$REPO_ROOT"
   run_step_cmd "Pull Docker images" docker-compose pull > /dev/null
   run_step_cmd "Rebuild and restart Docker services" docker-compose up -d --build > /dev/null
@@ -44,4 +44,4 @@ if $SERVER_CHANGED; then
   echo ""
 fi
 
-echo "[INFO] Redeployment complete."
+print_status "Redeployment complete." "info"
