@@ -28,19 +28,21 @@ while read -r file; do
 done <<< "$CHANGED_FILES"
 
 if $CLIENT_CHANGED; then
-  print_status "\nDetected changes in client. Rebuilding and deploying client..." "info"
+  echo
+  print_status "Detected changes in client. Rebuilding and deploying client..." "info"
   cd "$REPO_ROOT/scripts"
   sudo ./build-and-deploy-to-nginx.sh
-  echo ""
+  echo
 fi
 
 if $SERVER_CHANGED; then
+  echo
   print_status "Detected changes in server/docker-compose. Rebuilding Docker services..." "info"
   cd "$REPO_ROOT"
   run_step_cmd "Pull Docker images" docker-compose pull > /dev/null 2>&1
   run_step_cmd "Rebuild and restart Docker services" docker-compose up -d --build > /dev/null 2>&1
   print_status "Server services rebuilt and restarted." "ok"
-  echo ""
+  echo
 fi
 
 print_status "Redeployment complete.\n" "info"
