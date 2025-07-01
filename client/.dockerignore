@@ -1,1 +1,11 @@
+build
 node_modules
+.git
+.gitignore
+Dockerfile
+npm-debug.log
+.env
+.vscode
+tests
+docs
+*.md
