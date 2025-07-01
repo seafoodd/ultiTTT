@@ -12,7 +12,7 @@ BACKUP_PATH="$BACKUP_DIR/backup_$TIMESTAMP"
 
 mkdir -p "$BACKUP_PATH"
 
-print_status "Starting MongoDB backup at $TIMESTAMP...\n" "info"
+print_status "Starting MongoDB backup at $TIMESTAMP..." "info"
 
 run_step_cmd "Run mongodump" docker exec "$CONTAINER_NAME" mongodump \
   --username "$MONGO_INITDB_ROOT_USERNAME" \
