@@ -10,7 +10,7 @@ git fetch origin
 CHANGED_FILES=$(git diff --name-only HEAD origin/$(git rev-parse --abbrev-ref HEAD))
 
 if [ -z "$CHANGED_FILES" ]; then
-  echo "[OK] No changes found. Exiting."
+  echo "[ OK ] No changes found. Exiting."
   exit 0
 fi
 
@@ -27,11 +27,9 @@ done <<< "$CHANGED_FILES"
 
 if $CLIENT_CHANGED; then
   echo "[INFO] Detected changes in client. Rebuilding and deploying client..."
-  cd "$REPO_ROOT/client"
-  npm run build
   cd "$REPO_ROOT/scripts"
-  sudo ./deploy-to-nginx.sh "$REPO_ROOT/client/dist"
-  echo "[OK] Client redeployed."
+  sudo ./build-and-deploy-to-nginx.sh
+  echo "[ OK ] Client redeployed."
 fi
 
 if $SERVER_CHANGED; then
@@ -39,7 +37,7 @@ if $SERVER_CHANGED; then
   cd "$REPO_ROOT"
   docker-compose pull
   docker-compose up -d --build
-  echo "[OK] Server services rebuilt and restarted."
+  echo "[ OK ] Server services rebuilt and restarted."
 fi
 
-echo "[OK] Redeployment complete."
+echo "[ OK ] Redeployment complete."
