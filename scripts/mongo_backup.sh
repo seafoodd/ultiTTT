@@ -3,6 +3,7 @@
 set -e
 
 source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/../.env"
 
 CONTAINER_NAME="ultittt-mongodb"
 BACKUP_DIR="../data/backups"
@@ -12,7 +13,13 @@ BACKUP_PATH="$BACKUP_DIR/backup_$TIMESTAMP"
 mkdir -p "$BACKUP_PATH"
 
 print_status "Starting MongoDB backup at $TIMESTAMP...\n" "info"
-run_step_cmd "Run mongodump" docker exec "$CONTAINER_NAME" mongodump --out /data/backup_temp
+
+run_step_cmd "Run mongodump" docker exec "$CONTAINER_NAME" mongodump \
+  --username "$MONGO_INITDB_ROOT_USERNAME" \
+  --password "$MONGO_INITDB_ROOT_PASSWORD" \
+  --authenticationDatabase admin \
+  --out /data/backup_temp
+
 run_step_cmd "Save backup to $BACKUP_PATH" docker cp "$CONTAINER_NAME":/data/backup_temp "$BACKUP_PATH"
 run_step_cmd "Delete backup in docker container" docker exec "$CONTAINER_NAME" rm -rf /data/backup_temp
 
@@ -25,4 +32,3 @@ run_step_cmd "Prune old backups (keep 10 latest)" bash -c "
 "
 
 print_status "Backup saved to $BACKUP_PATH.tar.gz\n" "info"
-
