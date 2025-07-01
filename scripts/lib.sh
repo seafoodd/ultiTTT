@@ -22,7 +22,7 @@ run_step_cmd() {
   shift
   echo -ne "[      ] $message"
 
-  if "$@" > /dev/null; then
+  if "$@" > /dev/null 2>&1; then
     echo -ne "\r"
     print_status "$message" "ok"
   else
