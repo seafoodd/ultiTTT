@@ -125,7 +125,25 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("/service-worker.js")
-      .then(() => console.log("Service Worker Registered ✅"))
+      .then((registration) => {
+        console.log("Service Worker Registered ✅");
+
+        registration.addEventListener("updatefound", () => {
+          const newWorker = registration.installing;
+          if (!newWorker) return;
+
+          newWorker.addEventListener("statechange", () => {
+            if (newWorker.state === "installed") {
+              if (navigator.serviceWorker.controller) {
+                console.log("New Service Worker available — refreshing.");
+                window.location.reload();
+              } else {
+                console.log("Service Worker installed.");
+              }
+            }
+          });
+        });
+      })
       .catch((err) =>
         console.error("Service Worker Registration Failed ❌", err),
       );
