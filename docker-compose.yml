@@ -1,6 +1,6 @@
 services:
   server:
-    build: server
+    build: ./server
     container_name: ultittt-server
     ports:
       - '5000:5000'
@@ -8,7 +8,7 @@ services:
       - db
       - redis
     env_file:
-      - server/.env
+      - ./server/.env
     networks:
       - ultittt-network
 
@@ -22,7 +22,7 @@ services:
       - .env
     volumes:
       - mongo-data:/data/db
-      - server/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./server/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     command: ["mongod", "--replSet", "rs0"]
     networks:
       - ultittt-network
@@ -40,7 +40,7 @@ services:
   client:
     container_name: ultittt-client
     build:
-      context: client
+      context: ./client
       args:
         VITE_API_URL: "https://ultittt.org/api"
     ports:
