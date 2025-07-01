@@ -10,7 +10,7 @@ BUILD_DIR="$CLIENT_DIR/build"
 
 if [ "$EUID" -ne 0 ]; then
   print_status "Check root permissions" "fail"
-  echo "Error: This script must be run as root (use sudo)" /dev/null 2>&1
+  echo "Error: This script must be run as root (use sudo)"
   exit 1
 else
   print_status "Check root permissions" "ok"
