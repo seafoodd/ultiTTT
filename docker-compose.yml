@@ -13,17 +13,24 @@ services:
       - ultittt-network
 
   db:
-    image: mongo:5.0.3
+    image: mongo:7.0
     container_name: ultittt-mongodb
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --authenticationDatabase admin --quiet /scripts/replica-set.js"]
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      retries: 30
     ports:
       - '27017:27017'
     env_file:
       - .env
     volumes:
+      - ./mongodb-keyfile:/etc/mongo/mongodb-keyfile:ro
       - mongo-data:/data/db
-      - ./server/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    command: ["mongod", "--replSet", "rs0"]
+      - ./scripts:/scripts
+    command: mongod --bind_ip_all --replSet rs0 --auth --keyFile /etc/mongo/mongodb-keyfile
     networks:
       - ultittt-network
 
@@ -37,16 +44,16 @@ services:
     networks:
       - ultittt-network
 
-  client:
-    container_name: ultittt-client
-    build:
-      context: ./client
-      args:
-        VITE_API_URL: "https://ultittt.org/api"
-    ports:
-      - '8000:80'
-    networks:
-      - ultittt-network
+#  client:
+#    container_name: ultittt-client
+#    build:
+#      context: ./client
+#      args:
+#        VITE_API_URL: "https://ultittt.org/api"
+#    ports:
+#      - '8000:80'
+#    networks:
+#      - ultittt-network
 
   mongo_express:
     container_name: ultittt-mongoexpress
