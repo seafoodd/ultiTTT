@@ -1,0 +1,1 @@
+0 2 * * * /scripts/mongo_backup.sh >> /var/log/mongo_backup.log 2>&1
