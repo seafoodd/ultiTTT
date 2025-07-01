@@ -1,0 +1,27 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run update-and-deploy.sh on droplet via SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: root
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          port: 22
+          script: |
+            /root/ultiTTT/scripts/update-and-deploy.sh
