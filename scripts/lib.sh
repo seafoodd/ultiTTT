@@ -21,13 +21,10 @@ print_status() {
 run_step_cmd() {
   local message="$1"
   shift
-  echo -ne "[      ] $message"
 
   if "$@" > /dev/null 2>&1; then
-    echo -ne "\r"
     print_status "$message" "ok"
   else
-    echo -ne "\r"
     print_status "$message" "fail"
     print_status "Exiting due to failure." "info"
     exit 1
