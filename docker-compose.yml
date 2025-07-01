@@ -13,7 +13,7 @@ services:
       - ultittt-network
 
   db:
-    image: mongo:7.0
+    image: mongo:7.0.21
     container_name: ultittt-mongodb
     restart: unless-stopped
     healthcheck:
