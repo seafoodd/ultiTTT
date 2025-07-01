@@ -34,11 +34,11 @@ export const updateProfile = async (req, res) => {
   }
 
   if (req.body.bio && req.body.bio.length > 120) {
-    return res.status(400).json({ error: `The bio is too long` });
+    return res.status(400).json({ error: "The bio is too long" });
   }
 
   if (country && country !== "-" && !getCountryData(country).name) {
-    return res.status(400).json({ error: `Provided country doesn't exist` });
+    return res.status(400).json({ error: "Provided country doesn't exist" });
   }
 
   try {
