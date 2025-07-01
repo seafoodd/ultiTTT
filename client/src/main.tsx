@@ -67,7 +67,11 @@ const router = createBrowserRouter(
         },
         {
           path: "/confirmation",
-          element: <Confirmation />,
+          element: (
+            <ProtectedRoute redirectTo="/" require="no-auth">
+              <Confirmation />
+            </ProtectedRoute>
+          ),
         },
         {
           path: "/@/:username",
