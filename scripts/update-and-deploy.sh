@@ -13,7 +13,7 @@ run_step_cmd "Git fetch origin" git fetch origin > /dev/null 2>&1
 CHANGED_FILES=$(git diff --name-only HEAD origin/$(git rev-parse --abbrev-ref HEAD))
 
 if [ -z "$CHANGED_FILES" ]; then
-  print_status "No changes found. Exiting." "ok"
+  print_status "No changes found. Exiting.\n" "info"
   exit 0
 fi
 

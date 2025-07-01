@@ -22,5 +22,4 @@ run_step_cmd "Remove old files" rm -rf "$TARGET_DIR"
 run_step_cmd "Copy build files" cp -r "$BUILD_DIR" "$TARGET_DIR"
 run_step_cmd "Set permissions" chmod -R 755 "$TARGET_DIR"
 
-print_status "Deployment completed successfully" "info"
-echo ""
+print_status "Deployment completed successfully.\n" "info"
