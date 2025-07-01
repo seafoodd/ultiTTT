@@ -16,15 +16,8 @@ else
   print_status "Check root permissions" "ok"
 fi
 
-run_step_cmd "Build client app" npm install --prefix "$CLIENT_DIR"
+run_step_cmd "Install packages" npm install --prefix "$CLIENT_DIR"
 run_step_cmd "Build client app" npm run build --prefix "$CLIENT_DIR"
-
-if [ ! -d "$BUILD_DIR" ]; then
-  print_status "Client build" "fail"
-  exit 1
-fi
-print_status "Client build" "ok"
-
 run_step_cmd "Remove old files" rm -rf "$TARGET_DIR"
 run_step_cmd "Copy build files" cp -r "$BUILD_DIR" "$TARGET_DIR"
 run_step_cmd "Set permissions" chmod -R 755 "$TARGET_DIR"

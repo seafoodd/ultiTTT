@@ -15,9 +15,12 @@ FLAG_FILE="/var/www/html/ultiTTT/maintenance.flag"
 run_step_cmd "Toggle maintenance flag" bash -c "
   if [ -f '$FLAG_FILE' ]; then
     rm '$FLAG_FILE'
-    echo 'The site is now ONLINE.'
   else
     touch '$FLAG_FILE'
-    echo 'The site is now in MAINTENANCE mode.'
   fi
 "
+if [ -f '$FLAG_FILE' ]; then
+  echo 'The site is now ONLINE.'
+else
+  echo 'The site is now in MAINTENANCE mode.'
+fi
