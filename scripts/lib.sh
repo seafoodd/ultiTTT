@@ -1,7 +1,8 @@
 #!/bin/bash
 
-GREEN="\e[32m"
 RED="\e[31m"
+BLUE="\e[34m"
+GREEN="\e[32m"
 RESET="\e[0m"
 
 print_status() {
@@ -9,9 +10,9 @@ print_status() {
   local status="$2"
 
   if [ "$status" = "ok" ]; then
-    echo -e "[  ${GREEN}OK${RESET}  ] $message"
+    echo -e "[ ${GREEN}OK${RESET} ]   $message"
   elif [ "$status" = "info" ]; then
-    echo -e "[ INFO ] $message"
+    echo -e "[ ${BLUE}INFO${RESET} ] $message"
   else
     echo -e "[ ${RED}FAIL${RESET} ] $message"
   fi
