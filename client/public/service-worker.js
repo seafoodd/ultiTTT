@@ -125,12 +125,19 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.open(CACHE_NAME).then(async (cache) => {
       const cachedResponse = await cache.match(request);
+
       const fetchPromise = fetch(request)
         .then((networkResponse) => {
-          cache.put(request, networkResponse.clone());
+          // Only cache GET requests with http(s) scheme
+          if (request.method === "GET" && request.url.startsWith("http")) {
+            cache.put(request, networkResponse.clone()).catch((err) => {
+              console.warn("Failed to cache", request.url, err);
+            });
+          }
           return networkResponse;
         })
         .catch(() => cachedResponse);
+
       return cachedResponse || fetchPromise;
     }),
   );
