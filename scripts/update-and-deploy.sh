@@ -26,10 +26,9 @@ while read -r file; do
   [[ "$file" == client/* ]] && CLIENT_CHANGED=true
   [[ "$file" == server/* || "$file" == docker-compose.yml || "$file" == .env ]] && SERVER_CHANGED=true
 done <<< "$CHANGED_FILES"
-echo ""
 
 if $CLIENT_CHANGED; then
-  print_status "Detected changes in client. Rebuilding and deploying client..." "info"
+  print_status "\nDetected changes in client. Rebuilding and deploying client..." "info"
   cd "$REPO_ROOT/scripts"
   sudo ./build-and-deploy-to-nginx.sh
   echo ""
