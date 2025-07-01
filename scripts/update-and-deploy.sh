@@ -8,7 +8,7 @@ REPO_ROOT="$(dirname "$(realpath "$0")")/.."
 cd "$REPO_ROOT"
 
 print_status "Pulling latest changes from Git..." "info"
-run_step_cmd "Git fetch origin" git fetch origin
+run_step_cmd "Git fetch origin" git fetch origin > /dev/null
 
 CHANGED_FILES=$(git diff --name-only HEAD origin/$(git rev-parse --abbrev-ref HEAD))
 
