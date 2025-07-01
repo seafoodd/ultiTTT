@@ -10,11 +10,11 @@ print_status() {
   local status="$2"
 
   if [ "$status" = "ok" ]; then
-    echo -e "[ ${GREEN}OK${RESET} ]   $message"
+    echo -e "[ ${GREEN}OK${RESET} ] $message"
   elif [ "$status" = "info" ]; then
-    echo -e "[ ${BLUE}INFO${RESET} ] $message"
+    echo -e "[${BLUE}INFO${RESET}] $message"
   else
-    echo -e "[ ${RED}FAIL${RESET} ] $message"
+    echo -e "[${RED}FAIL${RESET}] $message"
   fi
 }
 
