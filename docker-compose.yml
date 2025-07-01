@@ -1,18 +1,20 @@
 services:
   server:
-    build: .
+    build: server
+    container_name: ultittt-server
     ports:
       - '5000:5000'
     depends_on:
       - db
       - redis
     env_file:
-      - .env
+      - server/.env
     networks:
       - ultittt-network
 
   db:
     image: mongo:5.0.3
+    container_name: ultittt-mongodb
     restart: unless-stopped
     ports:
       - '27017:27017'
@@ -20,13 +22,14 @@ services:
       - .env
     volumes:
       - mongo-data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - server/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     command: ["mongod", "--replSet", "rs0"]
     networks:
       - ultittt-network
 
   redis:
     image: redis:latest
+    container_name: ultittt-redis
     ports:
       - '6379:6379'
     volumes:
@@ -35,8 +38,9 @@ services:
       - ultittt-network
 
   client:
+    container_name: ultittt-client
     build:
-      context: ../client
+      context: client
       args:
         VITE_API_URL: "https://ultittt.org/api"
     ports:
@@ -45,13 +49,11 @@ services:
       - ultittt-network
 
   mongo_express:
+    container_name: ultittt-mongoexpress
     image: mongo-express:1.0.2-20-alpine3.19
     restart: unless-stopped
     ports:
-      - 8081:8081
-    #    environment:
-    #      - ME_CONFIG_BASICAUTH=false
-    #      - ME_CONFIG_MONGODB_SERVER=db
+      - '8081:8081'
     networks:
       - ultittt-network
     depends_on:
