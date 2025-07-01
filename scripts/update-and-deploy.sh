@@ -32,11 +32,9 @@ if $CLIENT_CHANGED; then
   print_status "Detected changes in client. Rebuilding and deploying client..." "info"
   cd "$REPO_ROOT/scripts"
   sudo ./build-and-deploy-to-nginx.sh
-  echo
 fi
 
 if $SERVER_CHANGED; then
-  echo
   print_status "Detected changes in server/docker-compose. Rebuilding Docker services..." "info"
   cd "$REPO_ROOT"
   run_step_cmd "Pull Docker images" docker-compose pull
