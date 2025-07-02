@@ -8,8 +8,11 @@ config();
 export default defineConfig({
   base: '/',
   server: {
-    // host: "192.168.0.100",
-    // port: 8000,
+    watch: {
+      usePolling: true,
+      interval: 100,
+    },
+    host: true,
     open: true,
   },
   build: {

@@ -1,6 +1,6 @@
 FROM node:22.14-alpine
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY package*.json ./
 
@@ -15,5 +15,3 @@ RUN prisma generate
 COPY prisma/schema.prisma ./prisma/
 
 EXPOSE 5000
-
-CMD [ "npm", "start" ]

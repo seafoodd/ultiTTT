@@ -22,20 +22,22 @@ const server = http.createServer(app);
 
 export const env = process.env.ENV || "production";
 
+const allowedOrigins = env === "development"
+    ? ['http://localhost:5173']
+    : [process.env.DOMAIN_URL || "https://ultittt.org"];
+
 export const redisClient = new Redis({
-  host: env === "production" ? "redis" : undefined,
+  host: "redis",
+  port: 6379
 });
 
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
 // await redisClient.connect();
 
-export const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
-});
-
-app.use(cors({ origin: "*" }));
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(rateLimitMiddleware);
@@ -46,6 +48,13 @@ app.use("/users", userRoutes);
 app.use("/search", searchRoutes)
 app.use("/friends", friendRoutes);
 app.use("/paypal-webhook", paypalRoutes);
+
+export const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
+});
 
 initializeSocket();
 await restartTimers();

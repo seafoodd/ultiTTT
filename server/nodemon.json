@@ -1,0 +1,6 @@
+{
+  "watch": ["src", "prisma", "index.js"],
+  "ext": "js,ts,json,prisma",
+  "ignore": ["node_modules"],
+  "legacyWatch": true
+}

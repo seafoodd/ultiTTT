@@ -1,6 +1,9 @@
+version: '3.8'
+
 services:
   server:
-    build: ./server
+    build:
+      context: ./server
     container_name: ultittt-server
     ports:
       - '5000:5000'
@@ -9,7 +12,10 @@ services:
       - redis
     env_file:
       - ./server/.env
-    command: npm start
+    volumes:
+      - ./server:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run dev
     networks:
       - ultittt-network
 
@@ -18,20 +24,18 @@ services:
     container_name: ultittt-mongodb
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "mongosh -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --authenticationDatabase admin --quiet /scripts/replica-set.js"]
+      test: ["CMD-SHELL", "mongosh --quiet /scripts/replica-set.js"]
       interval: 5s
       timeout: 30s
       start_period: 0s
       retries: 30
     ports:
       - '27017:27017'
-    env_file:
-      - .env
     volumes:
       - mongo-data:/data/db
       - ./scripts:/scripts
       - ./mongodb-keyfile:/etc/mongo/mongodb-keyfile:ro
-    command: mongod --bind_ip_all --replSet rs0 --auth --keyFile /etc/mongo/mongodb-keyfile
+    command: mongod --bind_ip_all --replSet rs0
     networks:
       - ultittt-network
 
@@ -45,34 +49,25 @@ services:
     networks:
       - ultittt-network
 
-#  client:
-#    container_name: ultittt-client
-#    build:
-#      context: ./client
-#      args:
-#        VITE_API_URL: "https://ultittt.org/api"
-#    ports:
-#      - '8000:80'
-#    networks:
-#      - ultittt-network
-
-  mongo_express:
-    container_name: ultittt-mongoexpress
-    image: mongo-express:1.0.2-20-alpine3.19
-    restart: unless-stopped
+  client:
+    build:
+      context: ./client
+      args:
+        VITE_API_URL: "http://localhost:5000"
+    container_name: ultittt-client
     ports:
-      - '8081:8081'
+      - '5173:5173'
+    volumes:
+      - ./client:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run dev
     networks:
       - ultittt-network
-    depends_on:
-      - db
-    env_file:
-      - .env
-
-volumes:
-  mongo-data:
-  redis-data:
 
 networks:
   ultittt-network:
     driver: bridge
+
+volumes:
+  mongo-data:
+  redis-data:
