@@ -83,23 +83,23 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // // For navigation requests (HTML pages), do network first, fallback to cache, then offline page
-  // if (request.mode === "navigate") {
-  //   event.respondWith(
-  //     (async () => {
-  //       try {
-  //         const networkResponse = await fetch(request);
-  //         const cache = await caches.open(CACHE_NAME);
-  //         cache.put(request, networkResponse.clone());
-  //         return networkResponse;
-  //       } catch {
-  //         const cachedResponse = await caches.match(request);
-  //         return cachedResponse || caches.match(OFFLINE_PAGE);
-  //       }
-  //     })(),
-  //   );
-  //   return;
-  // }
+  // For navigation requests (HTML pages), do network first, fallback to cache, then offline page
+  if (request.mode === "navigate") {
+    event.respondWith(
+      (async () => {
+        try {
+          const networkResponse = await fetch(request);
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(request, networkResponse.clone());
+          return networkResponse;
+        } catch {
+          const cachedResponse = await caches.match(request);
+          return cachedResponse || caches.match(OFFLINE_PAGE);
+        }
+      })(),
+    );
+    return;
+  }
 
   // For images, try cache first, fallback to network, fallback to offline image
   if (request.destination === "image") {
@@ -121,26 +121,26 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // // For other requests (JS, CSS, sounds, etc.), stale-while-revalidate
-  //   const shouldCache = (request) => {
-  //       return request.method === "GET" && /\.(css|png|jpg|svg|woff2)$/.test(request.url);
-  //   };
-  //
-  //   event.respondWith(
-  //       caches.open(CACHE_NAME).then(async (cache) => {
-  //           const cachedResponse = await cache.match(request);
-  //
-  //           const fetchPromise = fetch(request)
-  //               .then((networkResponse) => {
-  //                   if (shouldCache(request)) {
-  //                       cache.put(request, networkResponse.clone()).catch(console.warn);
-  //                   }
-  //                   return networkResponse;
-  //               })
-  //               .catch(() => cachedResponse);
-  //
-  //           return cachedResponse || fetchPromise;
-  //       }),
-  //   );
+  // For other requests (JS, CSS, sounds, etc.), stale-while-revalidate
+    const shouldCache = (request) => {
+        return request.method === "GET" && /\.(css|png|jpg|svg|woff2)$/.test(request.url);
+    };
+
+    event.respondWith(
+        caches.open(CACHE_NAME).then(async (cache) => {
+            const cachedResponse = await cache.match(request);
+
+            const fetchPromise = fetch(request)
+                .then((networkResponse) => {
+                    if (shouldCache(request)) {
+                        cache.put(request, networkResponse.clone()).catch(console.warn);
+                    }
+                    return networkResponse;
+                })
+                .catch(() => cachedResponse);
+
+            return cachedResponse || fetchPromise;
+        }),
+    );
 
 });
