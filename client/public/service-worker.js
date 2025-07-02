@@ -83,23 +83,23 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // For navigation requests (HTML pages), do network first, fallback to cache, then offline page
-  if (request.mode === "navigate") {
-    event.respondWith(
-      (async () => {
-        try {
-          const networkResponse = await fetch(request);
-          const cache = await caches.open(CACHE_NAME);
-          cache.put(request, networkResponse.clone());
-          return networkResponse;
-        } catch {
-          const cachedResponse = await caches.match(request);
-          return cachedResponse || caches.match(OFFLINE_PAGE);
-        }
-      })(),
-    );
-    return;
-  }
+  // // For navigation requests (HTML pages), do network first, fallback to cache, then offline page
+  // if (request.mode === "navigate") {
+  //   event.respondWith(
+  //     (async () => {
+  //       try {
+  //         const networkResponse = await fetch(request);
+  //         const cache = await caches.open(CACHE_NAME);
+  //         cache.put(request, networkResponse.clone());
+  //         return networkResponse;
+  //       } catch {
+  //         const cachedResponse = await caches.match(request);
+  //         return cachedResponse || caches.match(OFFLINE_PAGE);
+  //       }
+  //     })(),
+  //   );
+  //   return;
+  // }
 
   // For images, try cache first, fallback to network, fallback to offline image
   if (request.destination === "image") {
