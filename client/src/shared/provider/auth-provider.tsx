@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
       }
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/auth/verifyToken`,
+          `${import.meta.env.VITE_API_URL}/account`,
           {
             headers: {
               Authorization: token,
@@ -63,8 +63,8 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
           },
         );
         if (response.status === 200) {
-          setCurrentUser(response.data.user);
-          if (response.data.user.role !== "guest") {
+          setCurrentUser(response.data);
+          if (response.data.role !== "guest") {
             setIsAuth(true);
           }
         }

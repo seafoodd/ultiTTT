@@ -12,14 +12,11 @@ const verifyToken = async (): Promise<boolean> => {
   }
 
   try {
-    const response = await axios.get(
-      `${Env.VITE_API_URL}/auth/verifyToken`,
-      {
-        headers: {
-          Authorization: token,
-        },
-      }
-    );
+    const response = await axios.get(`${Env.VITE_API_URL}/account`, {
+      headers: {
+        Authorization: token,
+      },
+    });
 
     return response.status === 200;
   } catch (error) {

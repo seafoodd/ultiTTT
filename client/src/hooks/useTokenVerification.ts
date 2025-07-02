@@ -11,12 +11,12 @@ const useTokenVerification = () => {
     const verifyToken = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/auth/verifyToken`,
+          `${import.meta.env.VITE_API_URL}/account`,
           {
             headers: {
               Authorization: token,
             },
-          }
+          },
         );
         if (response.status === 200) {
           setIsAuth(true);
