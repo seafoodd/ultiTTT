@@ -49,8 +49,10 @@ services:
 #    container_name: ultittt-client
 #    build:
 #      context: ./client
-#      args:
-#        VITE_API_URL: "https://ultittt.org/api"
+##      args:
+##        VITE_API_URL: "https://ultittt.org/api"
+#    env_file:
+#      - ./server/.env
 #    ports:
 #      - '8000:80'
 #    networks:

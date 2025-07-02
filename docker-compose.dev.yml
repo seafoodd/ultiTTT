@@ -12,6 +12,11 @@ services:
       - redis
     env_file:
       - ./server/.env
+    # overwrite some variables for local development
+    environment:
+      - DATABASE_URL=mongodb://db:27017/mydatabase?replicaSet=rs0&directConnection=false
+      - DOMAIN_URL=http://localhost:5173
+      - ENV=development
     volumes:
       - ./server:/usr/src/app
       - /usr/src/app/node_modules
@@ -52,9 +57,12 @@ services:
   client:
     build:
       context: ./client
-      args:
-        VITE_API_URL: "http://localhost:5000"
+#      args:
+#        VITE_API_URL: "http://localhost:5000"
     container_name: ultittt-client
+    environment:
+      - VITE_API_URL=http://localhost:5000
+      - VITE_ENV=development
     ports:
       - '5173:5173'
     volumes:
