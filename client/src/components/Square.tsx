@@ -1,6 +1,6 @@
 import React from "react";
-import Cross from "./Cross";
-import Circle from "./Circle";
+import Cross from "../shared/icons/Cross";
+import Circle from "../shared/icons/Circle";
 
 const renderIcon: { [key: string]: React.ReactNode | string } = {
   X: <Cross />,
@@ -37,7 +37,7 @@ const Square: React.FC<SquareProps> = ({
              turn === "X"
                ? "hover:bg-color-symbols-x/60"
                : "hover:bg-color-symbols-o/60"
-           } 
+           }
            transition-colors duration-75`
          : "cursor-default"
      }`}
@@ -45,7 +45,10 @@ const Square: React.FC<SquareProps> = ({
     >
       <div
         className={`${className} absolute border-color-accent-100/50 w-full h-full
-    ${highlight && (turn === "X" ? "bg-color-information-600/25" : "bg-color-danger-600/25")}`}
+    ${
+      highlight &&
+      (turn === "X" ? "bg-color-information-600/25" : "bg-color-danger-600/25")
+    }`}
       ></div>
       <div
         className={`absolute inset-0 justify-center items-center flex

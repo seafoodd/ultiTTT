@@ -9,7 +9,6 @@ import {
 import Home from "./pages/Home";
 import Friends from "./pages/Friends";
 import Profile from "./pages/Profile";
-import { AuthProvider } from "./context/AuthContext";
 import About from "./pages/About";
 import Learn from "./pages/Learn";
 import Donate from "./pages/Donate";
@@ -18,16 +17,17 @@ import LogIn from "./pages/LogIn";
 import SignUp from "./pages/SignUp";
 import Settings from "./pages/Settings";
 import { Root } from "react-dom/client";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { SocketProvider } from "./context/SocketContext";
-import { StoreProvider } from "./context/StoreContext";
-import ProfileSettings from "./components/ProfileSettings";
-import ChangeEmailSettings from "./components/ChangeEmailSettings";
-import AppearanceSettings from "./components/AppearanceSettings";
-import ChangeUsernameSettings from "./components/ChangeUsernameSettings";
-import ChangePasswordSettings from "./components/ChangePasswordSettings";
-import { NotificationProvider } from "./context/NotificationContext";
+import ProtectedRoute from "./components/routing/ProtectedRoute";
+import { WebsocketSocketProvider } from "./shared/provider/websocket-provider";
+import { StoreProvider } from "./shared/provider/store-provider";
+import ProfileSettings from "./components/account/ProfileSettings";
+import ChangeEmailSettings from "./components/account/ChangeEmailSettings";
+import AppearanceSettings from "./components/account/AppearanceSettings";
+import ChangeUsernameSettings from "./components/account/ChangeUsernameSettings";
+import ChangePasswordSettings from "./components/account/ChangePasswordSettings";
+import { NotificationProvider } from "./shared/provider/notification-provider";
 import Confirmation from "./pages/Confirmation";
+import { AuthProvider } from "./shared/provider/auth-provider";
 
 const router = createBrowserRouter(
   [
@@ -98,7 +98,7 @@ const router = createBrowserRouter(
   ],
   {
     basename: "/",
-  },
+  }
 );
 
 const rootElement = document.getElementById("root");
@@ -114,14 +114,14 @@ if (rootElement) {
 
   root.render(
     <AuthProvider>
-      <SocketProvider>
+      <WebsocketSocketProvider>
         <NotificationProvider>
           <StoreProvider>
             <RouterProvider router={router} />
           </StoreProvider>
         </NotificationProvider>
-      </SocketProvider>
-    </AuthProvider>,
+      </WebsocketSocketProvider>
+    </AuthProvider>
   );
 }
 
@@ -149,7 +149,7 @@ if ("serviceWorker" in navigator) {
         });
       })
       .catch((err) =>
-        console.error("Service Worker Registration Failed ❌", err),
+        console.error("Service Worker Registration Failed ❌", err)
       );
   });
 }

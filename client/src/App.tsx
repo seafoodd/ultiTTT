@@ -1,9 +1,9 @@
 import "./App.css";
 import { Outlet, useLocation } from "react-router-dom";
-import Header from "./components/Header";
-import Notification from "./components/Notification";
+import Header from "./components/layout/Header";
+import Notification from "./components/notifications/Notification";
 import React, { useEffect, useState } from "react";
-import Footer from "./components/Footer";
+import Footer from "./components/layout/Footer";
 
 const App = () => {
   const location = useLocation();
@@ -72,7 +72,6 @@ const App = () => {
         <Notification />
       </div>
       {showFooter && <Footer />}
-      {/*<div className='h-[3000px] w-full bg-color-1/5'></div>*/}
     </>
   );
 };

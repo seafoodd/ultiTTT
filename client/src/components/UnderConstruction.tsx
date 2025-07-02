@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import { useState } from "react";
 
 const images = [
   "https://www.pngall.com/wp-content/uploads/2018/04/Under-Construction-PNG-File-Download-Free.png",
@@ -8,10 +8,17 @@ const images = [
 ];
 
 const UnderConstruction = () => {
-  const [imageIndex, setImageIndex] = useState<number>(Math.floor(Math.random() * images.length))
+  const [imageIndex, setImageIndex] = useState<number>(
+    Math.floor(Math.random() * images.length)
+  );
 
   return (
-    <button onClick={() => {setImageIndex(Math.floor(Math.random() * images.length))}} className="flex flex-col ">
+    <button
+      onClick={() => {
+        setImageIndex(Math.floor(Math.random() * images.length));
+      }}
+      className="flex flex-col "
+    >
       <h1 className="text-3xl font-bold">In Development</h1>
       <img
         className={`animate-bounce w-96 h-fit mx-auto mt-24`}

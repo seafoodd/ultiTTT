@@ -1,16 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import verifyToken from "../utils/verifyToken";
-import { useSocket } from "../context/SocketContext";
-import { useAuth } from "../context/AuthContext";
+import verifyToken from "@/shared/lib/client/verifyToken";
+import { useWebSocket } from "../shared/provider/websocket-provider";
 import { BiRightArrowAlt } from "react-icons/bi";
-import { playSound } from "../utils/soundUtils";
+import { playSound } from "@/shared/lib/client/soundUtils";
 import GameTypeButton from "../components/GameTypeButton";
 import LoadingCircle from "../components/LoadingCircle";
+import { useAuth } from "@/shared/provider/auth-provider";
 
 const Home = () => {
   const navigate = useNavigate();
-  const { socket } = useSocket();
+  const { socket } = useWebSocket();
   const { isAuth } = useAuth();
   const [friendlyGameLoading, setFriendlyGameLoading] =
     useState<boolean>(false);
@@ -18,7 +18,7 @@ const Home = () => {
   const gameCodeRef = useRef<HTMLInputElement>(null);
   const [currentSearching, setCurrentSearching] = useState<string>();
   const [notificationSound] = useState(
-    () => new Audio("/sounds/GameFound.mp3"),
+    () => new Audio("/sounds/GameFound.mp3")
   );
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const Home = () => {
 
     const matchFoundListener = (
       gameId: string,
-      callback: (ack: string) => void,
+      callback: (ack: string) => void
     ) => {
       playSound(notificationSound);
       callback("ACK");
@@ -96,7 +96,7 @@ const Home = () => {
           callback("ACK");
           setFriendlyGameLoading(false);
           navigate(`/${gameId}`);
-        },
+        }
       );
     } catch (e) {
       console.error("Failed to join the game:", e);
@@ -120,14 +120,22 @@ const Home = () => {
           <div className="flex justify-center items-center text-xl font-normal mb-5">
             <button
               title={isAuth ? undefined : "Log in to play rated games"}
-              className={`flex-1 mr-4 h-[42px] disabled:text-color-neutral-300 ${isRated ? "relative border-b-2 border-color-accent-300/70 before:absolute before:content-['►'] before:text-color-accent-200 before:left-0 after:absolute after:content-['◄'] after:right-0 after:text-color-accent-200 " : ""}`}
+              className={`flex-1 mr-4 h-[42px] disabled:text-color-neutral-300 ${
+                isRated
+                  ? "relative border-b-2 border-color-accent-300/70 before:absolute before:content-['►'] before:text-color-accent-200 before:left-0 after:absolute after:content-['◄'] after:right-0 after:text-color-accent-200 "
+                  : ""
+              }`}
               onClick={() => isAuth && setIsRated(true)}
               disabled={!isAuth}
             >
               Rated
             </button>
             <button
-              className={`flex-1 ml-4 h-[42px] ${isRated ? "" : "relative border-b-2 border-color-accent-300/70 before:absolute before:content-['►'] before:text-color-accent-200 before:left-0 after:absolute after:content-['◄'] after:right-0 after:text-color-accent-200"}`}
+              className={`flex-1 ml-4 h-[42px] ${
+                isRated
+                  ? ""
+                  : "relative border-b-2 border-color-accent-300/70 before:absolute before:content-['►'] before:text-color-accent-200 before:left-0 after:absolute after:content-['◄'] after:right-0 after:text-color-accent-200"
+              }`}
               onClick={() => setIsRated(false)}
             >
               Unrated

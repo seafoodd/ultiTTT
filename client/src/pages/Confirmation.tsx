@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Axios from "axios";
 import useNotification from "../hooks/useNotification";
 import LoadingCircle from "../components/LoadingCircle";
 import Cookies from "universal-cookie";
-import {useAuth} from "../context/AuthContext";
+import { useAuth } from "@/shared/provider/auth-provider";
 
 const Confirmation = () => {
   const [searchParams] = useSearchParams();
@@ -24,7 +24,7 @@ const Confirmation = () => {
         headers: {
           Authorization: token,
         },
-      },
+      }
     )
       .then((res) => {
         showSuccess(res.data.message);
