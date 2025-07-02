@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { config } from "dotenv";
 import postcssConfig from "./postcss.config";
+import path from 'path'
 
 config();
 
@@ -14,6 +15,11 @@ export default defineConfig({
     },
     host: true,
     open: true,
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
   },
   build: {
     outDir: "build",

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useStore } from "../context/StoreContext";
+import { useStore } from "../shared/provider/store-provider";
 import { GrStatusGoodSmall } from "react-icons/gr";
-import Button from "../components/Button";
+import Button from "../shared/ui/Button";
 import { IoClose } from "react-icons/io5";
 import { IoMdCheckmark } from "react-icons/io";
 import LoadingCircle from "../components/LoadingCircle";
 import { RiSwordLine } from "react-icons/ri";
-import Modal from "../components/Modal";
+import Modal from "../shared/ui/Modal";
 import ChallengeModal from "../components/ChallengeModal";
 
 interface FriendElementProps {
@@ -49,19 +49,19 @@ const Friends = () => {
         </a>
         {type === "outgoing" ? (
           <Button
-            icon={<IoClose size={20} className='p-0.5'/>}
+            icon={<IoClose size={20} className="p-0.5" />}
             className="bg-color-neutral-700 w-5 h-5 rounded-xl"
             onClick={() => sendFriendRequest(username, "add")}
           />
         ) : (
           <div className="flex gap-1 justify-center items-center">
             <Button
-              icon={<IoMdCheckmark size={20} className='p-0.5'/>}
+              icon={<IoMdCheckmark size={20} className="p-0.5" />}
               className="bg-color-accent-400 w-5 h-5 rounded-xl"
               onClick={() => sendFriendRequest(username, "add")}
             />
             <Button
-              icon={<IoClose size={20} className='p-0.5'/>}
+              icon={<IoClose size={20} className="p-0.5" />}
               className="bg-color-neutral-700 w-5 h-5 rounded-xl"
               onClick={() => sendFriendRequest(username, "add")}
             />
@@ -79,7 +79,9 @@ const Friends = () => {
     return (
       <div
         key={username + index}
-        className={`${index % 2 == 0 ? "" : "bg-white/10 "}flex items-center w-full py-1 px-8`}
+        className={`${
+          index % 2 == 0 ? "" : "bg-white/10 "
+        }flex items-center w-full py-1 px-8`}
       >
         <a
           className="flex items-center mr-auto transition-colors
@@ -97,7 +99,9 @@ const Friends = () => {
         </a>
         <div>
           <Button
-            className={`${isOnline ? "hover:text-color-accent-400" : ""} text-color-accent-100`}
+            className={`${
+              isOnline ? "hover:text-color-accent-400" : ""
+            } text-color-accent-100`}
             disabled={!isOnline}
             onClick={() => {
               setChallengeUsername(username);
@@ -156,7 +160,9 @@ const Friends = () => {
             ) : loading ? (
               <LoadingCircle />
             ) : (
-              <div className="text-color-neutral-300">No incoming requests.</div>
+              <div className="text-color-neutral-300">
+                No incoming requests.
+              </div>
             )}
           </div>
         </div>
@@ -174,7 +180,9 @@ const Friends = () => {
             ) : loading ? (
               <LoadingCircle />
             ) : (
-              <div className="text-color-neutral-300">No outgoing requests.</div>
+              <div className="text-color-neutral-300">
+                No outgoing requests.
+              </div>
             )}
           </div>
         </div>

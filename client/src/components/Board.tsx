@@ -1,6 +1,7 @@
 import React from "react";
 import SubBoard from "./SubBoard";
-import Button from "./Button";
+import Button from "../shared/ui/Button";
+import { Link } from "react-router-dom";
 
 interface BoardReworkProps {
   board: { subWinner: string; squares: string[] }[];
@@ -42,11 +43,11 @@ const Board: React.FC<BoardReworkProps> = ({
         }}
       >
         {victoryMessage}
-        <Button
-          href="/"
-          className="bg-color-accent-400 text-white px-3 py-2 mt-4"
-          text="Home"
-        />
+        <Link to="/">
+          <Button className="bg-color-accent-400 text-white px-3 py-2 mt-4">
+            Home
+          </Button>
+        </Link>
       </div>
     </div>
   );
@@ -57,7 +58,9 @@ const Board: React.FC<BoardReworkProps> = ({
         key={i}
         player={player}
         subWinner={subBoard.subWinner}
-        className={`${[1, 4, 7].includes(i) ? "border-x-2" : ""} ${[3, 4, 5].includes(i) ? "border-y-2" : ""}`}
+        className={`${[1, 4, 7].includes(i) ? "border-x-2" : ""} ${
+          [3, 4, 5].includes(i) ? "border-y-2" : ""
+        }`}
         squares={subBoard.squares}
         turn={turn}
         lastMove={lastMove}

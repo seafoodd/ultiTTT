@@ -1,8 +1,8 @@
 import React from "react";
 import Square from "./Square";
-import Cross from "./Cross";
-import Circle from "./Circle";
-import Tie from "./Tie";
+import Cross from "../shared/icons/Cross";
+import Circle from "../shared/icons/Circle";
+import Tie from "../shared/icons/Tie";
 
 interface SubBoardProps {
   turn: string;
@@ -65,7 +65,9 @@ const SubBoard: React.FC<SubBoardProps> = ({
           isYourTurn={turn === player}
           key={i}
           highlightCurrent={highlightCurrent && subWinner === ""}
-          className={`${[1, 4, 7].includes(i) && "border-x"} ${[3, 4, 5].includes(i) && "border-y"}`}
+          className={`${[1, 4, 7].includes(i) && "border-x"} ${
+            [3, 4, 5].includes(i) && "border-y"
+          }`}
           value={square}
           turn={turn}
           lastMove={

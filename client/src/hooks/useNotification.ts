@@ -1,5 +1,4 @@
-import {useNotifications} from "../context/NotificationContext";
-
+import { useNotifications } from "../shared/provider/notification-provider";
 
 const useNotification = () => {
   const { addNotification } = useNotifications();

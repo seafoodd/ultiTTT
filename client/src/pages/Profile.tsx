@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import GameHistory from "../components/GameHistory";
 import { MdCake } from "react-icons/md";
 import { FaEdit, FaUserMinus, FaUserPlus } from "react-icons/fa";
-import Button from "../components/Button";
-import Modal from "../components/Modal";
+import Button from "../shared/ui/Button";
+import Modal from "../shared/ui/Modal";
 import ChallengeModal from "../components/ChallengeModal";
-import { useAuth } from "../context/AuthContext";
-import { useSocket } from "../context/SocketContext";
-import { useStore } from "../context/StoreContext";
+import { useWebSocket } from "../shared/provider/websocket-provider";
+import { useStore } from "../shared/provider/store-provider";
 import LoadingCircle from "../components/LoadingCircle";
 import { IoClose } from "react-icons/io5";
 import { IoMdCheckmark } from "react-icons/io";
 import { RiSwordLine } from "react-icons/ri";
 import { HiStatusOnline } from "react-icons/hi";
 import { AiFillHeart } from "react-icons/ai";
-import { formatDate, timeAgo } from "../utils/formatUtils";
+import { formatDate, timeAgo } from "@/shared/lib/client/formatUtils";
 import { FaHeartCrack } from "react-icons/fa6";
 import { BiHome, BiSolidStar } from "react-icons/bi";
-import ProfileStats from "../components/ProfileStats";
+import ProfileStats from "../components/account/ProfileStats";
 import Socials from "../components/Socials";
-import { UserData } from "../utils/interfaces";
-import { fetchUserData } from "../utils/dbUtils";
+import { UserData } from "@/shared/lib/client/interfaces";
+import { fetchUserData } from "@/shared/lib/client/dbUtils";
+import { useAuth } from "@/shared/provider/auth-provider";
 
 const getFriendButton = (
   friends: string[],
@@ -30,7 +30,7 @@ const getFriendButton = (
   outgoingRequests: { username: string; id: string }[],
   incomingRequests: { username: string; id: string }[],
   friendsLoading: boolean,
-  sendFriendRequest: Function,
+  sendFriendRequest: Function
 ) => {
   let disabled = false;
   let text = "Add friend";
@@ -38,7 +38,8 @@ const getFriendButton = (
   let color:
     | "bg-color-information-500 hover:bg-color-information-600"
     | "bg-color-neutral-700 hover:bg-color-neutral-600"
-    | "bg-color-danger-600 hover:bg-color-danger-700" = "bg-color-neutral-700 hover:bg-color-neutral-600";
+    | "bg-color-danger-600 hover:bg-color-danger-700" =
+    "bg-color-neutral-700 hover:bg-color-neutral-600";
   let icon = <FaUserPlus size={20} />;
 
   if (!isAuth) {
@@ -60,13 +61,14 @@ const getFriendButton = (
 
   return (
     <Button
-      text={text}
       icon={icon}
       onClick={() => sendFriendRequest(username, action)}
       className={`${color} px-6 py-2 disabled:bg-color-neutral-600 disabled:text-color-neutral-200`}
       disabled={disabled}
-      loading={friendsLoading}
-    />
+      isLoading={friendsLoading}
+    >
+      {text}
+    </Button>
   );
 };
 
@@ -78,7 +80,7 @@ const Profile = () => {
     loading: friendsLoading,
     sendFriendRequest,
   } = useStore();
-  const { socket } = useSocket();
+  const { socket } = useWebSocket();
   const { isAuth } = useAuth();
   const { username } = useParams<string>();
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -99,7 +101,7 @@ const Profile = () => {
     fetchUserData(username!, token, setUserData, setError, setLoading).catch(
       (err) => {
         console.log(err);
-      },
+      }
     );
 
     socket.emit("isUserOnline", username, (online: boolean) => {
@@ -116,12 +118,14 @@ const Profile = () => {
     return (
       <div className="flex flex-col items-center gap-4 mt-12">
         <div className="text-3xl font-medium">{error}</div>
-        <Button
-          text="Home"
-          icon={<BiHome className="h-full" />}
-          href="/"
-          className="bg-color-accent-400 px-4 py-2 mt-2"
-        />
+        <Link to="/">
+          <Button
+            icon={<BiHome className="h-full" />}
+            className="bg-color-accent-400 px-4 py-2 mt-2"
+          >
+            Home
+          </Button>
+        </Link>
       </div>
     );
   }
@@ -153,7 +157,9 @@ const Profile = () => {
                 <div className="sm:bg-color-neutral-850 sm:rounded-md sm:border-b-[3px] border-color-accent-300 justify-center mr-0 sm:mr-1 md:mr-0 items-center my-2 sm:my-0 flex lg:mx-auto sm:px-4 lg:px-9 gap-4 lg:gap-8 text-[14px] min-w-fit sm:text-[16px]">
                   <div className="flex flex-col items-center justify-between h-16 lg:h-24 font-normal text-color-neutral-200">
                     <HiStatusOnline
-                      className={`${isOnline ? "text-color-green-1" : ""} w-9 h-9 sm:w-11 sm:h-11 mt-1.5`}
+                      className={`${
+                        isOnline ? "text-color-green-1" : ""
+                      } w-9 h-9 sm:w-11 sm:h-11 mt-1.5`}
                     />
                     {isOnline ? (
                       <div className="flex gap-x-1 lg:flex-col">
@@ -200,26 +206,27 @@ const Profile = () => {
               </div>
               <div className="flex justify-center lg:justify-start lg:ml-8 items-center my-6 lg:my-8 gap-4 flex-wrap mx-2">
                 {isOwner ? (
-                  <>
+                  <Link to="/settings">
                     <Button
                       icon={<FaEdit size={18} />}
-                      text="Edit"
-                      href="/settings"
                       className="bg-color-neutral-700 px-6 py-2 hover:bg-color-neutral-600"
-                    />
-                  </>
+                    >
+                      Edit
+                    </Button>
+                  </Link>
                 ) : (
                   <>
                     <Button
                       icon={<RiSwordLine size={20} className="-mb-0.5" />}
                       title={!isOnline ? "User is offline" : undefined}
-                      text="Challenge"
                       onClick={() =>
                         setIsChallengeModalOpen(isOnline && !isOwner)
                       }
                       className={`bg-color-accent-400 hover:bg-color-accent-500 disabled:bg-color-neutral-600 text-color-neutral-100 disabled:text-color-neutral-200 px-6 py-2`}
                       disabled={!isOnline || !isAuth}
-                    />
+                    >
+                      Challenge
+                    </Button>
                     <Modal
                       isOpen={isChallengeModalOpen}
                       setIsOpen={setIsChallengeModalOpen}
@@ -234,7 +241,7 @@ const Profile = () => {
                         outgoingRequests,
                         incomingRequests,
                         friendsLoading,
-                        sendFriendRequest,
+                        sendFriendRequest
                       )
                     ) : (
                       <LoadingCircle />
@@ -261,7 +268,7 @@ const Profile = () => {
                     {userData!.perfs[gameType].allR} games
                   </div>
                 </div>
-              ),
+              )
             )}
           </div>
         </div>

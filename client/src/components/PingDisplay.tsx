@@ -6,7 +6,7 @@ import {
   BiSignal4,
   BiSignal5,
 } from "react-icons/bi";
-import { useSocket } from "../context/SocketContext";
+import { useWebSocket } from "../shared/provider/websocket-provider";
 
 interface PingDisplayProps {
   className?: string;
@@ -28,7 +28,7 @@ const getSignalIcon = (ping: number) => {
 
 const PingDisplay: React.FC<PingDisplayProps> = ({ className }) => {
   const [ping, setPing] = useState<number | null>(null);
-  const { socket } = useSocket();
+  const { socket } = useWebSocket();
 
   useEffect(() => {
     const handlePing = () => {
@@ -63,7 +63,9 @@ const PingDisplay: React.FC<PingDisplayProps> = ({ className }) => {
 
   return (
     <div
-      className={`${className ? className : ""} flex w-full h-full gap-1.5 items-center`}
+      className={`${
+        className ? className : ""
+      } flex w-full h-full gap-1.5 items-center`}
     >
       {ping ? (
         getSignalIcon(ping)
