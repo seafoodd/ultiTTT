@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import GameHistory from "../components/GameHistory";
 import { MdCake } from "react-icons/md";
 import { FaEdit, FaUserMinus, FaUserPlus } from "react-icons/fa";
 import Button from "../shared/ui/Button";
 import Modal from "../shared/ui/Modal";
 import ChallengeModal from "../components/ChallengeModal";
-import { useWebSocket } from "../shared/provider/websocket-provider";
-import { useStore } from "../shared/provider/store-provider";
+import { useWebSocket } from "@/shared/provider/websocket-provider";
+import { useStore } from "@/shared/provider/store-provider";
 import LoadingCircle from "../components/LoadingCircle";
 import { IoClose } from "react-icons/io5";
 import { IoMdCheckmark } from "react-icons/io";
@@ -118,14 +118,13 @@ const Profile = () => {
     return (
       <div className="flex flex-col items-center gap-4 mt-12">
         <div className="text-3xl font-medium">{error}</div>
-        <Link to="/">
           <Button
             icon={<BiHome className="h-full" />}
+            href="/"
             className="bg-color-accent-400 px-4 py-2 mt-2"
           >
             Home
           </Button>
-        </Link>
       </div>
     );
   }
@@ -206,14 +205,13 @@ const Profile = () => {
               </div>
               <div className="flex justify-center lg:justify-start lg:ml-8 items-center my-6 lg:my-8 gap-4 flex-wrap mx-2">
                 {isOwner ? (
-                  <Link to="/settings">
                     <Button
                       icon={<FaEdit size={18} />}
+                      href="/settings"
                       className="bg-color-neutral-700 px-6 py-2 hover:bg-color-neutral-600"
                     >
                       Edit
                     </Button>
-                  </Link>
                 ) : (
                   <>
                     <Button

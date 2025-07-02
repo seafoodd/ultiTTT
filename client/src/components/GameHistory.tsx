@@ -116,14 +116,13 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
                     game.gameType.slice(1)}{" "}
                   • {game.isRated ? "Rated" : "Unrated"}
                 </div>
-                <Link to={`/${game.id}`}>
                   <Button
                     icon={<AiFillPlayCircle size={22} className="mt-[1px]" />}
+                    href={`/${game.id}`}
                     className="py-2.5 bg-color-information-500 max-w-32 hover:bg-color-information-600"
                   >
                     Replay
                   </Button>
-                </Link>
               </div>
             </div>
             <div className="flex-shrink md:h-[133px] w-full flex flex-col items-center md:justify-between md:flex-row md:items-end">

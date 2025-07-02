@@ -1,14 +1,22 @@
-import React, { ButtonHTMLAttributes, ReactNode } from "react";
-import LoadingCircle from "../../components/LoadingCircle";
-import { cn } from "../lib/client/cn";
+import React, {
+  ButtonHTMLAttributes,
+  AnchorHTMLAttributes,
+  ReactNode,
+} from "react";
+import { Link } from "react-router-dom";
+import LoadingCircle from "@/components/LoadingCircle";
+import { cn } from "@/shared/lib/client/cn";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode;
   isLoading?: boolean;
+  children?: ReactNode;
+  href?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
   onClick,
+  href,
   className,
   icon,
   children,
@@ -16,22 +24,35 @@ const Button: React.FC<ButtonProps> = ({
   isLoading = false,
   ...props
 }) => {
-  if (onClick) {
+  const commonClasses = cn(
+    "font-medium flex justify-center items-center gap-1 rounded-md h-fit text-[18px] transition-colors text-nowrap",
+    className,
+  );
+
+  if (href) {
     return (
-      <button
-        className={cn(
-          "font-medium flex justify-center items-center gap-1 rounded-md h-fit text-[18px] transition-colors text-nowrap",
-          className
-        )}
-        onClick={isLoading ? undefined : onClick}
-        disabled={isLoading || disabled}
-        {...props}
+      <Link
+        className={commonClasses}
+        to={href}
+        {...(props as AnchorHTMLAttributes<HTMLAnchorElement>)}
       >
         {icon}
         {isLoading ? <LoadingCircle /> : children}
-      </button>
+      </Link>
     );
   }
+
+  return (
+    <button
+      className={commonClasses}
+      onClick={isLoading || !onClick ? undefined : onClick}
+      disabled={isLoading || disabled}
+      {...(props as ButtonHTMLAttributes<HTMLButtonElement>)}
+    >
+      {icon}
+      {isLoading ? <LoadingCircle /> : children}
+    </button>
+  );
 };
 
 export default Button;

@@ -2,7 +2,6 @@ import React from "react";
 import CopyField from "./CopyField";
 import Button from "../shared/ui/Button";
 import { BiHome } from "react-icons/bi";
-import { useNavigate } from "react-router-dom";
 
 interface WaitingLobbyProps {
   invitedUsername: string;
@@ -16,7 +15,6 @@ const WaitingLobby: React.FC<WaitingLobbyProps> = ({
   gameId,
 }) => {
   const env = import.meta.env.VITE_ENV || "production";
-  const navigate = useNavigate();
 
   return isDeclined ? (
     <div className="mt-12 flex flex-col justify-center items-center">
@@ -30,7 +28,7 @@ const WaitingLobby: React.FC<WaitingLobbyProps> = ({
       </h1>
       <Button
         icon={<BiHome />}
-        onClick={() => navigate("")}
+        href="/"
         className="bg-color-blue-2 px-2 py-2 mt-2"
       >
         Home

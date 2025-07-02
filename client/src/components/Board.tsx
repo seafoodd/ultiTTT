@@ -1,7 +1,6 @@
 import React from "react";
 import SubBoard from "./SubBoard";
 import Button from "../shared/ui/Button";
-import { Link } from "react-router-dom";
 
 interface BoardReworkProps {
   board: { subWinner: string; squares: string[] }[];
@@ -43,11 +42,12 @@ const Board: React.FC<BoardReworkProps> = ({
         }}
       >
         {victoryMessage}
-        <Link to="/">
-          <Button className="bg-color-accent-400 text-white px-3 py-2 mt-4">
-            Home
-          </Button>
-        </Link>
+        <Button
+          href="/"
+          className="bg-color-accent-400 text-white px-3 py-2 mt-4"
+        >
+          Home
+        </Button>
       </div>
     </div>
   );
