@@ -121,26 +121,26 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // For other requests (JS, CSS, sounds, etc.), stale-while-revalidate
-    const shouldCache = (request) => {
-        return request.method === "GET" && /\.(css|png|jpg|svg|woff2)$/.test(request.url);
-    };
-
-    event.respondWith(
-        caches.open(CACHE_NAME).then(async (cache) => {
-            const cachedResponse = await cache.match(request);
-
-            const fetchPromise = fetch(request)
-                .then((networkResponse) => {
-                    if (shouldCache(request)) {
-                        cache.put(request, networkResponse.clone()).catch(console.warn);
-                    }
-                    return networkResponse;
-                })
-                .catch(() => cachedResponse);
-
-            return cachedResponse || fetchPromise;
-        }),
-    );
+  // // For other requests (JS, CSS, sounds, etc.), stale-while-revalidate
+  //   const shouldCache = (request) => {
+  //       return request.method === "GET" && /\.(css|png|jpg|svg|woff2)$/.test(request.url);
+  //   };
+  //
+  //   event.respondWith(
+  //       caches.open(CACHE_NAME).then(async (cache) => {
+  //           const cachedResponse = await cache.match(request);
+  //
+  //           const fetchPromise = fetch(request)
+  //               .then((networkResponse) => {
+  //                   if (shouldCache(request)) {
+  //                       cache.put(request, networkResponse.clone()).catch(console.warn);
+  //                   }
+  //                   return networkResponse;
+  //               })
+  //               .catch(() => cachedResponse);
+  //
+  //           return cachedResponse || fetchPromise;
+  //       }),
+  //   );
 
 });
