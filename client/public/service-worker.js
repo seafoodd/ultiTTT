@@ -122,23 +122,25 @@ self.addEventListener("fetch", (event) => {
   }
 
   // For other requests (JS, CSS, sounds, etc.), stale-while-revalidate
-  event.respondWith(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      const cachedResponse = await cache.match(request);
+    const shouldCache = (request) => {
+        return request.method === "GET" && /\.(css|png|jpg|svg|woff2)$/.test(request.url);
+    };
 
-      const fetchPromise = fetch(request)
-        .then((networkResponse) => {
-          // Only cache GET requests with http(s) scheme
-          if (request.method === "GET" && request.url.startsWith("http")) {
-            cache.put(request, networkResponse.clone()).catch((err) => {
-              console.warn("Failed to cache", request.url, err);
-            });
-          }
-          return networkResponse;
-        })
-        .catch(() => cachedResponse);
+    event.respondWith(
+        caches.open(CACHE_NAME).then(async (cache) => {
+            const cachedResponse = await cache.match(request);
 
-      return cachedResponse || fetchPromise;
-    }),
-  );
+            const fetchPromise = fetch(request)
+                .then((networkResponse) => {
+                    if (shouldCache(request)) {
+                        cache.put(request, networkResponse.clone()).catch(console.warn);
+                    }
+                    return networkResponse;
+                })
+                .catch(() => cachedResponse);
+
+            return cachedResponse || fetchPromise;
+        }),
+    );
+
 });
