@@ -2,6 +2,7 @@ import React from "react";
 import CopyField from "./CopyField";
 import Button from "../shared/ui/Button";
 import { BiHome } from "react-icons/bi";
+import { Link } from "react-router-dom";
 
 interface WaitingLobbyProps {
   invitedUsername: string;
@@ -26,12 +27,11 @@ const WaitingLobby: React.FC<WaitingLobbyProps> = ({
         )}{" "}
         declined the challenge
       </h1>
-      <Button
-        icon={<BiHome />}
-        href="/"
-        className="bg-color-blue-2 px-2 py-2 mt-2"
-      >
-        Home
+      <Button asChild className="bg-color-blue-2 px-2 py-2 mt-2">
+        <Link to="/">
+          <BiHome />
+          Home
+        </Link>
       </Button>
     </div>
   ) : (

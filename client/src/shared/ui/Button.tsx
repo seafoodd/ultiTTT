@@ -1,57 +1,44 @@
 import React, {
   ButtonHTMLAttributes,
-  AnchorHTMLAttributes,
   ReactNode,
 } from "react";
-import { Link } from "react-router-dom";
 import LoadingCircle from "@/components/LoadingCircle";
 import { cn } from "@/shared/lib/client/cn";
+import { Slot } from "@radix-ui/react-slot"
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode;
   isLoading?: boolean;
   children?: ReactNode;
-  href?: string;
+  asChild?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
   onClick,
-  href,
   className,
   icon,
   children,
   disabled,
+  asChild = false,
   isLoading = false,
   ...props
 }) => {
+  const Comp = asChild ? Slot : "button";
+
   const commonClasses = cn(
     "font-medium flex justify-center items-center gap-1 rounded-md h-fit text-[18px] transition-colors text-nowrap",
     className,
   );
 
-  if (href) {
-    return (
-      <Link
-        className={commonClasses}
-        to={href}
-        {...(props as AnchorHTMLAttributes<HTMLAnchorElement>)}
-      >
-        {icon}
-        {isLoading ? <LoadingCircle /> : children}
-      </Link>
-    );
-  }
-
   return (
-    <button
+    <Comp
       className={commonClasses}
-      onClick={isLoading || !onClick ? undefined : onClick}
+      onClick={isLoading ? undefined : onClick}
       disabled={isLoading || disabled}
-      {...(props as ButtonHTMLAttributes<HTMLButtonElement>)}
+      {...props}
     >
-      {icon}
       {isLoading ? <LoadingCircle /> : children}
-    </button>
+    </Comp>
   );
 };
 

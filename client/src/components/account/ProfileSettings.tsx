@@ -45,7 +45,7 @@ const ProfileSettings = () => {
       token,
       setUserData,
       setError,
-      setLoading
+      setLoading,
     ).catch((err) => {
       console.log(err);
     });
@@ -80,7 +80,7 @@ const ProfileSettings = () => {
     Object.entries(socials).forEach(([platform, value]) => {
       if (value && !patterns[platform as keyof typeof patterns].test(value)) {
         showError(
-          `Invalid ${platform} ${platform === "discord" ? "username" : "URL"}`
+          `Invalid ${platform} ${platform === "discord" ? "username" : "URL"}`,
         );
         newErrorFields.push(platform);
       }
@@ -201,15 +201,15 @@ const ProfileSettings = () => {
                 }`}
               />
             </div>
-          )
+          ),
         )}
       </div>
 
       <Button
         type="submit"
-        icon={<FaEdit size={18} />}
         className="mt-2 bg-color-neutral-800 px-6 py-2 w-32 hover:bg-color-neutral-700"
       >
+        <FaEdit size={18} />
         Save
       </Button>
     </form>

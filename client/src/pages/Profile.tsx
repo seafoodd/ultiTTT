@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import GameHistory from "../components/GameHistory";
 import { MdCake } from "react-icons/md";
 import { FaEdit, FaUserMinus, FaUserPlus } from "react-icons/fa";
@@ -30,7 +30,7 @@ const getFriendButton = (
   outgoingRequests: { username: string; id: string }[],
   incomingRequests: { username: string; id: string }[],
   friendsLoading: boolean,
-  sendFriendRequest: Function
+  sendFriendRequest: Function,
 ) => {
   let disabled = false;
   let text = "Add friend";
@@ -101,7 +101,7 @@ const Profile = () => {
     fetchUserData(username!, token, setUserData, setError, setLoading).catch(
       (err) => {
         console.log(err);
-      }
+      },
     );
 
     socket.emit("isUserOnline", username, (online: boolean) => {
@@ -118,13 +118,15 @@ const Profile = () => {
     return (
       <div className="flex flex-col items-center gap-4 mt-12">
         <div className="text-3xl font-medium">{error}</div>
-          <Button
-            icon={<BiHome className="h-full" />}
-            href="/"
-            className="bg-color-accent-400 px-4 py-2 mt-2"
-          >
+        <Button
+          asChild
+          className="bg-color-accent-400 px-4 py-2 mt-2"
+        >
+          <Link to="/">
+            <BiHome className="h-full" />
             Home
-          </Button>
+          </Link>
+        </Button>
       </div>
     );
   }
@@ -205,13 +207,15 @@ const Profile = () => {
               </div>
               <div className="flex justify-center lg:justify-start lg:ml-8 items-center my-6 lg:my-8 gap-4 flex-wrap mx-2">
                 {isOwner ? (
-                    <Button
-                      icon={<FaEdit size={18} />}
-                      href="/settings"
-                      className="bg-color-neutral-700 px-6 py-2 hover:bg-color-neutral-600"
-                    >
+                  <Button
+                    asChild
+                    className="bg-color-neutral-700 px-6 py-2 hover:bg-color-neutral-600"
+                  >
+                    <Link to="/settings">
+                      <FaEdit size={18} />
                       Edit
-                    </Button>
+                    </Link>
+                  </Button>
                 ) : (
                   <>
                     <Button
@@ -239,7 +243,7 @@ const Profile = () => {
                         outgoingRequests,
                         incomingRequests,
                         friendsLoading,
-                        sendFriendRequest
+                        sendFriendRequest,
                       )
                     ) : (
                       <LoadingCircle />
@@ -266,7 +270,7 @@ const Profile = () => {
                     {userData!.perfs[gameType].allR} games
                   </div>
                 </div>
-              )
+              ),
             )}
           </div>
         </div>

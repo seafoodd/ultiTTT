@@ -8,6 +8,7 @@ import { FaCog, FaSignOutAlt } from "react-icons/fa";
 import HeaderSearch from "../search/HeaderSearch";
 import { MdPeopleAlt } from "react-icons/md";
 import { useAuth } from "@/shared/provider/auth-provider";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const { currentUser, logOut, isAuth } = useAuth();
@@ -55,9 +56,9 @@ const Header = () => {
           setCurrentMenu={setCurrentMenu}
         />
         {isAuth && (
-          <a className="z-50 mr-1.5" href="/friends">
+          <Link className="z-50 mr-1.5" to="/friends">
             <MdPeopleAlt className="" href="/friends" size={26} />
-          </a>
+          </Link>
         )}
         {isAuth ? (
           <div className="flex justify-center h-full items-center">

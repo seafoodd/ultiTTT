@@ -46,11 +46,13 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
       const response = await fetch(
         `${
           import.meta.env.VITE_API_URL
-        }/users/${username}/games?page=${page}&limit=${10}`
+        }/users/${username}/games?page=${page}&limit=${10}`,
       );
       if (!response.ok) {
         showError(
-          response.status === 429 ? "Too many requests" : "Something went wrong"
+          response.status === 429
+            ? "Too many requests"
+            : "Something went wrong",
         );
         console.error("Failed to fetch game history", response);
         setGameHistory(gameHistory);
@@ -62,7 +64,7 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
       const games = data.games;
 
       setGameHistory((prevGames: any[]) =>
-        page > 1 ? [...prevGames, ...games] : games
+        page > 1 ? [...prevGames, ...games] : games,
       );
     } catch (error) {
       console.error("Error fetching game history:", error);
@@ -90,7 +92,7 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
       });
       if (node) observer.current.observe(node);
     },
-    [hasMore]
+    [hasMore],
   );
 
   return (
@@ -116,13 +118,12 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
                     game.gameType.slice(1)}{" "}
                   • {game.isRated ? "Rated" : "Unrated"}
                 </div>
-                  <Button
-                    icon={<AiFillPlayCircle size={22} className="mt-[1px]" />}
-                    href={`/${game.id}`}
-                    className="py-2.5 bg-color-information-500 max-w-32 hover:bg-color-information-600"
-                  >
+                <Button asChild className="py-2.5 bg-color-information-500 max-w-32 hover:bg-color-information-600">
+                  <Link to={`/${game.id}`}>
+                    <AiFillPlayCircle size={22} className="mt-[1px]" />
                     Replay
-                  </Button>
+                  </Link>
+                </Button>
               </div>
             </div>
             <div className="flex-shrink md:h-[133px] w-full flex flex-col items-center md:justify-between md:flex-row md:items-end">
