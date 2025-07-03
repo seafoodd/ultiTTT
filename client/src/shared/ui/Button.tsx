@@ -7,7 +7,6 @@ import { cn } from "@/shared/lib/client/cn";
 import { Slot } from "@radix-ui/react-slot"
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  icon?: ReactNode;
   isLoading?: boolean;
   children?: ReactNode;
   asChild?: boolean;
@@ -16,7 +15,6 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const Button: React.FC<ButtonProps> = ({
   onClick,
   className,
-  icon,
   children,
   disabled,
   asChild = false,
