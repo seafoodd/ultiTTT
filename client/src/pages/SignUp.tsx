@@ -27,7 +27,7 @@ const LogIn = () => {
       return;
     }
     setLoading(true);
-    Axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
+    Axios.post(`${import.meta.env.VITE_API_V2_URL}/auth/register`, {
       email,
       username,
       password,
@@ -41,7 +41,7 @@ const LogIn = () => {
           setRateLimitTimeLeft(retryAfter);
         } else {
           setError(
-            err.response?.data?.error || "An error occurred. Please try again",
+            err.response?.data?.message || "An error occurred. Please try again",
           );
         }
         setLoading(false);
