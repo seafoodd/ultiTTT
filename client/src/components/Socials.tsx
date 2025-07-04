@@ -3,7 +3,7 @@ import { FaDiscord } from "react-icons/fa";
 import { RiRedditFill } from "react-icons/ri";
 import { BsTwitterX } from "react-icons/bs";
 import React from "react";
-import useNotification from "../hooks/useNotification";
+import useNotification from "../shared/hooks/use-notification";
 
 interface SocialsProps {
   socials: {
@@ -90,7 +90,9 @@ const Socials: React.FC<SocialsProps> = ({ socials }) => {
                 ) : (
                   <Icon
                     size={20}
-                    className={` ${colorClass} ${key === "twitter" ? "w-[18px] h-[20px] ml-[1px]" : ""}`}
+                    className={` ${colorClass} ${
+                      key === "twitter" ? "w-[18px] h-[20px] ml-[1px]" : ""
+                    }`}
                   />
                 )}
                 {notLink ? (
@@ -99,7 +101,7 @@ const Socials: React.FC<SocialsProps> = ({ socials }) => {
                   key.charAt(0).toUpperCase() + key.slice(1)
                 )}
               </a>
-            ) : null,
+            ) : null
         )}
       </div>
     )

@@ -2,11 +2,19 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import LoadingCircle from "../LoadingCircle";
 import { useAuth } from "@/shared/provider/auth-provider";
+import { LiteralEnum } from "@/shared/lib/types/literal-enum";
+
+export const ProtectedRouteRequiredType = {
+  Auth: "auth",
+  NoAuth: "no-auth"
+}
+
+export type ProtectedRouteRequiredType = LiteralEnum<typeof ProtectedRouteRequiredType>
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   redirectTo: string;
-  require: "auth" | "no-auth";
+  require: ProtectedRouteRequiredType;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({

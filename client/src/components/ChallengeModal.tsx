@@ -25,7 +25,7 @@ const ChallengeModal: React.FC<ChallengeModalProps> = ({ username }) => {
         }
       );
     } catch (e) {
-      console.error(123, e);
+      console.error( e);
     }
   };
 

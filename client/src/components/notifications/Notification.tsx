@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CgClose } from "react-icons/cg";
 import { useWebSocket } from "../../shared/provider/websocket-provider";
-import useNotification from "../../hooks/useNotification";
+import useNotification from "../../shared/hooks/use-notification";
 
 const Notification = () => {
   const [challenge, setChallenge] = useState<{

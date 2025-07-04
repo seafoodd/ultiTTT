@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import GameHistory from "../components/GameHistory";
 import { MdCake } from "react-icons/md";
@@ -22,6 +22,8 @@ import Socials from "../components/Socials";
 import { UserData } from "@/shared/lib/client/interfaces";
 import { fetchUserData } from "@/shared/lib/client/dbUtils";
 import { useAuth } from "@/shared/provider/auth-provider";
+import { useClientSeo } from "@/shared/hooks/use-client-seo";
+import { APP_ROUTES } from "@/shared/constants/app-routes";
 
 const getFriendButton = (
   friends: string[],
@@ -30,7 +32,7 @@ const getFriendButton = (
   outgoingRequests: { username: string; id: string }[],
   incomingRequests: { username: string; id: string }[],
   friendsLoading: boolean,
-  sendFriendRequest: Function,
+  sendFriendRequest: Function
 ) => {
   let disabled = false;
   let text = "Add friend";
@@ -61,18 +63,24 @@ const getFriendButton = (
 
   return (
     <Button
-      icon={icon}
       onClick={() => sendFriendRequest(username, action)}
       className={`${color} px-6 py-2 disabled:bg-color-neutral-600 disabled:text-color-neutral-200`}
       disabled={disabled}
       isLoading={friendsLoading}
     >
+      {icon}
       {text}
     </Button>
   );
 };
 
 const Profile = () => {
+  const { username } = useParams<string>();
+
+  useClientSeo({
+    title: `${username}'s profile - ultiTTT`,
+  });
+
   const {
     friends,
     incomingRequests,
@@ -82,7 +90,6 @@ const Profile = () => {
   } = useStore();
   const { socket } = useWebSocket();
   const { isAuth } = useAuth();
-  const { username } = useParams<string>();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,7 +108,7 @@ const Profile = () => {
     fetchUserData(username!, token, setUserData, setError, setLoading).catch(
       (err) => {
         console.log(err);
-      },
+      }
     );
 
     socket.emit("isUserOnline", username, (online: boolean) => {
@@ -118,10 +125,7 @@ const Profile = () => {
     return (
       <div className="flex flex-col items-center gap-4 mt-12">
         <div className="text-3xl font-medium">{error}</div>
-        <Button
-          asChild
-          className="bg-color-accent-400 px-4 py-2 mt-2"
-        >
+        <Button asChild className="bg-color-accent-400 px-4 py-2 mt-2">
           <Link to="/">
             <BiHome className="h-full" />
             Home
@@ -211,15 +215,14 @@ const Profile = () => {
                     asChild
                     className="bg-color-neutral-700 px-6 py-2 hover:bg-color-neutral-600"
                   >
-                    <Link to="/settings">
+                    <Link to={APP_ROUTES.ProfileSettings}>
                       <FaEdit size={18} />
                       Edit
                     </Link>
                   </Button>
                 ) : (
-                  <>
+                  <Fragment>
                     <Button
-                      icon={<RiSwordLine size={20} className="-mb-0.5" />}
                       title={!isOnline ? "User is offline" : undefined}
                       onClick={() =>
                         setIsChallengeModalOpen(isOnline && !isOwner)
@@ -227,6 +230,7 @@ const Profile = () => {
                       className={`bg-color-accent-400 hover:bg-color-accent-500 disabled:bg-color-neutral-600 text-color-neutral-100 disabled:text-color-neutral-200 px-6 py-2`}
                       disabled={!isOnline || !isAuth}
                     >
+                      <RiSwordLine size={20} className="-mb-0.5" />
                       Challenge
                     </Button>
                     <Modal
@@ -243,12 +247,12 @@ const Profile = () => {
                         outgoingRequests,
                         incomingRequests,
                         friendsLoading,
-                        sendFriendRequest,
+                        sendFriendRequest
                       )
                     ) : (
                       <LoadingCircle />
                     )}
-                  </>
+                  </Fragment>
                 )}
               </div>
             </div>
@@ -270,7 +274,7 @@ const Profile = () => {
                     {userData!.perfs[gameType].allR} games
                   </div>
                 </div>
-              ),
+              )
             )}
           </div>
         </div>

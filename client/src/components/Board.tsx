@@ -1,6 +1,8 @@
 import React from "react";
 import SubBoard from "./SubBoard";
 import Button from "../shared/ui/Button";
+import { Link } from "react-router-dom";
+import { APP_ROUTES } from "@/shared/constants/app-routes";
 
 interface BoardReworkProps {
   board: { subWinner: string; squares: string[] }[];
@@ -35,18 +37,17 @@ const Board: React.FC<BoardReworkProps> = ({
       onClick={() => setVictoryMessage("")}
     >
       <div
-        className="w-72 h-36 rounded-lg bg-color-neutral-900
-       flex flex-col justify-center items-center text-xl font-bold"
+        className="w-72 h-36 rounded-lg bg-color-neutral-900 flex flex-col justify-center items-center text-xl font-bold"
         onClick={(e) => {
           e.stopPropagation();
         }}
       >
         {victoryMessage}
         <Button
-          href="/"
+          asChild
           className="bg-color-accent-400 text-white px-3 py-2 mt-4"
         >
-          Home
+          <Link to={APP_ROUTES.Home}>Home</Link>
         </Button>
       </div>
     </div>
