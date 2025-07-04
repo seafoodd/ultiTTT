@@ -3,11 +3,17 @@ import Cookies from "universal-cookie";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoadingCircle from "../components/LoadingCircle";
-import useRateLimit from "../hooks/useRateLimit";
+import useRateLimit from "../shared/hooks/use-rate-limit";
 import { useAuth } from "@/shared/provider/auth-provider";
 import { Env } from "@/shared/constants/env";
+import { useClientSeo } from "@/shared/hooks/use-client-seo";
 
 const LogIn = () => {
+
+  useClientSeo({
+    title: "Log In - ultiTTT"
+  })
+
   const { setIsAuth } = useAuth();
   const cookies = new Cookies();
   const navigate = useNavigate();

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import NavItem from "../NavItem";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import BurgerMenu from "../BurgerMenu";

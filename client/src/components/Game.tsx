@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { getBoardAtMove } from "@/shared/lib/client/gameUtils";
 import { useWebSocket } from "../shared/provider/websocket-provider";
-import NotFound from "../pages/NotFound";
+import NotFound from "@/pages/NotFound";
 import WaitingLobby from "./WaitingLobby";
 import LoadingCircle from "./LoadingCircle";
 import { GameView } from "./GameView";

@@ -2,9 +2,15 @@ import React, { useState } from "react";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoadingCircle from "../components/LoadingCircle";
-import useRateLimit from "../hooks/useRateLimit";
+import useRateLimit from "../shared/hooks/use-rate-limit";
+import { useClientSeo } from "@/shared/hooks/use-client-seo";
 
 const LogIn = () => {
+
+  useClientSeo({
+    title: "Sign up - ultiTTT"
+  })
+
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);

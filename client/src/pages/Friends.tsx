@@ -8,6 +8,8 @@ import LoadingCircle from "../components/LoadingCircle";
 import { RiSwordLine } from "react-icons/ri";
 import Modal from "../shared/ui/Modal";
 import ChallengeModal from "../components/ChallengeModal";
+import { useClientSeo } from "@/shared/hooks/use-client-seo";
+import { APP_ROUTES } from "@/shared/constants/app-routes";
 
 interface FriendElementProps {
   username: string;
@@ -20,6 +22,10 @@ interface RequestElementProps {
 }
 
 const Friends = () => {
+  useClientSeo({
+    title: "Friends - ultiTTT"
+  });
+
   const {
     friends,
     incomingRequests,
@@ -42,29 +48,32 @@ const Friends = () => {
     return (
       <div className="flex items-center justify-between w-full py-1 px-2">
         <a
-          href={`/@/${username}`}
+          href={APP_ROUTES.UserProfile(username)}
           className="font-normal hover:text-blue-300 transition-colors duration-75 mr-2"
         >
           <div className="max-w-24 truncate">{username}</div>
         </a>
         {type === "outgoing" ? (
           <Button
-            icon={<IoClose size={20} className="p-0.5" />}
             className="bg-color-neutral-700 w-5 h-5 rounded-xl"
             onClick={() => sendFriendRequest(username, "add")}
-          />
+          >
+            <IoClose size={20} className="p-0.5" />
+          </Button>
         ) : (
           <div className="flex gap-1 justify-center items-center">
             <Button
-              icon={<IoMdCheckmark size={20} className="p-0.5" />}
               className="bg-color-accent-400 w-5 h-5 rounded-xl"
               onClick={() => sendFriendRequest(username, "add")}
-            />
+            >
+              <IoMdCheckmark size={20} className="p-0.5" />
+            </Button>
             <Button
-              icon={<IoClose size={20} className="p-0.5" />}
               className="bg-color-neutral-700 w-5 h-5 rounded-xl"
               onClick={() => sendFriendRequest(username, "add")}
-            />
+            >
+              <IoClose size={20} className="p-0.5" />
+            </Button>
           </div>
         )}
       </div>
@@ -107,8 +116,9 @@ const Friends = () => {
               setChallengeUsername(username);
               setIsChallengeModalOpen(isOnline);
             }}
-            icon={<RiSwordLine />}
-          />
+          >
+            <RiSwordLine />
+          </Button>
           <Modal
             isOpen={isChallengeModalOpen}
             setIsOpen={setIsChallengeModalOpen}

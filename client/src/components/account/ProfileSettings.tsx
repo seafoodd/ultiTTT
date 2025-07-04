@@ -5,7 +5,7 @@ import LoadingCircle from "../LoadingCircle";
 import Button from "../../shared/ui/Button";
 import { FaEdit } from "react-icons/fa";
 import Axios from "axios";
-import useNotification from "../../hooks/useNotification";
+import useNotification from "../../shared/hooks/use-notification";
 import { UserData, Socials } from "@/shared/lib/client/interfaces";
 import { fetchUserData } from "@/shared/lib/client/dbUtils";
 import { useAuth } from "@/shared/provider/auth-provider";
@@ -45,7 +45,7 @@ const ProfileSettings = () => {
       token,
       setUserData,
       setError,
-      setLoading,
+      setLoading
     ).catch((err) => {
       console.log(err);
     });
@@ -80,7 +80,7 @@ const ProfileSettings = () => {
     Object.entries(socials).forEach(([platform, value]) => {
       if (value && !patterns[platform as keyof typeof patterns].test(value)) {
         showError(
-          `Invalid ${platform} ${platform === "discord" ? "username" : "URL"}`,
+          `Invalid ${platform} ${platform === "discord" ? "username" : "URL"}`
         );
         newErrorFields.push(platform);
       }
@@ -201,7 +201,7 @@ const ProfileSettings = () => {
                 }`}
               />
             </div>
-          ),
+          )
         )}
       </div>
 
