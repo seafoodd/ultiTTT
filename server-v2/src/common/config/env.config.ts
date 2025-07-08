@@ -5,16 +5,16 @@ import { Injectable } from '@nestjs/common';
 export class EnvConfig {
   constructor(private readonly config: ConfigService) {}
 
-  get nodeEnv(): string {
-    return this.config.get<string>('NODE_ENV') ?? 'production';
+  get env(): string {
+    return this.config.get<string>('ENV') ?? 'production';
   }
 
   get isDevelopment(): boolean {
-    return this.nodeEnv === 'development';
+    return this.env === 'development';
   }
 
   get isProduction(): boolean {
-    return this.nodeEnv === 'production';
+    return this.env === 'production';
   }
 
   getEnvVarOrThrow(key: string): string {
