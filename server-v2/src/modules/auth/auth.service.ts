@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   UnauthorizedException,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -14,6 +15,7 @@ import { LoginDto } from '@/modules/auth/dto/login.dto';
 import { EmailService } from '@/modules/email/email.service';
 import { ResendVerificationEmailDto } from '@/modules/auth/dto/resend-verification-email.dto';
 import { EnvConfig } from '@/core/config/env.config';
+import { DisposableEmailService } from '@/core/disposable-email/disposable-email.service';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +23,7 @@ export class AuthService {
     private prisma: PrismaService,
     private envConfig: EnvConfig,
     private emailService: EmailService,
+    private readonly disposableEmailService: DisposableEmailService,
   ) {}
 
   private readonly logger = new Logger(AuthService.name);
@@ -32,13 +35,10 @@ export class AuthService {
   async register(dto: RegisterDto) {
     const { email, username, password } = dto;
 
-    // email domain/disposable check
-    // const domain = email.split('@')[1].toLowerCase().trim();
-    // if (disposableDomainsSet.has(domain)) {
-    //   throw new BadRequestException('Invalid email domain');
-    // }
+    if (this.disposableEmailService.isDisposable(email)) {
+      throw new BadRequestException('Invalid email domain');
+    }
 
-    // unique checks
     if (await this.prisma.user.findUnique({ where: { email } })) {
       throw new ConflictException('Email is already taken');
     }
