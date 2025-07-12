@@ -9,6 +9,7 @@ import useNotification from "../../shared/hooks/use-notification";
 import { UserData, Socials } from "@/shared/lib/client/interfaces";
 import { fetchUserData } from "@/shared/lib/client/dbUtils";
 import { useAuth } from "@/shared/provider/auth-provider";
+import {Env} from "@/shared/constants/env";
 
 const patterns = {
   youtube:
@@ -97,7 +98,7 @@ const ProfileSettings = () => {
       socials,
     };
 
-    Axios.patch(`${import.meta.env.VITE_API_URL}/account/profile`, payload, {
+    Axios.patch(`${Env.VITE_API_URL}/account/profile`, payload, {
       headers: {
         Authorization: token,
       },

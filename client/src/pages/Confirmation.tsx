@@ -6,12 +6,12 @@ import LoadingCircle from "../components/LoadingCircle";
 import Cookies from "universal-cookie";
 import { useAuth } from "@/shared/provider/auth-provider";
 import { useClientSeo } from "@/shared/hooks/use-client-seo";
+import { Env } from "@/shared/constants/env";
 
 const Confirmation = () => {
-
   useClientSeo({
-    title: "Confirmation - ultiTTT"
-  })
+    title: "Confirmation - ultiTTT",
+  });
 
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
@@ -24,13 +24,13 @@ const Confirmation = () => {
     if (!token) return;
 
     Axios.post(
-      `${import.meta.env.VITE_API_URL}/auth/confirm-email`,
+      `${Env.VITE_API_URL}/auth/confirm-email`,
       {},
       {
         headers: {
           Authorization: token,
         },
-      }
+      },
     )
       .then((res) => {
         showSuccess(res.data.message);

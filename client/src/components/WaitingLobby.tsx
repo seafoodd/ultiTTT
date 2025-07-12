@@ -4,6 +4,7 @@ import Button from "../shared/ui/Button";
 import { BiHome } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import { APP_ROUTES } from "@/shared/constants/app-routes";
+import { Env } from "@/shared/constants/env";
 
 interface WaitingLobbyProps {
   invitedUsername: string;
@@ -16,7 +17,7 @@ const WaitingLobby: React.FC<WaitingLobbyProps> = ({
   isDeclined,
   gameId,
 }) => {
-  const env = import.meta.env.VITE_ENV || "production";
+  const env = Env.VITE_ENV || "production";
 
   return isDeclined ? (
     <div className="mt-12 flex flex-col justify-center items-center">

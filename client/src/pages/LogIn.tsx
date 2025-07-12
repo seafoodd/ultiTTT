@@ -9,10 +9,9 @@ import { Env } from "@/shared/constants/env";
 import { useClientSeo } from "@/shared/hooks/use-client-seo";
 
 const LogIn = () => {
-
   useClientSeo({
-    title: "Log In - ultiTTT"
-  })
+    title: "Log In - ultiTTT",
+  });
 
   const { setIsAuth } = useAuth();
   const cookies = new Cookies();
@@ -32,7 +31,7 @@ const LogIn = () => {
     }
     setError("");
     setLoading(true);
-    Axios.post(`${Env.VITE_API_URL}/auth/login`, {
+    Axios.post(`${Env.VITE_API_V2_URL}/auth/login`, {
       identifier,
       password,
       rememberMe,
@@ -55,7 +54,7 @@ const LogIn = () => {
           setRateLimitTimeLeft(retryAfter);
         } else {
           setError(
-            err.response?.data?.error || "An error occurred. Please try again"
+            err.response?.data?.error || "An error occurred. Please try again",
           );
         }
         setLoading(false);

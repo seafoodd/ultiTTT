@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 import LoadingCircle from "../components/LoadingCircle";
 import useRateLimit from "../shared/hooks/use-rate-limit";
 import { useClientSeo } from "@/shared/hooks/use-client-seo";
+import { Env } from "@/shared/constants/env";
 
 const LogIn = () => {
-
   useClientSeo({
-    title: "Sign up - ultiTTT"
-  })
+    title: "Sign up - ultiTTT",
+  });
 
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
@@ -33,7 +33,7 @@ const LogIn = () => {
       return;
     }
     setLoading(true);
-    Axios.post(`${import.meta.env.VITE_API_V2_URL}/auth/register`, {
+    Axios.post(`${Env.VITE_API_V2_URL}/auth/register`, {
       email,
       username,
       password,
@@ -47,7 +47,8 @@ const LogIn = () => {
           setRateLimitTimeLeft(retryAfter);
         } else {
           setError(
-            err.response?.data?.message || "An error occurred. Please try again",
+            err.response?.data?.message ||
+              "An error occurred. Please try again",
           );
         }
         setLoading(false);

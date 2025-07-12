@@ -1,5 +1,6 @@
 import React from "react";
 import { UserData } from "./interfaces";
+import { Env } from "@/shared/constants/env";
 
 export const fetchUserData = async (
   username: string,
@@ -9,14 +10,11 @@ export const fetchUserData = async (
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
   try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/users/${username}`,
-      {
-        headers: {
-          Authorization: token,
-        },
+    const response = await fetch(`${Env.VITE_API_URL}/users/${username}`, {
+      headers: {
+        Authorization: token,
       },
-    );
+    });
     if (!response.ok) {
       if (response.status === 404) {
         setError("The player doesn't exist");

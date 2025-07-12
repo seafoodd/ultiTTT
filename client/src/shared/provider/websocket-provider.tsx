@@ -1,14 +1,15 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { debugError } from "@/shared/lib/client/debugUtils";
 import { useAuth } from "@/shared/provider/auth-provider";
+import { Env } from "@/shared/constants/env";
 
 interface SocketContextType {
   socket: Socket | null;
 }
 
 const WebsocketSocketContext = createContext<SocketContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const WebsocketSocketProvider: React.FC<{
@@ -18,7 +19,7 @@ export const WebsocketSocketProvider: React.FC<{
   const { token } = useAuth();
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL;
+    const apiUrl = Env.VITE_API_URL;
     const socketUrl = apiUrl.endsWith("/api")
       ? `${apiUrl.replace("/api", "")}`
       : `${apiUrl}`;
@@ -28,7 +29,7 @@ export const WebsocketSocketProvider: React.FC<{
         token: token,
       },
       path:
-        import.meta.env.VITE_ENV === "development"
+        Env.VITE_ENV === "development"
           ? undefined
           : "/sockets/socket.io",
       reconnection: true,

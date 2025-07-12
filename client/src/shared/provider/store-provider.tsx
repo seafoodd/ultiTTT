@@ -8,6 +8,7 @@ import React, {
 import Axios from "axios";
 import { useWebSocket } from "./websocket-provider";
 import { useAuth } from "@/shared/provider/auth-provider";
+import { Env } from "@/shared/constants/env";
 
 interface StoreContextProps {
   friends: string[];
@@ -52,7 +53,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const fetchFriends = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/friends`, {
+      const response = await fetch(`${Env.VITE_API_URL}/friends`, {
         headers: { Authorization: token! },
       });
       if (!response.ok) {
@@ -68,16 +69,16 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
           (r: { id: string; toUsername: string; fromUsername: string }) => ({
             id: r.id,
             username: r.fromUsername,
-          })
-        )
+          }),
+        ),
       );
       setOutgoingRequests(
         data.outgoingRequests.map(
           (r: { id: string; toUsername: string; fromUsername: string }) => ({
             id: r.id,
             username: r.toUsername,
-          })
-        )
+          }),
+        ),
       );
     } catch (error) {
       console.error("Error fetching friends:", error);
@@ -88,13 +89,13 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
 
   const sendFriendRequest = (username: string, action: "add" | "remove") => {
     Axios.post(
-      `${import.meta.env.VITE_API_URL}/friends/${action}/${username}`,
+      `${Env.VITE_API_URL}/friends/${action}/${username}`,
       {},
       {
         headers: {
           Authorization: token!,
         },
-      }
+      },
     )
       .then((res) => {
         console.log(res);
@@ -110,7 +111,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
       socket &&
         socket.emit("isUserOnline", friend, (online: boolean) => {
           setOnlineFriends((prev) =>
-            online ? [...prev, friend] : prev.filter((f) => f !== friend)
+            online ? [...prev, friend] : prev.filter((f) => f !== friend),
           );
         });
     });

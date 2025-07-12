@@ -1,5 +1,3 @@
 export function getMeOptions() {}
 
-export function useGetMe() {
-
-}
+export function useGetMe() {}

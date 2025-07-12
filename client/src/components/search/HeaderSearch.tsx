@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
 import { BiSearch } from "react-icons/bi";
+import { Env } from "@/shared/constants/env";
 
 interface HeaderSearchProps {
   className?: string;
@@ -35,7 +36,7 @@ const HeaderSearch: React.FC<HeaderSearchProps> = ({
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/search/users?query=${query}`,
+        `${Env.VITE_API_URL}/search/users?query=${query}`,
       );
       if (!response.ok) {
         console.error("Network response was not ok");

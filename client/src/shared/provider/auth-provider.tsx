@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import Cookies from "universal-cookie";
 import axios from "axios";
+import { Env } from "@/shared/constants/env";
 
 interface AuthContextType {
   authLoading: boolean;
@@ -35,7 +36,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
       if (!token) {
         try {
           const response = await axios.post(
-            `${import.meta.env.VITE_API_URL}/auth/guestLogin`,
+            `${Env.VITE_API_URL}/auth/guestLogin`,
           );
           console.log(response);
           if (response.status === 200) {
@@ -54,14 +55,11 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
         }
       }
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/account`,
-          {
-            headers: {
-              Authorization: token,
-            },
+        const response = await axios.get(`${Env.VITE_API_URL}/account`, {
+          headers: {
+            Authorization: token,
           },
-        );
+        });
         if (response.status === 200) {
           setCurrentUser(response.data);
           if (response.data.role !== "guest") {

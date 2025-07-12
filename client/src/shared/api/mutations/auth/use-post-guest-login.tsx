@@ -9,7 +9,7 @@ import { GuestLoginResponse } from "../../types/auth/types";
  * @returns
  */
 export function getGuestLoginOptions(
-  options?: UseMutationOptions
+  options?: UseMutationOptions,
 ): UseMutationOptions {
   return {
     mutationFn: () => api.post<GuestLoginResponse>("/auth/guestLogin"),

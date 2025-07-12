@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Cookies from "universal-cookie";
 import axios from "axios";
+import { Env } from "@/shared/constants/env";
 
 const useTokenVerification = () => {
   const cookies = new Cookies();
@@ -10,14 +11,11 @@ const useTokenVerification = () => {
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/account`,
-          {
-            headers: {
-              Authorization: token,
-            },
+        const response = await axios.get(`${Env.VITE_API_URL}/account`, {
+          headers: {
+            Authorization: token,
           },
-        );
+        });
         if (response.status === 200) {
           setIsAuth(true);
         }

@@ -8,6 +8,7 @@ import { FaCalendarAlt, FaClock } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import useNotification from "../shared/hooks/use-notification";
 import { APP_ROUTES } from "@/shared/constants/app-routes";
+import { Env } from "@/shared/constants/env";
 
 const resultMessages = {
   win: <div className="text-color-information-500 w-full">Victory</div>,
@@ -45,13 +46,13 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
   const fetchGameHistory = async () => {
     try {
       const response = await fetch(
-        `${
-          import.meta.env.VITE_API_URL
-        }/users/${username}/games?page=${page}&limit=${10}`
+        `${Env.VITE_API_URL}/users/${username}/games?page=${page}&limit=${10}`,
       );
       if (!response.ok) {
         showError(
-          response.status === 429 ? "Too many requests" : "Something went wrong"
+          response.status === 429
+            ? "Too many requests"
+            : "Something went wrong",
         );
         console.error("Failed to fetch game history", response);
         setGameHistory(gameHistory);
@@ -63,7 +64,7 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
       const games = data.games;
 
       setGameHistory((prevGames: any[]) =>
-        page > 1 ? [...prevGames, ...games] : games
+        page > 1 ? [...prevGames, ...games] : games,
       );
     } catch (error) {
       console.error("Error fetching game history:", error);
@@ -91,7 +92,7 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
       });
       if (node) observer.current.observe(node);
     },
-    [hasMore]
+    [hasMore],
   );
 
   return (

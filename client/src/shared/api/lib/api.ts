@@ -6,15 +6,15 @@ import { AUTH_COOKIE } from "@/shared/constants/cookies";
 export const api = new axios.Axios({
   baseURL: Env.VITE_API_URL,
   withCredentials: true,
-})
+});
 
 api.interceptors.request.use((config) => {
-  const cookieStore = new Cookies()
-  const token = cookieStore.get(AUTH_COOKIE)
+  const cookieStore = new Cookies();
+  const token = cookieStore.get(AUTH_COOKIE);
 
   if (token) {
-    config.headers.set("authorization", `Bearer ${token}`)
+    config.headers.set("authorization", `Bearer ${token}`);
   }
 
-  return config
-})
+  return config;
+});

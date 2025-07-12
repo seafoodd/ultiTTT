@@ -1,3 +1,3 @@
 export interface GuestLoginResponse {
-  token: string
+  token: string;
 }

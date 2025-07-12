@@ -49,7 +49,7 @@ export class EmailService {
 
       this.logger.log(`Email sent: ${response.data.messageId || 'success'}`);
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
         this.logger.error('Error sending email:', error.message);
       }

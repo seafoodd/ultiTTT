@@ -32,7 +32,7 @@ const getFriendButton = (
   outgoingRequests: { username: string; id: string }[],
   incomingRequests: { username: string; id: string }[],
   friendsLoading: boolean,
-  sendFriendRequest: Function
+  sendFriendRequest: Function,
 ) => {
   let disabled = false;
   let text = "Add friend";
@@ -108,7 +108,7 @@ const Profile = () => {
     fetchUserData(username!, token, setUserData, setError, setLoading).catch(
       (err) => {
         console.log(err);
-      }
+      },
     );
 
     socket.emit("isUserOnline", username, (online: boolean) => {
@@ -247,7 +247,7 @@ const Profile = () => {
                         outgoingRequests,
                         incomingRequests,
                         friendsLoading,
-                        sendFriendRequest
+                        sendFriendRequest,
                       )
                     ) : (
                       <LoadingCircle />
@@ -274,7 +274,7 @@ const Profile = () => {
                     {userData!.perfs[gameType].allR} games
                   </div>
                 </div>
-              )
+              ),
             )}
           </div>
         </div>
