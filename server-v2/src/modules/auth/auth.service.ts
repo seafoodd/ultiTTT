@@ -15,15 +15,6 @@ import { EmailService } from '@/modules/email/email.service';
 import { ResendVerificationEmailDto } from '@/modules/auth/dto/resend-verification-email.dto';
 import { EnvConfig } from '@/core/config/env.config';
 
-// import {
-//   preventAccountFlooding,
-//   preventBruteforce,
-// } from '../helpers/rate-limiting.helpers';
-// import {
-//   disposableDomainsSet,
-//   sendVerificationEmail,
-// } from '../helpers/email.helpers';
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -46,13 +37,6 @@ export class AuthService {
     // if (disposableDomainsSet.has(domain)) {
     //   throw new BadRequestException('Invalid email domain');
     // }
-
-    // rate-limit
-    // const floodRetry = await preventAccountFlooding();
-    // if (floodRetry)
-    //   throw new ForbiddenException(
-    //     `Too many requests, retry after ${floodRetry}`,
-    //   );
 
     // unique checks
     if (await this.prisma.user.findUnique({ where: { email } })) {

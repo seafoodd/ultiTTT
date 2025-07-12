@@ -43,11 +43,11 @@ const LogIn = () => {
       })
       .catch((err) => {
         if (err.response?.status === 429) {
-          const retryAfter = err.response.data.retryAfter;
+          const retryAfter = err.response.headers['retry-after'];
           setRateLimitTimeLeft(retryAfter);
         } else {
           setError(
-            err.response?.data?.message ||
+            err.response.data.message ||
               "An error occurred. Please try again",
           );
         }

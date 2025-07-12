@@ -42,7 +42,7 @@ const LogIn = () => {
           path: "/",
           sameSite: "lax",
           secure: true,
-          maxAge: rememberMe ? 365 * 24 * 60 * 60 : undefined,
+          maxAge: (rememberMe ? 365 : 7) * 24 * 60 * 60,
         });
         setIsAuth(true);
         navigate("/");
@@ -50,11 +50,11 @@ const LogIn = () => {
       })
       .catch((err) => {
         if (err.response?.status === 429) {
-          const retryAfter = err.response.data.retryAfter;
+          const retryAfter = err.response.headers['retry-after'];
           setRateLimitTimeLeft(retryAfter);
         } else {
           setError(
-            err.response?.data?.error || "An error occurred. Please try again",
+            err.response.data.message || "An error occurred. Please try again",
           );
         }
         setLoading(false);
