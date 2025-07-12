@@ -20,41 +20,33 @@ export class EmailService {
 
     this.baseUrl = this.envConfig.isDevelopment
       ? 'http://localhost:5173'
-      : 'https://ultittt.org';
+      : envConfig.getEnvVarOrThrow('DOMAIN_URL');
   }
 
   async sendVerificationEmail(
     username: string,
     email: string,
     token: string,
-  ): Promise<boolean> {
+  ): Promise<void> {
     const emailHtml = this.getStylizedEmailMessage(username, token);
 
-    try {
-      const response = await axios.post<BrevoEmailResponse>(
-        'https://api.brevo.com/v3/smtp/email',
-        {
-          sender: { email: this.senderEmail, name: 'ultiTTT' },
-          to: [{ email, name: username }],
-          subject: 'Confirm your ultiTTT account',
-          htmlContent: emailHtml,
+    const response = await axios.post<BrevoEmailResponse>(
+      'https://api.brevo.com/v3/smtp/email',
+      {
+        sender: { email: this.senderEmail, name: 'ultiTTT' },
+        to: [{ email, name: username }],
+        subject: 'Confirm your ultiTTT account',
+        htmlContent: emailHtml,
+      },
+      {
+        headers: {
+          'api-key': this.apiKey,
+          'Content-Type': 'application/json',
         },
-        {
-          headers: {
-            'api-key': this.apiKey,
-            'Content-Type': 'application/json',
-          },
-        },
-      );
+      },
+    );
 
-      this.logger.log(`Email sent: ${response.data.messageId || 'success'}`);
-      return true;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.logger.error('Error sending email:', error.message);
-      }
-      return false;
-    }
+    this.logger.log(`Email sent: ${response.data.messageId || 'success'}`);
   }
 
   private getStylizedEmailMessage(username: string, token: string): string {

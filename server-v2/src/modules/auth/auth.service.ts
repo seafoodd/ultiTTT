@@ -3,15 +3,17 @@ import {
   ConflictException,
   ForbiddenException,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { nanoid } from 'nanoid';
 import { RegisterDto } from '@/modules/auth/dto/register.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
 import { EmailService } from '@/modules/email/email.service';
+import { ResendVerificationEmailDto } from '@/modules/auth/dto/resend-verification-email.dto';
+import { EnvConfig } from '@/core/config/env.config';
 
 // import {
 //   preventAccountFlooding,
@@ -26,16 +28,14 @@ import { EmailService } from '@/modules/email/email.service';
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private config: ConfigService,
+    private envConfig: EnvConfig,
     private emailService: EmailService,
   ) {}
 
-  private get jwtSecret() {
-    const secret = this.config.get<string>('ACCESS_TOKEN_SECRET');
-    if (!secret) {
-      throw new Error('JWT secret is not defined in configuration');
-    }
-    return secret;
+  private readonly logger = new Logger(AuthService.name);
+
+  private get jwtSecret(): string {
+    return this.envConfig.getEnvVarOrThrow('ACCESS_TOKEN_SECRET');
   }
 
   async register(dto: RegisterDto) {
@@ -89,7 +89,11 @@ export class AuthService {
       { expiresIn: '24h' },
     );
 
-    await this.emailService.sendVerificationEmail(username, email, token);
+    try {
+      await this.emailService.sendVerificationEmail(username, email, token);
+    } catch (e) {
+      this.logger.error('Failed to send verification email', e);
+    }
   }
 
   async login(dto: LoginDto): Promise<string> {
@@ -118,6 +122,34 @@ export class AuthService {
       this.jwtSecret,
       rememberMe ? undefined : { expiresIn: '7d' },
     );
+  }
+
+  async resendVerificationEmail(dto: ResendVerificationEmailDto) {
+    const { email } = dto;
+    const user = await this.prisma.user.findFirst({
+      where: { email },
+    });
+
+    if (!user) {
+      // silent fail to avoid enumeration
+      return;
+    }
+
+    const { username } = user;
+
+    const token = jwt.sign({ username, role: 'user' }, this.jwtSecret, {
+      expiresIn: '7d',
+    });
+
+    try {
+      await this.emailService.sendVerificationEmail(
+        user.username,
+        email,
+        token,
+      );
+    } catch (e) {
+      this.logger.error('Failed to send verification email', e);
+    }
   }
 
   guestLogin(): string {

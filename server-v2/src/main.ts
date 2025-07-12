@@ -2,8 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { AxiosExceptionFilter } from '@/core/filters/axios-exception.filter';
 import { EnvConfig } from '@/core/config/env.config';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -19,7 +19,15 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.useGlobalFilters(app.get(AxiosExceptionFilter));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  const PORT = envConfig.getEnvVar('PORT') || 5000;
 
   const config = new DocumentBuilder()
     .setTitle('ultiTTT API')
@@ -31,11 +39,28 @@ async function bootstrap() {
     )
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config, {
+    extraModels: [],
+    operationIdFactory: (controllerKey, methodKey) => methodKey,
+  });
 
-  SwaggerModule.setup('', app, document);
+  document.tags = [
+    { name: 'Auth', description: 'Authentication related endpoints' },
+  ];
 
-  const PORT = envConfig.getEnvVar('PORT') || 5000;
+  SwaggerModule.setup('', app, document, {
+    jsonDocumentUrl: 'api-json',
+  });
+
+  document.servers = [
+    {
+      url: envConfig.isDevelopment
+        ? 'http://localhost:5001'
+        : `${envConfig.getEnvVarOrThrow('DOMAIN_URL')}}/api`,
+      description: 'ultiTTT server',
+    },
+  ];
+
   await app.listen(PORT);
   console.log('The server is running on port', PORT);
 }

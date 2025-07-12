@@ -3,70 +3,49 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
-  HttpStatus,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
-
-interface ErrorWithResponse {
-  response: {
-    message?: string;
-    status?: number;
-    data?: {
-      detail?: string;
-    };
-  };
+import { Response } from 'express';
+import { AxiosError } from 'axios';
+interface HttpExceptionResponse {
+  statusCode: number;
+  message: string | string[];
+  error?: string;
 }
 
-function isErrorWithResponse(error: unknown): error is ErrorWithResponse {
-  if (typeof error === 'object' && error !== null && 'response' in error) {
-    const maybeResponse = (error as Record<string, unknown>).response;
-
-    return typeof maybeResponse === 'object' && maybeResponse !== null;
-  }
-
-  return false;
-}
-
-@Catch()
+@Catch(AxiosError)
 export class AxiosExceptionFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
 
-    if (isErrorWithResponse(exception)) {
-      const message =
-        exception.response.data?.detail ??
-        exception.response.message ??
-        'Internal Server Error';
-      const status =
-        exception.response.status ?? HttpStatus.INTERNAL_SERVER_ERROR;
+    const status = exception.getStatus();
+    const exceptionResponse = exception.getResponse();
 
-      response.status(status).json({
-        statusCode: status,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-        message,
-      });
+    let message = 'Internal Server Error';
 
-      return;
+    if (typeof exceptionResponse === 'string') {
+      message = exceptionResponse;
+    } else if (this.isHttpExceptionResponse(exceptionResponse)) {
+      message = Array.isArray(exceptionResponse.message)
+        ? exceptionResponse.message.join(', ')
+        : exceptionResponse.message;
     }
-
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    const message =
-      exception instanceof HttpException
-        ? exception.getResponse()
-        : 'Internal Server Error';
 
     response.status(status).json({
       statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
       message,
     });
+  }
+
+  private isHttpExceptionResponse(
+    response: unknown,
+  ): response is HttpExceptionResponse {
+    return (
+      typeof response === 'object' &&
+      response !== null &&
+      'message' in response &&
+      (typeof (response as Record<string, unknown>).message === 'string' ||
+        Array.isArray((response as Record<string, unknown>).message))
+    );
   }
 }
