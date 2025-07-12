@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
-import { EnvConfig } from '@/common/config/env.config';
+import { EnvConfig } from '@/core/config/env.config';
 
 interface BrevoEmailResponse {
   messageId: string;

@@ -17,6 +17,10 @@ export class EnvConfig {
     return this.env === 'production';
   }
 
+  getEnvVar<T = string>(key: string): T | undefined {
+    return this.config.get<T>(key);
+  }
+
   getEnvVarOrThrow(key: string): string {
     const value = this.config.get<string>(key);
     if (!value) throw new Error(`Environment variable "${key}" is not set`);
