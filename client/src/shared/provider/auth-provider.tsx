@@ -36,10 +36,10 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
       if (!token) {
         try {
           const response = await axios.post(
-            `${Env.VITE_API_URL}/auth/guestLogin`,
+            `${Env.VITE_API_V2_URL}/auth/guest-login`,
           );
-          console.log(response);
-          if (response.status === 200) {
+          console.log("AAAAAAAA", response);
+          if (response.status === 201) {
             token = response.data.token;
             cookies.set("token", token, {
               path: "/",

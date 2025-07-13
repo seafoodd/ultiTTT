@@ -30,8 +30,8 @@ const footerNavigation = [
 const Footer = () => {
   return (
     <footer className="flex w-full h-12 justify-center items-center gap-x-6 gap-y-1 text-color-neutral-300 flex-wrap px-12">
-      {footerNavigation.map((item) => (
-        <Link {...item} />
+      {footerNavigation.map((item, index) => (
+        <Link key={index} {...item} />
       ))}
     </footer>
   );

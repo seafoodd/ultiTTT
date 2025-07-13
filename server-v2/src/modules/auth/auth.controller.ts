@@ -1,19 +1,18 @@
-import {
-  Controller,
-  Post,
-  Body,
-  NotImplementedException,
-} from '@nestjs/common';
+import { Controller, Post, Body, Headers } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from '@/modules/auth/dto/register.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
 import { ResendVerificationEmailDto } from '@/modules/auth/dto/resend-verification-email.dto';
+import { seconds, Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Throttle({
+    default: { limit: 10, ttl: seconds(60) },
+  })
   @Post('register')
   @ApiOperation({
     summary: 'Register a new account',
@@ -34,12 +33,12 @@ export class AuthController {
       'Authenticates user by email or username and password, returns a JWT token for authorization.',
   })
   async login(@Body() dto: LoginDto) {
-    const token = await this.authService.login(dto);
-    return {
-      token: token,
-    };
+    return this.authService.login(dto);
   }
 
+  @Throttle({
+    default: { limit: 1, ttl: seconds(60) },
+  })
   @Post('resend-verification-email')
   @ApiOperation({
     summary: 'Resend verification email',
@@ -57,8 +56,8 @@ export class AuthController {
     description:
       'Verifies the user’s email by processing the token sent to their inbox to activate the account.',
   })
-  confirmEmail(@Body() body: any) {
-    throw new NotImplementedException();
+  async confirmEmail(@Headers('authorization') authHeader: string) {
+    return this.authService.confirmEmail(authHeader);
   }
 
   @Post('guest-login')
@@ -68,6 +67,6 @@ export class AuthController {
       'Provides a guest access token without requiring registration for temporary usage.',
   })
   guestLogin() {
-    this.authService.guestLogin();
+    return this.authService.guestLogin();
   }
 }

@@ -16,6 +16,7 @@ import { EmailService } from '@/modules/email/email.service';
 import { ResendVerificationEmailDto } from '@/modules/auth/dto/resend-verification-email.dto';
 import { EnvConfig } from '@/core/config/env.config';
 import { DisposableEmailService } from '@/core/disposable-email/disposable-email.service';
+import { isEmailTokenPayload } from './auth.types';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,10 @@ export class AuthService {
   async register(dto: RegisterDto) {
     const { email, username, password } = dto;
 
-    if (this.disposableEmailService.isDisposable(email)) {
+    if (
+      this.envConfig.isProduction &&
+      this.disposableEmailService.isDisposable(email)
+    ) {
       throw new BadRequestException('Invalid email domain');
     }
 
@@ -80,15 +84,8 @@ export class AuthService {
     }
   }
 
-  async login(dto: LoginDto): Promise<string> {
+  async login(dto: LoginDto): Promise<{ token: string }> {
     const { identifier, password, rememberMe } = dto;
-
-    // rate-limit
-    // const bruteRetry = await preventBruteforce(/* you can pass IP here */);
-    // if (bruteRetry)
-    //   throw new ForbiddenException(
-    //     `Too many requests, retry after ${bruteRetry}`,
-    //   );
 
     const user = await this.prisma.user.findFirst({
       where: { OR: [{ email: identifier }, { username: identifier }] },
@@ -101,11 +98,13 @@ export class AuthService {
     if (!isValid)
       throw new UnauthorizedException('Invalid username or password');
 
-    return jwt.sign(
+    const token = jwt.sign(
       { identifier, role: 'user' },
       this.jwtSecret,
       rememberMe ? undefined : { expiresIn: '7d' },
     );
+
+    return { token };
   }
 
   async resendVerificationEmail(dto: ResendVerificationEmailDto) {
@@ -114,7 +113,7 @@ export class AuthService {
       where: { email },
     });
 
-    if (!user) {
+    if (!user || user.verified) {
       // silent fail to avoid enumeration
       return;
     }
@@ -136,27 +135,29 @@ export class AuthService {
     }
   }
 
-  guestLogin(): string {
+  guestLogin(): { token: string } {
     const id = nanoid();
-    return jwt.sign({ identifier: id, role: 'guest' }, this.jwtSecret, {
+    const token = jwt.sign({ identifier: id, role: 'guest' }, this.jwtSecret, {
       expiresIn: '24h',
     });
+    return { token };
   }
 
   async confirmEmail(
-    header: string,
+    authHeader: string,
   ): Promise<{ message: string; token: string }> {
-    const token = header.replace(/^Bearer\s+/, '');
-    let payload: any;
+    const token = authHeader.replace(/^Bearer\s+/, '');
+    let payload: unknown;
     try {
       payload = jwt.verify(token, this.jwtSecret);
-    } catch (e: any) {
-      if (e.name === 'TokenExpiredError')
+    } catch (e: unknown) {
+      if (e instanceof jwt.TokenExpiredError) {
         throw new UnauthorizedException('Confirmation link expired');
+      }
       throw new UnauthorizedException('Invalid confirmation link');
     }
-    if (payload.t !== 'verify-email') {
-      throw new UnauthorizedException('Invalid confirmation token');
+    if (!isEmailTokenPayload(payload)) {
+      throw new UnauthorizedException('Invalid confirmation link');
     }
 
     const dbUser = await this.prisma.user.findFirst({

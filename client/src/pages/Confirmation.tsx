@@ -24,7 +24,7 @@ const Confirmation = () => {
     if (!token) return;
 
     Axios.post(
-      `${Env.VITE_API_URL}/auth/confirm-email`,
+      `${Env.VITE_API_V2_URL}/auth/confirm-email`,
       {},
       {
         headers: {
@@ -44,7 +44,7 @@ const Confirmation = () => {
         navigate("/");
       })
       .catch((e) => {
-        showError(e.response.data.error);
+        showError(e.response.data.message);
         navigate("/");
       });
   }, [token]);

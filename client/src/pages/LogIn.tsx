@@ -52,6 +52,7 @@ const LogIn = () => {
         if (err.response?.status === 429) {
           const retryAfter = err.response.headers['retry-after'];
           setRateLimitTimeLeft(retryAfter);
+          setError('Too many login attempts');
         } else {
           setError(
             err.response.data.message || "An error occurred. Please try again",

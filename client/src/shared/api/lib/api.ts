@@ -4,7 +4,7 @@ import Cookies from "universal-cookie";
 import { AUTH_COOKIE } from "@/shared/constants/cookies";
 
 export const api = new axios.Axios({
-  baseURL: Env.VITE_API_URL,
+  baseURL: Env.VITE_API_V2_URL,
   withCredentials: true,
 });
 

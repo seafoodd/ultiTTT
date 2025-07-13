@@ -17,6 +17,7 @@ import { APP_GUARD } from '@nestjs/core';
           limit: 10,
         },
       ],
+      errorMessage: 'Too many requests',
     }),
     CoreModule,
     AuthModule,

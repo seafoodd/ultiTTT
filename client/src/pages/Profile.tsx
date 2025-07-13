@@ -25,6 +25,19 @@ import { useAuth } from "@/shared/provider/auth-provider";
 import { useClientSeo } from "@/shared/hooks/use-client-seo";
 import { APP_ROUTES } from "@/shared/constants/app-routes";
 
+const getBestRating = (perfs: UserData["perfs"]) => {
+  const ratings = [
+    { type: "blitz", ...perfs.blitz },
+    { type: "bullet", ...perfs.bullet },
+    { type: "rapid", ...perfs.rapid },
+    { type: "standard", ...perfs.standard },
+  ];
+
+  return ratings.reduce((best, current) =>
+    current.elo > best.elo ? current : best,
+  );
+};
+
 const getFriendButton = (
   friends: string[],
   username: string,
@@ -77,10 +90,6 @@ const getFriendButton = (
 const Profile = () => {
   const { username } = useParams<string>();
 
-  useClientSeo({
-    title: `${username}'s profile - ultiTTT`,
-  });
-
   const {
     friends,
     incomingRequests,
@@ -116,6 +125,21 @@ const Profile = () => {
       setIsOnline(online);
     });
   }, [username, socket]);
+
+  const bestRating = userData ? getBestRating(userData.perfs) : null;
+
+  const title = bestRating
+    ? `${username} (${Math.round(bestRating.elo)})`
+    : undefined;
+
+  const description = bestRating
+    ? `${username}'s ${bestRating.type} rating is ${Math.round(bestRating.elo)} with ${bestRating.allR} rated games`
+    : `${username}'s profile`;
+
+  useClientSeo({
+    description,
+    ...(title && { title }),
+  });
 
   if (loading) {
     return <LoadingCircle />;

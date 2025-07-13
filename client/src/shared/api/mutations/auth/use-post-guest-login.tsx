@@ -12,7 +12,7 @@ export function getGuestLoginOptions(
   options?: UseMutationOptions,
 ): UseMutationOptions {
   return {
-    mutationFn: () => api.post<GuestLoginResponse>("/auth/guestLogin"),
+    mutationFn: () => api.post<GuestLoginResponse>("/auth/guest-login"),
     ...options,
   };
 }

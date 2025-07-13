@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { EnvConfig } from '@/core/config/env.config';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -25,6 +25,20 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      exceptionFactory: (validationErrors = []) => {
+        const firstMessage =
+          validationErrors
+            .map((err) =>
+              err.constraints ? Object.values(err.constraints)[0] : null,
+            )
+            .filter((msg) => msg)[0] || 'Validation failed';
+
+        return new BadRequestException({
+          statusCode: 400,
+          error: 'Bad Request',
+          message: firstMessage,
+        });
+      },
     }),
   );
 
