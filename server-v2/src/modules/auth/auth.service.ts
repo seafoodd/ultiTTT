@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { nanoid } from 'nanoid';
 import { RegisterDto } from '@/modules/auth/dto/register.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
@@ -24,14 +24,11 @@ export class AuthService {
     private prisma: PrismaService,
     private envConfig: EnvConfig,
     private emailService: EmailService,
+    private jwtService: JwtService,
     private readonly disposableEmailService: DisposableEmailService,
   ) {}
 
   private readonly logger = new Logger(AuthService.name);
-
-  private get jwtSecret(): string {
-    return this.envConfig.getEnvVarOrThrow('ACCESS_TOKEN_SECRET');
-  }
 
   async register(dto: RegisterDto) {
     const { email, username, password } = dto;
@@ -71,9 +68,8 @@ export class AuthService {
       },
     });
 
-    const token = jwt.sign(
+    const token = this.jwtService.sign(
       { identifier: username, t: 'verify-email' },
-      this.jwtSecret,
       { expiresIn: '24h' },
     );
 
@@ -98,9 +94,8 @@ export class AuthService {
     if (!isValid)
       throw new UnauthorizedException('Invalid username or password');
 
-    const token = jwt.sign(
+    const token = this.jwtService.sign(
       { identifier, role: 'user' },
-      this.jwtSecret,
       rememberMe ? undefined : { expiresIn: '7d' },
     );
 
@@ -120,9 +115,12 @@ export class AuthService {
 
     const { username } = user;
 
-    const token = jwt.sign({ username, role: 'user' }, this.jwtSecret, {
-      expiresIn: '7d',
-    });
+    const token = this.jwtService.sign(
+      { username, role: 'user' },
+      {
+        expiresIn: '7d',
+      },
+    );
 
     try {
       await this.emailService.sendVerificationEmail(
@@ -137,9 +135,12 @@ export class AuthService {
 
   guestLogin(): { token: string } {
     const id = nanoid();
-    const token = jwt.sign({ identifier: id, role: 'guest' }, this.jwtSecret, {
-      expiresIn: '24h',
-    });
+    const token = this.jwtService.sign(
+      { identifier: id, role: 'guest' },
+      {
+        expiresIn: '24h',
+      },
+    );
     return { token };
   }
 
@@ -149,9 +150,9 @@ export class AuthService {
     const token = authHeader.replace(/^Bearer\s+/, '');
     let payload: unknown;
     try {
-      payload = jwt.verify(token, this.jwtSecret);
+      payload = this.jwtService.verify(token);
     } catch (e: unknown) {
-      if (e instanceof jwt.TokenExpiredError) {
+      if (e instanceof TokenExpiredError) {
         throw new UnauthorizedException('Confirmation link expired');
       }
       throw new UnauthorizedException('Invalid confirmation link');
@@ -173,9 +174,8 @@ export class AuthService {
       data: { verified: true },
     });
 
-    const authToken = jwt.sign(
+    const authToken = this.jwtService.sign(
       { identifier: payload.identifier, role: 'user' },
-      this.jwtSecret,
       { expiresIn: '7d' },
     );
     return { message: 'Email successfully verified', token: authToken };
