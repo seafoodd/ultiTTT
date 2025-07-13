@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { EnvConfig } from '@/core/config/env.config';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { capitalize } from '@/common/utils/string.utils';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -36,7 +37,7 @@ async function bootstrap() {
         return new BadRequestException({
           statusCode: 400,
           error: 'Bad Request',
-          message: firstMessage,
+          message: capitalize(firstMessage),
         });
       },
     }),

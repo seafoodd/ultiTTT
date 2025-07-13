@@ -40,7 +40,7 @@ export class AuthService {
       this.envConfig.isProduction &&
       this.disposableEmailService.isDisposable(email)
     ) {
-      throw new BadRequestException('Invalid email domain');
+      throw new BadRequestException('Invalid email');
     }
 
     if (await this.prisma.user.findUnique({ where: { email } })) {
@@ -114,7 +114,7 @@ export class AuthService {
     });
 
     if (!user || user.verified) {
-      // silent fail to avoid enumeration
+      // silent return to avoid enumeration
       return;
     }
 

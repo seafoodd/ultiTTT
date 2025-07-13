@@ -3,7 +3,7 @@ import { IsEmail, IsString, Length, Matches } from 'class-validator';
 
 export class RegisterDto {
   @ApiProperty({ example: 'user@example.com' })
-  @IsEmail()
+  @IsEmail(undefined, { message: 'Invalid email' })
   email: string;
 
   @ApiProperty({ example: 'username123' })
