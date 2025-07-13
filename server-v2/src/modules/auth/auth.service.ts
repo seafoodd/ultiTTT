@@ -96,7 +96,7 @@ export class AuthService {
 
     const token = this.jwtService.sign(
       { identifier, role: 'user' },
-      rememberMe ? undefined : { expiresIn: '7d' },
+      rememberMe ? { expiresIn: '30d' } : undefined,
     );
 
     return { token };
@@ -116,10 +116,8 @@ export class AuthService {
     const { username } = user;
 
     const token = this.jwtService.sign(
-      { username, role: 'user' },
-      {
-        expiresIn: '7d',
-      },
+      { identifier: username, t: 'verify-email' },
+      { expiresIn: '24h' },
     );
 
     try {
@@ -174,10 +172,10 @@ export class AuthService {
       data: { verified: true },
     });
 
-    const authToken = this.jwtService.sign(
-      { identifier: payload.identifier, role: 'user' },
-      { expiresIn: '7d' },
-    );
+    const authToken = this.jwtService.sign({
+      identifier: payload.identifier,
+      role: 'user',
+    });
     return { message: 'Email successfully verified', token: authToken };
   }
 }
