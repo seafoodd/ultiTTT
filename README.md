@@ -160,6 +160,8 @@ On each push to `main`, we:
 4. Open a Pull Request against `dev`
 5. Ensure all GitHub Actions pass
 
+---
+
 ## Credits
 
 [![GitHub contributors](https://contrib.rocks/image?repo=seafoodd/ultiTTT)](https://github.com/seafoodd/ultittt/graphs/contributors)
