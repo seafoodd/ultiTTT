@@ -162,6 +162,5 @@ On each push to `main`, we:
 
 ---
 
-## Credits
-
-[![GitHub contributors](https://contrib.rocks/image?repo=seafoodd/ultiTTT)](https://github.com/seafoodd/ultittt/graphs/contributors)
+## Repo Activity
+![Alt](https://repobeats.axiom.co/api/embed/7e5ed4af6e1b3000f64f462a80011d895990bd8a.svg "Repobeats analytics image")
