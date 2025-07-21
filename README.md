@@ -97,7 +97,7 @@ npm run dev
 
 #### Backend
 
-old api:
+legacy api:
 
 ```bash
 cd server
