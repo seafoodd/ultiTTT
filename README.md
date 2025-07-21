@@ -35,13 +35,13 @@
 | ------------ | ------------------------------- |
 | **Frontend** | Next.js, React, Tailwind CSS    |
 | **Realtime** | socket.io (WebSockets)          |
-| **Backend**  | NestJS (modular, feature‑based) |
+| **Backend**  | NestJS (modular, feature‑based),|
 |              | Express.js (legacy API)         |
 | **Cache**    | Redis                           |
 | **Database** | MongoDB                         |
-| **DevOps**   | Docker, docker‑compose          |
+| **DevOps**   | Docker, docker‑compose, nginx   |
 | **CI/CD**    | GitHub Actions                  |
-| **Hosting**  | AWS (ECS, RDS, S3, etc.)        |
+| **Hosting**  | Digital Ocean Droplet           |
 
 #### ✅ Note: The new NestJS-based API (in server-v2/) is actively in development. The legacy Express API (server/) remains functional until the migration is complete.
 
