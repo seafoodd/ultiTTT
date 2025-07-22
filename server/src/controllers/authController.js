@@ -6,7 +6,10 @@ import {
   preventBruteforce,
 } from "../utils/rateLimitingUtils.js";
 import { nanoid } from "nanoid";
-import {disposableDomainsSet, sendVerificationEmail} from "../utils/emailUtils.js";
+import {
+  disposableDomainsSet,
+  sendVerificationEmail,
+} from "../utils/emailUtils.js";
 
 /**
  * Register a new user.
@@ -21,9 +24,13 @@ export const register = async (req, res) => {
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const domain = email.split('@')[1].toLowerCase().trim()
+  const domain = email.split("@")[1].toLowerCase().trim();
 
-  if (!emailRegex.test(email) || email.length > 254 || disposableDomainsSet.has(domain)) {
+  if (
+    !emailRegex.test(email) ||
+    email.length > 254 ||
+    disposableDomainsSet.has(domain)
+  ) {
     return res.status(400).json({ error: "Invalid email" });
   }
 
@@ -238,24 +245,4 @@ export const confirmEmail = async (req, res) => {
     console.error(e);
     res.status(500).json({ error: "Something went wrong" });
   }
-};
-
-/**
- * Verify a token.
- * There's a middleware before this function, that's why it
- * doesn't check anything here.
- * @param {Object} req - The request object containing user data.
- * @param {Object} res - The response object used to send back the HTTP response.
- */
-export const verifyToken = (req, res) => {
-  const user = req.user;
-  res.status(200).json({
-    message: "Token is valid",
-    user: {
-      username: user.username,
-      identifier: user.identifier,
-      role: user.role,
-    },
-  });
-  return req.user.identifier;
 };

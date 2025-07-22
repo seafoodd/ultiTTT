@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  username               String          @id @map("_id")
+  displayName            String
+  email                  String          @unique
+  password               String
+  supporter              Boolean         @default(false)
+  profile                ProfileDetails?
+  socials                Socials?
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+  perfs                  Performance?
+  friendships1           Friend[]        @relation("User1Friends")
+  friendships2           Friend[]        @relation("User2Friends")
+  sentFriendRequests     FriendRequest[] @relation("SentFriendRequests")
+  receivedFriendRequests FriendRequest[] @relation("ReceivedFriendRequests")
+  games                  GamePlayer[]
+  suspended              Boolean         @default(false)
+  disabled               Boolean         @default(false)
+  lastOnline             DateTime        @default(now())
+  verified               Boolean         @default(false)
+}
+
+model ProfileDetails {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String  @unique
+  location String?
+  bio      String?
+  user     User    @relation(fields: [userId], references: [username], onDelete: Cascade)
+}
+
+model Socials {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId  String  @unique
+  youtube String?
+  twitch  String?
+  reddit  String?
+  discord String?
+  twitter String?
+  user    User    @relation(fields: [userId], references: [username], onDelete: Cascade)
+}
+
+model Performance {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [username], onDelete: Cascade)
+
+  bullet   BulletPerf?
+  blitz    BlitzPerf?
+  rapid    RapidPerf?
+  standard StandardPerf?
+}
+
+model BulletPerf {
+  id       String      @id @default(auto()) @map("_id") @db.ObjectId
+  perfId   String      @unique @db.ObjectId
+  elo      Float       @default(1000)
+  rd       Float       @default(200)
+  vol      Float       @default(0.06)
+  wins     Int         @default(0)
+  winsR    Int         @default(0)
+  losses   Int         @default(0)
+  lossesR  Int         @default(0)
+  draws    Int         @default(0)
+  drawsR   Int         @default(0)
+  playtime Int         @default(0)
+  perf     Performance @relation(fields: [perfId], references: [id], onDelete: Cascade)
+}
+
+model BlitzPerf {
+  id       String      @id @default(auto()) @map("_id") @db.ObjectId
+  perfId   String      @unique @db.ObjectId
+  elo      Float       @default(1000)
+  rd       Float       @default(200)
+  vol      Float       @default(0.06)
+  wins     Int         @default(0)
+  winsR    Int         @default(0)
+  losses   Int         @default(0)
+  lossesR  Int         @default(0)
+  draws    Int         @default(0)
+  drawsR   Int         @default(0)
+  playtime Int         @default(0)
+  perf     Performance @relation(fields: [perfId], references: [id], onDelete: Cascade)
+}
+
+model RapidPerf {
+  id       String      @id @default(auto()) @map("_id") @db.ObjectId
+  perfId   String      @unique @db.ObjectId
+  elo      Float       @default(1000)
+  rd       Float       @default(200)
+  vol      Float       @default(0.06)
+  wins     Int         @default(0)
+  winsR    Int         @default(0)
+  losses   Int         @default(0)
+  lossesR  Int         @default(0)
+  draws    Int         @default(0)
+  drawsR   Int         @default(0)
+  playtime Int         @default(0)
+  perf     Performance @relation(fields: [perfId], references: [id], onDelete: Cascade)
+}
+
+model StandardPerf {
+  id       String      @id @default(auto()) @map("_id") @db.ObjectId
+  perfId   String      @unique @db.ObjectId
+  elo      Float       @default(1000)
+  rd       Float       @default(200)
+  vol      Float       @default(0.06)
+  wins     Int         @default(0)
+  winsR    Int         @default(0)
+  losses   Int         @default(0)
+  lossesR  Int         @default(0)
+  draws    Int         @default(0)
+  drawsR   Int         @default(0)
+  playtime Int         @default(0)
+  perf     Performance @relation(fields: [perfId], references: [id], onDelete: Cascade)
+}
+
+model Friend {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  user1         User     @relation("User1Friends", fields: [user1Username], references: [username], onDelete: Cascade)
+  user1Username String
+  user2         User     @relation("User2Friends", fields: [user2Username], references: [username], onDelete: Cascade)
+  user2Username String
+  createdAt     DateTime @default(now())
+
+  @@unique([user1Username, user2Username])
+}
+
+model FriendRequest {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  from         User     @relation("SentFriendRequests", fields: [fromUsername], references: [username], onDelete: Cascade)
+  fromUsername String
+  to           User     @relation("ReceivedFriendRequests", fields: [toUsername], references: [username], onDelete: Cascade)
+  toUsername   String
+  createdAt    DateTime @default(now())
+}
+
+model Game {
+  id          String       @id @map("_id")
+  board       Json
+  winner      String?
+  moveHistory Json
+  createdAt   DateTime     @default(now())
+  players     GamePlayer[]
+  gameType    GameType
+  isRated     Boolean      @default(true)
+  duration    Int
+  status      String       @default("finished")
+}
+
+enum GameType {
+  blitz
+  rapid
+  bullet
+  standard
+}
+
+model GamePlayer {
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  gameId          String @unique
+  userId          String @unique
+  symbol          String
+  playerElo       Int
+  playerEloChange Int
+  game            Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user            User   @relation(fields: [userId], references: [username], onDelete: Cascade)
+
+  @@unique([gameId, userId])
+}

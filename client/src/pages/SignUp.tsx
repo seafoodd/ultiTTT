@@ -2,9 +2,16 @@ import React, { useState } from "react";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoadingCircle from "../components/LoadingCircle";
-import useRateLimit from "../hooks/useRateLimit";
+import useRateLimit from "../shared/hooks/use-rate-limit";
+import { useClientSeo } from "@/shared/hooks/use-client-seo";
+import { Env } from "@/shared/constants/env";
+import { cn } from "@/shared/lib/client/cn";
 
 const LogIn = () => {
+  useClientSeo({
+    title: "Sign up - ultiTTT",
+  });
+
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -27,24 +34,48 @@ const LogIn = () => {
       return;
     }
     setLoading(true);
-    Axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
+    Axios.post(`${Env.VITE_API_V2_URL}/auth/register`, {
       email,
       username,
       password,
     })
       .then(() => {
         setEmailConfirmationWindow(true);
+        setRateLimitTimeLeft(60);
       })
       .catch((err) => {
         if (err.response?.status === 429) {
-          const retryAfter = err.response.data.retryAfter;
+          const retryAfter = err.response.headers["retry-after"];
+          setRateLimitTimeLeft(retryAfter);
+          setError('Too many registration attempts');
+        } else {
+          const msg = Array.isArray(err.response?.data?.message)
+            ? err.response.data.message[0]
+            : err.response?.data?.message || "An error occurred. Please try again";
+
+          setError(msg);
+        }
+        setLoading(false);
+      });
+  };
+
+  const resendVerificationEmail = () => {
+    Axios.post(`${Env.VITE_API_V2_URL}/auth/resend-verification-email`, {
+      email,
+    })
+      .then(() => {
+        setRateLimitTimeLeft(60);
+        console.log("Resend verification email");
+      })
+      .catch((err) => {
+        if (err.response?.status === 429) {
+          const retryAfter = err.response.headers["retry-after"];
           setRateLimitTimeLeft(retryAfter);
         } else {
           setError(
-            err.response?.data?.error || "An error occurred. Please try again",
+            err.response.data.message || "An error occurred. Please try again",
           );
         }
-        setLoading(false);
       });
   };
 
@@ -74,12 +105,19 @@ const LogIn = () => {
         </p>
         <p className="text-gray-300 text-center font-normal text-lg">
           If you haven't received the email, please check your spam folder, or{" "}
-          <a
-            href="/resend-verification"
-            className="text-blue-400 hover:underline"
+          <button
+            onClick={resendVerificationEmail}
+            disabled={rateLimitTimeLeft !== null}
+            className={cn(
+              "text-blue-400",
+              rateLimitTimeLeft === null && "hover:underline",
+            )}
           >
-            request a new one
-          </a>
+            request a new one{" "}
+            <span hidden={rateLimitTimeLeft === null}>
+              after {rateLimitTimeLeft} seconds
+            </span>
+          </button>
           .
         </p>
       </div>

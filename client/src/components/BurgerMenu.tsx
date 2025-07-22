@@ -1,6 +1,7 @@
 import React from "react";
 import { IoMenu } from "react-icons/io5";
 import NavItem from "./NavItem";
+import { APP_ROUTES } from "@/shared/constants/app-routes";
 
 interface BurgerMenuProps {
   currentMenu: string;
@@ -32,19 +33,19 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({
         bg-color-neutral-1000/80 shadow-md backdrop-blur-sm z-10`}
       >
         <NavItem
-          href="/"
+          href={APP_ROUTES.Home}
           text="PLAY"
           className="py-6 pl-20"
           onClick={toggleMenu}
         />
         <NavItem
-          href="/learn"
+          href={APP_ROUTES.Learn}
           text="LEARN"
           className="py-6 pl-20"
           onClick={toggleMenu}
         />
         <NavItem
-          href="/about"
+          href={APP_ROUTES.About}
           text="ABOUT"
           className="py-6 pl-20"
           onClick={toggleMenu}

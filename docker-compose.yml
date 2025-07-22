@@ -13,6 +13,21 @@ services:
     networks:
       - ultittt-network
 
+  server-v2:
+    build:
+      context: ./server-v2
+    container_name: ultittt-server-v2
+    ports:
+      - '5001:5000'
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./server-v2/.env
+    command: pnpm run start
+    networks:
+      - ultittt-network
+
   db:
     image: mongo:7.0.21
     container_name: ultittt-mongodb

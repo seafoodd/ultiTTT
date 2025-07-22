@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { getBoardAtMove } from "../utils/gameUtils";
-import { useSocket } from "../context/SocketContext";
-import NotFound from "./NotFound";
+import { getBoardAtMove } from "@/shared/lib/client/gameUtils";
+import { useWebSocket } from "../shared/provider/websocket-provider";
+import NotFound from "@/pages/NotFound";
 import WaitingLobby from "./WaitingLobby";
 import LoadingCircle from "./LoadingCircle";
 import { GameView } from "./GameView";
-import { playSound } from "../utils/soundUtils";
+import { playSound } from "@/shared/lib/client//soundUtils";
+import { useAuth } from "@/shared/provider/auth-provider";
 
 interface GameState {
   t: "init" | "move";
@@ -31,7 +31,7 @@ interface Player {
 
 const Game = () => {
   const [loading, setLoading] = useState<boolean>(true);
-  const { socket } = useSocket();
+  const { socket } = useWebSocket();
   const [playersJoined, setPlayersJoined] = useState<boolean>(false);
   const { gameId } = useParams();
   const location = useLocation();
@@ -42,7 +42,7 @@ const Game = () => {
     Array.from({ length: 9 }, () => ({
       subWinner: "",
       squares: Array(9).fill(""),
-    })),
+    }))
   );
   const [timers, setTimers] = useState<{ X: number; O: number }>({
     X: 600 * 1000,
@@ -65,7 +65,7 @@ const Game = () => {
 
   const [moveSound] = useState(() => new Audio("/sounds/Move.mp3"));
   const [gameFinishedSound] = useState(
-    () => new Audio("/sounds/GameFinished.mp3"),
+    () => new Audio("/sounds/GameFinished.mp3")
   );
 
   useEffect(() => {
@@ -111,7 +111,7 @@ const Game = () => {
         setIsDeclined(true);
         setOpponentUsername(username);
         callback("ACK");
-      },
+      }
     );
 
     const handleError = () => {
@@ -121,7 +121,7 @@ const Game = () => {
 
     const handleGameState = (
       gameState: GameState,
-      callback: (ack: string) => void = () => {},
+      callback: (ack: string) => void = () => {}
     ) => {
       callback("ACK");
       console.log(gameState);
@@ -134,13 +134,13 @@ const Game = () => {
         setInvitedUsername(gameState.invitedUsername);
 
         const opponent = gameState.players.find(
-          (player) => player.identifier !== currentUser.identifier,
+          (player) => player.identifier !== currentUser.identifier
         );
         if (opponent) {
           setOpponentUsername(opponent.username);
         }
         const currentPlayer = gameState.players.find(
-          (p: Player) => p.identifier === currentUser.identifier,
+          (p: Player) => p.identifier === currentUser.identifier
         );
         // console.log("currentPlayer", currentPlayer)
         if (currentPlayer) {
@@ -153,7 +153,7 @@ const Game = () => {
 
       const newBoard = getBoardAtMove(
         gameState.moveHistory.length,
-        gameState.moveHistory,
+        gameState.moveHistory
       );
       setBoard(newBoard);
       const lastSquareIndex =
@@ -163,11 +163,11 @@ const Game = () => {
       setCurrentSubBoard(
         lastSquareIndex !== null && newBoard[lastSquareIndex].subWinner === ""
           ? lastSquareIndex
-          : null,
+          : null
       );
 
       if (gameState.t === "move") {
-        console.log("play sound 1", gameState)
+        console.log("play sound 1", gameState);
         playSound(moveSound);
       }
 
@@ -180,7 +180,7 @@ const Game = () => {
           ? result.status === "aborted"
             ? "Game aborted!"
             : "Game tied!"
-          : `Player ${result.winner} wins!`,
+          : `Player ${result.winner} wins!`
       );
 
       playSound(gameFinishedSound);

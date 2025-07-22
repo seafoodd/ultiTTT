@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   server:
     build:
@@ -22,6 +20,29 @@ services:
       - ./server:/usr/src/app
       - /usr/src/app/node_modules
     command: npm run dev
+    networks:
+      - ultittt-network
+
+  server-v2:
+    build:
+      context: ./server-v2
+    container_name: ultittt-server-v2
+    ports:
+      - '5001:5000'
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./server-v2/.env
+    # overwrite some variables for local development
+    environment:
+      - DATABASE_URL=mongodb://db:27017/mydatabase?replicaSet=rs0&directConnection=false
+      - DOMAIN_URL=http://localhost:5173
+      - ENV=development
+    volumes:
+      - ./server-v2:/usr/src/app
+      - /usr/src/app/node_modules
+    command: pnpm run start:dev
     networks:
       - ultittt-network
 
@@ -63,6 +84,7 @@ services:
     container_name: ultittt-client
     environment:
       - VITE_API_URL=http://localhost:5000
+      - VITE_API_V2_URL=http://localhost:5001
       - VITE_ENV=development
     ports:
       - '5173:5173'

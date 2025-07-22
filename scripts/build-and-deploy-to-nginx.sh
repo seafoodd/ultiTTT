@@ -4,6 +4,8 @@ set -e
 
 source "$(dirname "$0")/lib.sh"
 
+production_only_warning
+
 TARGET_DIR="/var/www/html/ultiTTT"
 CLIENT_DIR="../client"
 BUILD_DIR="$CLIENT_DIR/build"

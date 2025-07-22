@@ -1,12 +1,18 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Axios from "axios";
-import useNotification from "../hooks/useNotification";
+import useNotification from "../shared/hooks/use-notification";
 import LoadingCircle from "../components/LoadingCircle";
 import Cookies from "universal-cookie";
-import {useAuth} from "../context/AuthContext";
+import { useAuth } from "@/shared/provider/auth-provider";
+import { useClientSeo } from "@/shared/hooks/use-client-seo";
+import { Env } from "@/shared/constants/env";
 
 const Confirmation = () => {
+  useClientSeo({
+    title: "Confirmation - ultiTTT",
+  });
+
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const { showError, showSuccess } = useNotification();
@@ -18,7 +24,7 @@ const Confirmation = () => {
     if (!token) return;
 
     Axios.post(
-      `${import.meta.env.VITE_API_URL}/auth/confirm-email`,
+      `${Env.VITE_API_V2_URL}/auth/confirm-email`,
       {},
       {
         headers: {
@@ -38,7 +44,7 @@ const Confirmation = () => {
         navigate("/");
       })
       .catch((e) => {
-        showError(e.response.data.error);
+        showError(e.response.data.message);
         navigate("/");
       });
   }, [token]);

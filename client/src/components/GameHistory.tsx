@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import BoardPreview from "./BoardPreview";
-import Button from "./Button";
+import Button from "../shared/ui/Button";
 import { AiFillPlayCircle } from "react-icons/ai";
 import { RiSwordLine } from "react-icons/ri";
-import { formatDate, gameDuration } from "../utils/formatUtils";
+import { formatDate, gameDuration } from "@/shared/lib/client/formatUtils";
 import { FaCalendarAlt, FaClock } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import useNotification from "../hooks/useNotification";
+import useNotification from "../shared/hooks/use-notification";
+import { APP_ROUTES } from "@/shared/constants/app-routes";
+import { Env } from "@/shared/constants/env";
 
 const resultMessages = {
   win: <div className="text-color-information-500 w-full">Victory</div>,
@@ -44,7 +46,7 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
   const fetchGameHistory = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/${username}/games?page=${page}&limit=${10}`,
+        `${Env.VITE_API_URL}/users/${username}/games?page=${page}&limit=${10}`,
       );
       if (!response.ok) {
         showError(
@@ -117,16 +119,19 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
                   • {game.isRated ? "Rated" : "Unrated"}
                 </div>
                 <Button
-                  href={`/${game.id}`}
-                  icon={<AiFillPlayCircle size={22} className="mt-[1px]" />}
+                  asChild
                   className="py-2.5 bg-color-information-500 max-w-32 hover:bg-color-information-600"
-                  text="Replay"
-                />
+                >
+                  <Link to={APP_ROUTES.Game(game.id)}>
+                    <AiFillPlayCircle size={22} className="mt-[1px]" />
+                    Replay
+                  </Link>
+                </Button>
               </div>
             </div>
             <div className="flex-shrink md:h-[133px] w-full flex flex-col items-center md:justify-between md:flex-row md:items-end">
               <div className="flex flex-col gap-y-6 md:gap-y-0 md:flex-col-reverse lg:flex-row w-full h-full items-center lg:items-end md:mx-4 sm:px-16 md:px-4 lg:px-0 lg:mx-0">
-                <div className="bg-color-neutral-875 w-full lg:px-4 flex-shrink h-28 shadow shadow-color-neutral-885 sm:rounded-sm shadow-md lg:mx-12 flex justify-center items-center">
+                <div className="bg-color-neutral-875 w-full lg:px-4 flex-shrink h-28 shadow-color-neutral-885 sm:rounded-sm shadow-md lg:mx-12 flex justify-center items-center">
                   <div className="flex flex-col justify-center items-center w-full">
                     <div className="flex font-normal text-[24px] justify-center items-center gap-12">
                       <div className="text-end w-16">
@@ -163,13 +168,21 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
                     {game.players[0].playerEloChange !== 0 && (
                       <div className="flex font-normal text-[16px] justify-center items-center gap-8">
                         <div
-                          className={`${game.players[0].playerEloChange >= 0 ? "text-color-success-400" : "text-color-danger-500"} text-end`}
+                          className={`${
+                            game.players[0].playerEloChange >= 0
+                              ? "text-color-success-400"
+                              : "text-color-danger-500"
+                          } text-end`}
                         >
                           {game.players[0].playerEloChange > 0 && "+"}
                           {game.players[0].playerEloChange}
                         </div>
                         <div
-                          className={`${game.players[1].playerEloChange >= 0 ? "text-color-success-400" : "text-color-danger-500"} text-end`}
+                          className={`${
+                            game.players[1].playerEloChange >= 0
+                              ? "text-color-success-400"
+                              : "text-color-danger-500"
+                          } text-end`}
                         >
                           {game.players[1].playerEloChange > 0 && "+"}
                           {game.players[1].playerEloChange}

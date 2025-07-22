@@ -1,12 +1,18 @@
 import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
 import Cookies from "universal-cookie";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoadingCircle from "../components/LoadingCircle";
-import useRateLimit from "../hooks/useRateLimit";
+import useRateLimit from "../shared/hooks/use-rate-limit";
+import { useAuth } from "@/shared/provider/auth-provider";
+import { Env } from "@/shared/constants/env";
+import { useClientSeo } from "@/shared/hooks/use-client-seo";
 
 const LogIn = () => {
+  useClientSeo({
+    title: "Log In - ultiTTT",
+  });
+
   const { setIsAuth } = useAuth();
   const cookies = new Cookies();
   const navigate = useNavigate();
@@ -25,25 +31,31 @@ const LogIn = () => {
     }
     setError("");
     setLoading(true);
-    Axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
+    Axios.post(`${Env.VITE_API_V2_URL}/auth/login`, {
       identifier,
       password,
       rememberMe,
     })
       .then((res) => {
         const { token } = res.data;
-        cookies.set("token", token, { path: "/", sameSite: "lax", secure: true, maxAge: rememberMe ? 365 * 24 * 60 * 60 : undefined });
+        cookies.set("token", token, {
+          path: "/",
+          sameSite: "lax",
+          secure: true,
+          maxAge: (rememberMe ? 365 : 7) * 24 * 60 * 60,
+        });
         setIsAuth(true);
-        navigate("/")
+        navigate("/");
         // window.location.href = "/";
       })
       .catch((err) => {
         if (err.response?.status === 429) {
-          const retryAfter = err.response.data.retryAfter;
+          const retryAfter = err.response.headers['retry-after'];
           setRateLimitTimeLeft(retryAfter);
+          setError('Too many login attempts');
         } else {
           setError(
-            err.response?.data?.error || "An error occurred. Please try again",
+            err.response.data.message || "An error occurred. Please try again",
           );
         }
         setLoading(false);

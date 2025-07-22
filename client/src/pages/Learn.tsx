@@ -1,6 +1,11 @@
-import React from "react";
+import { useClientSeo } from "@/shared/hooks/use-client-seo";
 
 const Learn = () => {
+
+  useClientSeo({
+    title: "Learn - ultiTTT"
+  })
+
   return (
     <div className="flex flex-col p-8 max-w-full font-medium text-lg justify-center items-center">
       <h1 className="text-3xl font-bold mb-4">

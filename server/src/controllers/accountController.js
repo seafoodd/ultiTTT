@@ -16,6 +16,21 @@ const validateURL = (url, platform) => {
   return patterns[platform]?.test(url);
 };
 
+/**
+ * Gets current user from the middleware
+ * @param {Object} req - The request object containing user data.
+ * @param {Object} res - The response object used to send back the HTTP response.
+ */
+export const getAccount = (req, res) => {
+  const user = req.user;
+  res.status(200).json({
+    username: user.username,
+    identifier: user.identifier,
+    role: user.role,
+  });
+  return req.user.identifier;
+};
+
 export const updateProfile = async (req, res) => {
   if (!req.user) return;
   if (req.user.role === "guest") {

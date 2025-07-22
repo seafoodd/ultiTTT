@@ -2,6 +2,8 @@
 
 source "$(dirname "$0")/lib.sh"
 
+production_only_warning
+
 if [ "$(id -u)" -ne 0 ]; then
     print_status "Check root permissions" "fail"
     echo "Error: This script must be run with sudo."

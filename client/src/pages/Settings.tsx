@@ -1,10 +1,9 @@
-import React from "react";
+import { useClientSeo } from "@/shared/hooks/use-client-seo";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
 const settings = [
   { to: "profile", name: "Profile" },
   { to: "appearance", name: "Appearance" },
-  {},
   { to: "change-password", name: "Change password" },
   { to: "change-username", name: "Change username" },
   { to: "change-email", name: "Change email" },
@@ -12,6 +11,10 @@ const settings = [
 
 const Settings = () => {
   const location = useLocation();
+
+  useClientSeo({
+    title: "Settings - ultiTTT"
+  })
 
   return (
     <div className="w-full">
