@@ -69,19 +69,6 @@ const Game = () => {
     () => new Audio("/sounds/GameFinished.mp3"),
   );
 
-  const seoTitle = useMemo(() => {
-    if (gameFinished) return `Game Over`;
-    if (!opponentUsername) return `Game`;
-    if (turn === symbol) {
-      return `Your Turn - Game vs. ${opponentUsername}`;
-    }
-    return `Playing vs. ${opponentUsername}`;
-  }, [opponentUsername, turn, symbol, gameFinished]);
-
-  useClientSeo({
-    title: seoTitle,
-  });
-
   const board = useMemo(
     () => getBoardAtMove(currentMoveIndex, moveHistory),
     [moveHistory],
@@ -250,6 +237,19 @@ const Game = () => {
       />
     );
   }
+
+  const seoTitle = useMemo(() => {
+    if (gameFinished) return `Game Over`;
+    if (!opponentUsername) return `Game`;
+    if (turn === symbol) {
+      return `Your Turn - Game vs. ${opponentUsername}`;
+    }
+    return `Playing vs. ${opponentUsername}`;
+  }, [opponentUsername, turn, symbol, gameFinished]);
+
+  useClientSeo({
+    title: seoTitle,
+  });
 
   return (
     <GameView
