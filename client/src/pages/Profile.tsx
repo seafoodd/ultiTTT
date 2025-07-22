@@ -138,7 +138,7 @@ const Profile = () => {
 
   useClientSeo({
     description,
-    ...(title && { title }),
+    title,
   });
 
   if (loading) {
