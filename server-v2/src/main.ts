@@ -72,7 +72,7 @@ async function bootstrap() {
     {
       url: envConfig.isDevelopment
         ? 'http://localhost:5001'
-        : `${envConfig.getEnvVarOrThrow('DOMAIN_URL')}}/api`,
+        : `${envConfig.getEnvVarOrThrow('DOMAIN_URL')}/api/v2`,
       description: 'ultiTTT server',
     },
   ];
