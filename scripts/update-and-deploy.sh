@@ -25,7 +25,7 @@ SERVER_CHANGED=false
 
 while read -r file; do
   [[ "$file" == client/* ]] && CLIENT_CHANGED=true
-  [[ "$file" == server/* || "$file" == docker-compose.yml || "$file" == .env ]] && SERVER_CHANGED=true
+  [[ "$file" == server/* || "$file" == server-v2/* || "$file" == docker-compose.yml || "$file" == .env ]] && SERVER_CHANGED=true
 done <<< "$CHANGED_FILES"
 
 if $CLIENT_CHANGED; then
