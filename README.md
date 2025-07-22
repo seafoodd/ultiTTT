@@ -157,7 +157,7 @@ On each push to `main`, we:
 1. Fork the repo
 2. Create a topic branch (`git checkout -b feature/awesome`)
 3. Commit your changes & push
-4. Open a Pull Request against `dev`
+4. Open a Pull Request against `master`
 5. Ensure all GitHub Actions pass
 
 ---
