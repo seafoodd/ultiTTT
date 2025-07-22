@@ -30,9 +30,20 @@ const footerNavigation = [
 const Footer = () => {
   return (
     <footer className="flex w-full h-12 justify-center items-center gap-x-6 gap-y-1 text-color-neutral-300 flex-wrap px-12">
-      {footerNavigation.map((item, index) => (
-        <Link key={index} {...item} />
-      ))}
+      {footerNavigation.map((item, index) => {
+        const isExternal = item.to.startsWith("http") || item.to.startsWith("mailto:");
+
+        return isExternal ? (
+          <a key={index} href={item.to} target="_blank" rel="noopener noreferrer">
+            {item.children}
+          </a>
+        ) : (
+          <Link key={index} to={item.to}>
+            {item.children}
+          </Link>
+        );
+      })}
+
     </footer>
   );
 };

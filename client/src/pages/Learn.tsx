@@ -3,7 +3,7 @@ import { useClientSeo } from "@/shared/hooks/use-client-seo";
 const Learn = () => {
 
   useClientSeo({
-    title: "Learn - ultiTTT"
+    title: "Learn"
   })
 
   return (

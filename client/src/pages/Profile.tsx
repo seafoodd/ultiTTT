@@ -129,7 +129,7 @@ const Profile = () => {
   const bestRating = userData ? getBestRating(userData.perfs) : null;
 
   const title = bestRating
-    ? `${username} (${Math.round(bestRating.elo)})`
+    ? `${username} (${Math.round(bestRating.elo)}) - ultiTTT`
     : undefined;
 
   const description = bestRating

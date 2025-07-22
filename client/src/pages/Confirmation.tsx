@@ -10,7 +10,7 @@ import { Env } from "@/shared/constants/env";
 
 const Confirmation = () => {
   useClientSeo({
-    title: "Confirmation - ultiTTT",
+    title: "Confirmation",
   });
 
   const [searchParams] = useSearchParams();

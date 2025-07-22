@@ -6,7 +6,7 @@ import { APP_ROUTES } from "@/shared/constants/app-routes";
 
 const NotFound = () => {
   useClientSeo({
-    title: "404 - ultiTTT",
+    title: "Not Found",
   });
 
   return (

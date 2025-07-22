@@ -24,6 +24,9 @@
 }
 
 @layer base {
+    #root{
+        @apply text-center mx-auto;
+    }
     body {
         @apply bg-color-neutral-900 text-base text-color-accent-100 font-light font-ubuntu;
     }

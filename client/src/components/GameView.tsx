@@ -82,7 +82,7 @@ export const GameView: React.FC<GameViewProps> = ({
             className="rounded-t-md shadow-2xl w-32"
           />
         </div>
-        <div className="fixed left-0 bottom-0 lg:relative lg:bottom-auto lg:left-auto flex lg:flex-col flex-col-reverse w-full lg:rounded-r-md bg-color-neutral-800 lg:h-[600px]">
+        <div className="z-30 fixed left-0 bottom-0 lg:relative lg:bottom-auto lg:left-auto flex lg:flex-col flex-col-reverse w-full lg:rounded-r-md bg-color-neutral-800 lg:h-[600px]">
           <div className="hidden lg:flex border-b-2 border-color-accent-300 px-4 items-center font-medium">
             <div className="max-w-40 truncate">{opponentUsername}</div>
           </div>

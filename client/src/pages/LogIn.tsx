@@ -10,7 +10,7 @@ import { useClientSeo } from "@/shared/hooks/use-client-seo";
 
 const LogIn = () => {
   useClientSeo({
-    title: "Log In - ultiTTT",
+    title: "Log In",
   });
 
   const { setIsAuth } = useAuth();
@@ -77,7 +77,7 @@ const LogIn = () => {
       className="relative flex flex-col bg-color-neutral-850 p-8 rounded-md
       justify-center mt-24 shadow-color-neutral-800 drop-shadow-lg h-fit"
     >
-      <h1 className="absolute top-0 left-0 w-full text-color-accent-100 text-2xl font-medium py-2 border-b-2 border-color-accent-300">
+      <h1 className="absolute top-0 left-0 w-full text-color-accent-100 text-2xl font-medium py-2 border-b-2 border-color-accent-300 text-center">
         Log In
       </h1>
       <form className="mt-16 flex flex-col gap-4 w-72" onSubmit={logIn}>

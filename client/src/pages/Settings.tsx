@@ -13,7 +13,7 @@ const Settings = () => {
   const location = useLocation();
 
   useClientSeo({
-    title: "Settings - ultiTTT"
+    title: "Settings"
   })
 
   return (

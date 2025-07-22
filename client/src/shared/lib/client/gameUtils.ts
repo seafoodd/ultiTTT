@@ -35,6 +35,8 @@ export const getBoardAtMove = (moveIndex: number, moveHistory: any[]) => {
     squares: Array(9).fill(""),
   }));
 
+  console.log('get board at move', moveHistory, moveIndex)
+
   if (moveHistory) {
     moveHistory.slice(0, moveIndex).forEach((move) => {
       newBoard[move.subBoardIndex].squares[move.squareIndex] = move.player;

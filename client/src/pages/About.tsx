@@ -4,7 +4,7 @@ import UnderConstruction from "../components/UnderConstruction";
 const About = () => {
 
   useClientSeo({
-    title: "About - ultiTTT"
+    title: "About"
   })
 
   return (

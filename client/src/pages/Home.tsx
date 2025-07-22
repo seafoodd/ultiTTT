@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import verifyToken from "@/shared/lib/client/verifyToken";
-import { useWebSocket } from "../shared/provider/websocket-provider";
+import { useWebSocket } from "@/shared/provider/websocket-provider";
 import { BiRightArrowAlt } from "react-icons/bi";
 import { playSound } from "@/shared/lib/client/soundUtils";
 import GameTypeButton from "../components/GameTypeButton";
@@ -11,7 +11,7 @@ import { useClientSeo } from "@/shared/hooks/use-client-seo";
 
 const Home = () => {
   useClientSeo({
-    title: "Home - ultiTTT",
+    title: "Home",
   });
 
   const navigate = useNavigate();

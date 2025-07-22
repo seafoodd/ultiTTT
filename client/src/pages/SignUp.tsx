@@ -9,7 +9,7 @@ import { cn } from "@/shared/lib/client/cn";
 
 const LogIn = () => {
   useClientSeo({
-    title: "Sign up - ultiTTT",
+    title: "Sign up",
   });
 
   const navigate = useNavigate();

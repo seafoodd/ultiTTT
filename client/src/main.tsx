@@ -1,5 +1,4 @@
 import { createRoot } from "react-dom/client";
-import App from "./App";
 import "./index.css";
 import {
   createBrowserRouter,
@@ -28,15 +27,15 @@ import ChangePasswordSettings from "./components/account/ChangePasswordSettings"
 import { NotificationProvider } from "./shared/provider/notification-provider";
 import Confirmation from "./pages/Confirmation";
 import { AuthProvider } from "./shared/provider/auth-provider";
+import { LayoutWithFooter } from "@/components/layout/LayoutWithFooter";
+import { LayoutWithoutFooter } from "@/components/layout/LayoutWithoutFooter";
 
 const router = createBrowserRouter(
   [
     {
-      path: "",
-      element: <App />,
+      element: <LayoutWithFooter />,
       children: [
         { path: "", element: <Home /> },
-        { path: "/:gameId", element: <Game /> },
         { path: "/home", element: <Navigate to="/" /> },
         { path: "/about", element: <About /> },
         { path: "/learn", element: <Learn /> },
@@ -95,10 +94,14 @@ const router = createBrowserRouter(
         },
       ],
     },
+    {
+      element: <LayoutWithoutFooter />,
+      children: [{ path: "/:gameId", element: <Game /> }],
+    },
   ],
   {
     basename: "/",
-  }
+  },
 );
 
 const rootElement = document.getElementById("root");
@@ -121,7 +124,7 @@ if (rootElement) {
           </StoreProvider>
         </NotificationProvider>
       </WebsocketSocketProvider>
-    </AuthProvider>
+    </AuthProvider>,
   );
 }
 
@@ -149,7 +152,7 @@ if ("serviceWorker" in navigator) {
         });
       })
       .catch((err) =>
-        console.error("Service Worker Registration Failed ❌", err)
+        console.error("Service Worker Registration Failed ❌", err),
       );
   });
 }

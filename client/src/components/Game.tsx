@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { getBoardAtMove } from "@/shared/lib/client/gameUtils";
-import { useWebSocket } from "../shared/provider/websocket-provider";
+import { useWebSocket } from "@/shared/provider/websocket-provider";
 import NotFound from "@/pages/NotFound";
 import WaitingLobby from "./WaitingLobby";
 import LoadingCircle from "./LoadingCircle";
 import { GameView } from "./GameView";
 import { playSound } from "@/shared/lib/client//soundUtils";
 import { useAuth } from "@/shared/provider/auth-provider";
+import { useClientSeo } from "@/shared/hooks/use-client-seo";
 
 interface GameState {
   t: "init" | "move";
@@ -36,14 +37,14 @@ const Game = () => {
   const { gameId } = useParams();
   const location = useLocation();
   const { token, currentUser } = useAuth();
-  const [board, setBoard] = useState<
-    { subWinner: string; squares: string[] }[]
-  >(
-    Array.from({ length: 9 }, () => ({
-      subWinner: "",
-      squares: Array(9).fill(""),
-    }))
-  );
+  // const [board, setBoard] = useState<
+  //   { subWinner: string; squares: string[] }[]
+  // >(
+  //   Array.from({ length: 9 }, () => ({
+  //     subWinner: "",
+  //     squares: Array(9).fill(""),
+  //   })),
+  // );
   const [timers, setTimers] = useState<{ X: number; O: number }>({
     X: 600 * 1000,
     O: 600 * 1000,
@@ -65,7 +66,25 @@ const Game = () => {
 
   const [moveSound] = useState(() => new Audio("/sounds/Move.mp3"));
   const [gameFinishedSound] = useState(
-    () => new Audio("/sounds/GameFinished.mp3")
+    () => new Audio("/sounds/GameFinished.mp3"),
+  );
+
+  const seoTitle = useMemo(() => {
+    if (gameFinished) return `Game Over`;
+    if (!opponentUsername) return `Game`;
+    if (turn === symbol) {
+      return `Your Turn - Game vs. ${opponentUsername}`;
+    }
+    return `Playing vs. ${opponentUsername}`;
+  }, [opponentUsername, turn, symbol, gameFinished]);
+
+  useClientSeo({
+    title: seoTitle,
+  });
+
+  const board = useMemo(
+    () => getBoardAtMove(currentMoveIndex, moveHistory),
+    [moveHistory],
   );
 
   useEffect(() => {
@@ -111,7 +130,7 @@ const Game = () => {
         setIsDeclined(true);
         setOpponentUsername(username);
         callback("ACK");
-      }
+      },
     );
 
     const handleError = () => {
@@ -121,7 +140,7 @@ const Game = () => {
 
     const handleGameState = (
       gameState: GameState,
-      callback: (ack: string) => void = () => {}
+      callback: (ack: string) => void = () => {},
     ) => {
       callback("ACK");
       console.log(gameState);
@@ -134,13 +153,13 @@ const Game = () => {
         setInvitedUsername(gameState.invitedUsername);
 
         const opponent = gameState.players.find(
-          (player) => player.identifier !== currentUser.identifier
+          (player) => player.identifier !== currentUser.identifier,
         );
         if (opponent) {
           setOpponentUsername(opponent.username);
         }
         const currentPlayer = gameState.players.find(
-          (p: Player) => p.identifier === currentUser.identifier
+          (p: Player) => p.identifier === currentUser.identifier,
         );
         // console.log("currentPlayer", currentPlayer)
         if (currentPlayer) {
@@ -153,9 +172,9 @@ const Game = () => {
 
       const newBoard = getBoardAtMove(
         gameState.moveHistory.length,
-        gameState.moveHistory
+        gameState.moveHistory,
       );
-      setBoard(newBoard);
+      // setBoard(newBoard);
       const lastSquareIndex =
         gameState.moveHistory.length > 0
           ? gameState.moveHistory[gameState.moveHistory.length - 1].squareIndex
@@ -163,7 +182,7 @@ const Game = () => {
       setCurrentSubBoard(
         lastSquareIndex !== null && newBoard[lastSquareIndex].subWinner === ""
           ? lastSquareIndex
-          : null
+          : null,
       );
 
       if (gameState.t === "move") {
@@ -180,7 +199,7 @@ const Game = () => {
           ? result.status === "aborted"
             ? "Game aborted!"
             : "Game tied!"
-          : `Player ${result.winner} wins!`
+          : `Player ${result.winner} wins!`,
       );
 
       playSound(gameFinishedSound);
@@ -210,9 +229,9 @@ const Game = () => {
     socket.emit("makeMove", { gameId, subBoardIndex, squareIndex });
   };
 
-  useEffect(() => {
-    setBoard(getBoardAtMove(currentMoveIndex, moveHistory));
-  }, [currentMoveIndex, moveHistory]);
+  // useEffect(() => {
+  //   setBoard(getBoardAtMove(currentMoveIndex, moveHistory));
+  // }, [currentMoveIndex, moveHistory]);
 
   if (!gameId || loading) {
     return <LoadingCircle />;

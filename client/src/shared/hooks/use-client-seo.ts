@@ -39,8 +39,9 @@ export function useClientSeo(metadata: Metadata) {
     if (typeof window === 'undefined') return
 
     if (metadata.title) {
-      document.title = metadata.title
-      setMetaTag("og:title", metadata.title, true)
+      const title = metadata.title + " - ultiTTT"
+      document.title = title
+      setMetaTag("og:title", title, true)
     }
 
     if (metadata.description) {
