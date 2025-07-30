@@ -14,14 +14,15 @@ export const getUserByToken = async (token) => {
       try {
         const dbUser = await prisma.user.findFirst({
           where: {
-            username: user.identifier,
+            OR: [{ username: user.identifier }, { email: user.identifier }],
           },
           select: {
             username: true,
+            email: true,
           },
         });
 
-        console.log(dbUser)
+        console.log(dbUser);
 
         if (!dbUser) return reject(new Error("User not found"));
         resolve({ ...dbUser, role: "user" });

@@ -1,5 +1,5 @@
 export interface EmailTokenPayload {
-  identifier: string;
+  email: string;
   t: 'verify-email';
 }
 
@@ -10,5 +10,5 @@ export function isEmailTokenPayload(
 
   const obj = payload as Record<string, unknown>;
 
-  return typeof obj.identifier === 'string' && obj.t === 'verify-email';
+  return typeof obj.email === 'string' && obj.t === 'verify-email';
 }

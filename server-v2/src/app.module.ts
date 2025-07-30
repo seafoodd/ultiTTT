@@ -4,6 +4,9 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CoreModule } from '@/core/core.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { WebhooksModule } from './modules/webhooks/webhooks.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { APP_GUARD } from '@nestjs/core';
     }),
     CoreModule,
     AuthModule,
+    PaymentsModule,
+    WebhooksModule,
+    UserModule,
   ],
   providers: [
     {
