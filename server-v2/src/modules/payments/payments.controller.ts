@@ -6,6 +6,7 @@ import {
     Query,
     UseGuards,
     Req,
+    NotFoundException
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CheckoutDto } from '@/modules/payments/dto/checkout.dto';
@@ -30,5 +31,38 @@ export class PaymentsController {
     @Get('session-status')
     async sessionStatus(@Query('session_id') sessionId: string) {
         return this.paymentsService.sessionStatus(sessionId);
+    }
+
+    @UseGuards(RequireUserGuard)
+    @Get('subscription-status')
+    async subscriptionStatus(@Req() req: AuthenticatedRequest) {
+        const user = req.user;
+        const subscription =
+            await this.paymentsService.getActiveSubscription(user.identifier);
+        return { subscription };
+    }
+
+    @UseGuards(RequireUserGuard)
+    @Post('cancel-subscription')
+    async cancelSubscription(@Req() req: AuthenticatedRequest){
+        const user = req.user;
+        const subscription =
+            await this.paymentsService.getActiveSubscription(user.identifier);
+        if (!subscription || subscription.cancel_at_period_end) {
+            throw new NotFoundException('No cancelable subscription found');
+        }
+        return this.paymentsService.cancelSubscription(subscription.id)
+    }
+
+    @UseGuards(RequireUserGuard)
+    @Post('resume-subscription')
+    async resumeSubscription(@Req() req: AuthenticatedRequest){
+        const user = req.user;
+        const subscription =
+            await this.paymentsService.getActiveSubscription(user.identifier);
+        if (!subscription || !subscription.cancel_at_period_end) {
+            throw new NotFoundException('No resumable subscription found');
+        }
+        return this.paymentsService.resumeSubscription(subscription.id)
     }
 }

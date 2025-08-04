@@ -6,6 +6,7 @@ import { Env } from "@/shared/constants/env";
 import { useAuth } from "@/shared/provider/auth-provider";
 import { loadStripe } from "@stripe/stripe-js";
 import { useSearchParams } from "react-router-dom";
+import Button from "@/shared/ui/Button";
 
 const Donate = () => {
   useClientSeo({ title: "Donate" });
@@ -24,6 +25,51 @@ const Donate = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
 
+  const cancelSubscription = async () => {
+    const response = await Axios.post(
+      `${Env.VITE_API_V2_URL}/payments/cancel-subscription`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    console.log(response)
+  };
+  const resumeSubscription = async () => {
+    const response = await Axios.post(
+      `${Env.VITE_API_V2_URL}/payments/resume-subscription`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    console.log(response)
+  };
+
+  useEffect(() => {
+    const fetchCurrentSubscription = async () => {
+      const currentSubscription = await Axios.get(
+        `${Env.VITE_API_V2_URL}/payments/subscription-status`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      console.log(currentSubscription);
+    };
+
+    fetchCurrentSubscription();
+  }, []);
+
   useEffect(() => {
     if (!sessionId) return;
 
@@ -38,7 +84,7 @@ const Donate = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         // Assume your backend returns something like { payment_status: "paid" }
@@ -110,6 +156,21 @@ const Donate = () => {
       </button>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <div className="mt-8 flex gap-4 justify-center items-center">
+        <Button
+          onClick={cancelSubscription}
+          className="bg-color-accent-600 p-3"
+        >
+          CANCEL
+        </Button>
+        <Button
+          onClick={resumeSubscription}
+          className="bg-color-accent-600 p-3"
+        >
+          RESUME
+        </Button>
+      </div>
     </div>
   );
 };

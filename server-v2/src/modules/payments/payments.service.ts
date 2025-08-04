@@ -16,9 +16,9 @@ export class PaymentsService {
     private readonly _domainUrl: string;
 
     constructor(
+        envConfig: EnvConfig,
         private readonly prisma: PrismaService,
         private readonly stripe: StripeService,
-        envConfig: EnvConfig,
         private readonly userService: UserService,
     ) {
         this._domainUrl = envConfig.getEnvVarOrThrow('DOMAIN_URL');
@@ -76,6 +76,18 @@ export class PaymentsService {
         }
     }
 
+    async resumeSubscription(stripeSubscriptionId: string) {
+        return this.stripe.subscriptions.update(stripeSubscriptionId, {
+            cancel_at_period_end: false,
+        });
+    }
+
+    async cancelSubscription(stripeSubscriptionId: string) {
+        return this.stripe.subscriptions.update(stripeSubscriptionId, {
+            cancel_at_period_end: true,
+        });
+    }
+
     async sessionStatus(sessionId: string) {
         if (!sessionId) {
             throw new BadRequestException('Missing session_id query parameter');
@@ -84,8 +96,6 @@ export class PaymentsService {
         try {
             const session =
                 await this.stripe.checkout.sessions.retrieve(sessionId);
-
-            console.log(session);
 
             return {
                 payment_status: session.payment_status,
@@ -110,7 +120,6 @@ export class PaymentsService {
                     return user.stripeCustomerId;
                 }
             } catch (error) {
-                console.log(error);
                 if (error.code !== 'resource_missing') throw error;
             }
         }
@@ -134,8 +143,8 @@ export class PaymentsService {
     }
 
     async getActiveSubscription(identifier: string) {
-        const user = await this.userService.get(identifier);
-        if (!user?.stripeCustomerId) return null;
+        const user = await this.userService.getOrThrow(identifier);
+        if (!user.stripeCustomerId) return null;
 
         const subscriptions = await this.stripe.subscriptions.list({
             customer: user.stripeCustomerId,
