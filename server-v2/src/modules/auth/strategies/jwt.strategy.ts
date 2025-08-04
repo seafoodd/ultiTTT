@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PrismaService } from '@/prisma/prisma.service';
 import { EnvConfig } from '@/core/config/env.config';
 import { UserService } from '@/modules/user/user.service';
 
@@ -17,7 +16,6 @@ export type JwtPayload = {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private prisma: PrismaService,
     private userService: UserService,
     envConfig: EnvConfig,
   ) {

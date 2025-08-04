@@ -4,10 +4,11 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) {}
 
     async create(username: string, email: string, password: string) {
         const existing = await this.prisma.user.findFirst({
@@ -53,9 +54,35 @@ export class UserService {
         return this.prisma.user.findUnique({ where: { username: identifier } });
     }
 
+    private async _findOrThrow<T>(
+        promise: Promise<T | null>,
+        message = 'Not found',
+    ): Promise<T> {
+        const result = await promise;
+        if (!result) throw new NotFoundException(message);
+        return result;
+    }
+
     async getOrThrow(identifier: string) {
-        const user = await this.get(identifier);
-        if (!user) throw new NotFoundException('User not found');
-        return user;
+        return this._findOrThrow(this.get(identifier), 'User not found');
+    }
+
+    async getByCustomerId(stripeCustomerId: string) {
+        return this.prisma.user.findUnique({
+            where: { stripeCustomerId },
+        });
+    }
+
+    async getByCustomerIdOrThrow(stripeCustomerId: string) {
+        return this._findOrThrow(this.getByCustomerId(stripeCustomerId), 'User not found');
+    }
+
+    async update(identifier: string, data: Partial<User>) {
+        const user = await this.getOrThrow(identifier);
+
+        return this.prisma.user.update({
+            where: { username: user.username },
+            data,
+        });
     }
 }

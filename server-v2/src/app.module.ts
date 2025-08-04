@@ -7,32 +7,34 @@ import { APP_GUARD } from '@nestjs/core';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { UserModule } from './modules/user/user.module';
+import { SubscriptionModule } from './modules/subscription/subscription.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    ThrottlerModule.forRoot({
-      throttlers: [
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+        }),
+        ThrottlerModule.forRoot({
+            throttlers: [
+                {
+                    ttl: 60000,
+                    limit: 10,
+                },
+            ],
+            errorMessage: 'Too many requests',
+        }),
+        CoreModule,
+        AuthModule,
+        PaymentsModule,
+        WebhooksModule,
+        UserModule,
+        SubscriptionModule,
+    ],
+    providers: [
         {
-          ttl: 60000,
-          limit: 10,
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
         },
-      ],
-      errorMessage: 'Too many requests',
-    }),
-    CoreModule,
-    AuthModule,
-    PaymentsModule,
-    WebhooksModule,
-    UserModule,
-  ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
+    ],
 })
 export class AppModule {}

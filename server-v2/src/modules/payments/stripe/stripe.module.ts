@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { StripeService } from './stripe.service';
-import { EnvConfig } from '@/core/config/env.config';
+import { CoreModule } from '@/core/core.module';
 
 @Module({
-  providers: [StripeService, EnvConfig],
-  exports: [StripeService],
+    imports: [CoreModule],
+    providers: [StripeService],
+    exports: [StripeService],
 })
 export class StripeModule {}

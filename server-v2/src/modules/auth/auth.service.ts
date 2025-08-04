@@ -20,10 +20,10 @@ import { UserService } from '@/modules/user/user.service';
 @Injectable()
 export class AuthService {
     constructor(
-        private prisma: PrismaService,
-        private emailService: EmailService,
-        private jwtService: JwtService,
-        private userService: UserService,
+        private readonly prisma: PrismaService,
+        private readonly emailService: EmailService,
+        private readonly jwtService: JwtService,
+        private readonly userService: UserService,
     ) {}
 
     private readonly logger = new Logger(AuthService.name);

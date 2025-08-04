@@ -13,6 +13,9 @@ model User {
   email                  String          @unique
   password               String
   supporter              Boolean         @default(false)
+  supporterUntil         DateTime?
+  subscriptionId         String?
+  stripeCustomerId       String?         @unique
   profile                ProfileDetails?
   socials                Socials?
   createdAt              DateTime        @default(now())
@@ -27,7 +30,6 @@ model User {
   disabled               Boolean         @default(false)
   lastOnline             DateTime        @default(now())
   verified               Boolean         @default(false)
-  stripeCustomerId       String?         @unique
 }
 
 model ProfileDetails {
