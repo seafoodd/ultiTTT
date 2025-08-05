@@ -141,7 +141,7 @@ Database backups are managed automatically via the scripts in the `scripts/` dir
 
 ---
 
-## CI/CD & Backups
+## CI/CD
 
 **GitHub Actions** workflows live in `.github/workflows/`
 
