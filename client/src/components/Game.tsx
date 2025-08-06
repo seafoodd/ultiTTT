@@ -89,7 +89,7 @@ const Game = () => {
 
   const board = useMemo(
     () => getBoardAtMove(currentMoveIndex, moveHistory),
-    [moveHistory],
+    [moveHistory, currentMoveIndex],
   );
 
   useEffect(() => {
