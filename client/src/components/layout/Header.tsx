@@ -7,7 +7,7 @@ import { FaUser } from "react-icons/fa6";
 import { FaCog, FaSignOutAlt } from "react-icons/fa";
 import HeaderSearch from "../search/HeaderSearch";
 import { MdPeopleAlt } from "react-icons/md";
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 import { Link } from "react-router-dom";
 
 const Header = () => {

@@ -82,6 +82,8 @@ services:
 #      args:
 #        VITE_API_URL: "http://localhost:5000"
     container_name: ultittt-client
+    env_file:
+      - ./client/.env
     environment:
       - VITE_API_URL=http://localhost:5000
       - VITE_API_V2_URL=http://localhost:5001

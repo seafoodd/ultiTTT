@@ -4,7 +4,7 @@ import Axios from "axios";
 import useNotification from "../shared/hooks/use-notification";
 import LoadingCircle from "../components/LoadingCircle";
 import Cookies from "universal-cookie";
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 import { useClientSeo } from "@/shared/hooks/use-client-seo";
 import { Env } from "@/shared/constants/env";
 

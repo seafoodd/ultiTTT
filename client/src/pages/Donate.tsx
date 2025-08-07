@@ -1,176 +1,132 @@
 import { useClientSeo } from "@/shared/hooks/use-client-seo";
-import UnderConstruction from "../components/UnderConstruction";
-import { useEffect, useState } from "react";
-import Axios from "axios";
 import { Env } from "@/shared/constants/env";
-import { useAuth } from "@/shared/provider/auth-provider";
 import { loadStripe } from "@stripe/stripe-js";
-import { useSearchParams } from "react-router-dom";
+// import { useSearchParams } from "react-router-dom";
 import Button from "@/shared/ui/Button";
+import {
+  // useCancelSubscription,
+  useCreateCheckoutSession,
+  // useResumeSubscription,
+} from "@/shared/api/mutations/payments";
+import { AiFillHeart } from "react-icons/ai";
+import { useAuth } from "@/shared/providers/auth-provider";
+import { useNavigate } from "react-router-dom";
 
 const Donate = () => {
   useClientSeo({ title: "Donate" });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { token } = useAuth();
-  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const priceId = "price_1RnjOAFpvYpqnz7jwhDM8CMB";
 
-  const stripePromise = loadStripe(
-    "pk_test_51RYT1uFpvYpqnz7jIVrh2udLQNmeKBJuv0lJebf34eWRApam0Y450B60OBRkqR0g9YVlFJRoX0GBo0oVuXK89pxb00ILw0KRGe",
-  );
+  const stripeKey = Env.VITE_STRIPE_PUBLISHABLE_KEY;
+  const stripePromise = loadStripe(stripeKey);
 
-  const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get("session_id");
+  // const { mutate: cancelSubscription, isPending: isCancelSubscriptionPending } =
+  //   useCancelSubscription();
+  // const { mutate: resumeSubscription, isPending: isResumeSubscriptionPending } =
+  //   useResumeSubscription();
+  const {
+    mutateAsync: createCheckoutSession,
+    isPending: isCreateCheckoutPending,
+    error: createCheckoutError,
+  } = useCreateCheckoutSession();
 
-  const cancelSubscription = async () => {
-    const response = await Axios.post(
-      `${Env.VITE_API_V2_URL}/payments/cancel-subscription`,
-      {},
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-    console.log(response)
-  };
-  const resumeSubscription = async () => {
-    const response = await Axios.post(
-      `${Env.VITE_API_V2_URL}/payments/resume-subscription`,
-      {},
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-    console.log(response)
-  };
+  const { currentUser, isAuth } = useAuth();
 
-  useEffect(() => {
-    const fetchCurrentSubscription = async () => {
-      const currentSubscription = await Axios.get(
-        `${Env.VITE_API_V2_URL}/payments/subscription-status`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+  // const [searchParams] = useSearchParams();
+  // const sessionId = searchParams.get("session_id");
 
-      console.log(currentSubscription);
-    };
+  const checkout = async () => {
+    const response = await createCheckoutSession(priceId);
+    const { sessionId } = response.data;
 
-    fetchCurrentSubscription();
-  }, []);
-
-  useEffect(() => {
-    if (!sessionId) return;
-
-    const fetchSessionStatus = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await Axios.get(
-          `${Env.VITE_API_V2_URL}/payments/session-status?session_id=${sessionId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        // Assume your backend returns something like { payment_status: "paid" }
-        const status = response.data.payment_status;
-        setPaymentStatus(status);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch payment status");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSessionStatus();
-  }, [sessionId, token]);
-
-  const createCheckoutSession = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await Axios.post(
-        `${Env.VITE_API_V2_URL}/payments/checkout`,
-        {
-          priceId,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      console.log(response);
-
-      if (response.status !== 201 && response.status !== 200) {
-        return setError("Failed to create checkout session");
-      }
-
-      const { sessionId } = response.data;
-
-      const stripe = await stripePromise;
-      if (!stripe) return setError("Stripe failed to load");
-
-      const { error } = await stripe.redirectToCheckout({ sessionId });
-      if (error) {
-        return setError(error.message ?? "Unknown Stripe error");
-      }
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
+    console.log(sessionId);
+    const stripe = await stripePromise;
+    if (!stripe) {
+      console.log("Stripe failed to load");
+      return;
     }
+
+    await stripe.redirectToCheckout({ sessionId });
   };
 
   return (
     <div>
-      <UnderConstruction />
-
-      {sessionId && (
-        <div>
-          {loading && <p>Checking payment status...</p>}
-          {paymentStatus && <p>Payment status: {paymentStatus}</p>}
-        </div>
-      )}
-
-      <button onClick={createCheckoutSession} disabled={loading}>
-        {loading ? "Loading..." : "Donate / Subscribe"}
-      </button>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <div className="mt-8 flex gap-4 justify-center items-center">
+      <h1 className="text-3xl font-bold mb-2">Support ultiTTT</h1>
+      <p className="text-lg max-w-xl">
+        {currentUser?.supporter
+          ? "Thank you for supporting ultiTTT! 🙌 Your contribution helps\n" +
+            "us maintain and grow the platform. You can manage your\n" +
+            "subscription at any time in the settings:"
+          : "ultiTTT is a free and open platform for competitive Ultimate Tic\n" +
+            "Tac Toe. Your donations help cover server costs, development time,\n" +
+            "and future improvements."}
+      </p>
+      <div className="flex flex-col items-center mt-8">
         <Button
-          onClick={cancelSubscription}
-          className="bg-color-accent-600 p-3"
+          className="bg-color-accent-500 px-3 py-2 w-fit"
+          onClick={
+            isAuth
+              ? currentUser?.supporter
+                ? () => navigate("/settings/subscription")
+                : () => checkout()
+              : () => navigate("/login")
+          }
+          isLoading={!currentUser?.supporter && isCreateCheckoutPending}
         >
-          CANCEL
+          {isAuth ? (
+            currentUser?.supporter ? (
+              "Manage subscription"
+            ) : (
+              <>
+                <AiFillHeart /> Subscribe for $5/month
+              </>
+            )
+          ) : (
+            "Log In to Donate"
+          )}
         </Button>
-        <Button
-          onClick={resumeSubscription}
-          className="bg-color-accent-600 p-3"
-        >
-          RESUME
-        </Button>
+        {createCheckoutError && createCheckoutError.response?.data?.message && (
+          <p className="text-red-600">
+            {createCheckoutError.response.data.message}
+          </p>
+        )}
       </div>
+      <div className="mt-6 text-md">
+        <p>
+          {currentUser?.supporter
+            ? "Enjoy your supporter perks"
+            : "Donors will receive the following perks"}
+          :
+        </p>
+        <ul className="mx-auto w-fit my-2 list-disc list-inside">
+          <li>Supporter badge on your profile</li>
+        </ul>
+        More perks coming soon!
+      </div>
+
+      <p className="text-sm text-muted-foreground mt-12">
+        Payments are processed securely via Stripe. We never store your card
+        details.
+      </p>
+
+      {/*<div className="mt-8 flex gap-4 justify-center items-center">*/}
+      {/*  <Button*/}
+      {/*    onClick={() => cancelSubscription()}*/}
+      {/*    isLoading={isCancelSubscriptionPending}*/}
+      {/*    className="bg-color-accent-600 p-3 w-24 h-12"*/}
+      {/*  >*/}
+      {/*    CANCEL*/}
+      {/*  </Button>*/}
+      {/*  <Button*/}
+      {/*    onClick={() => resumeSubscription()}*/}
+      {/*    isLoading={isResumeSubscriptionPending}*/}
+      {/*    className="bg-color-accent-600 p-3 w-24 h-12"*/}
+      {/*  >*/}
+      {/*    RESUME*/}
+      {/*  </Button>*/}
+      {/*</div>*/}
     </div>
   );
 };

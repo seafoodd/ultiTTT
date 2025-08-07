@@ -4,7 +4,7 @@ import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoadingCircle from "../components/LoadingCircle";
 import useRateLimit from "../shared/hooks/use-rate-limit";
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 import { Env } from "@/shared/constants/env";
 import { useClientSeo } from "@/shared/hooks/use-client-seo";
 
@@ -13,7 +13,7 @@ const LogIn = () => {
     title: "Log In",
   });
 
-  const { setIsAuth } = useAuth();
+  const { setIsAuth, setToken } = useAuth();
   const cookies = new Cookies();
   const navigate = useNavigate();
 
@@ -45,14 +45,15 @@ const LogIn = () => {
           maxAge: (rememberMe ? 365 : 7) * 24 * 60 * 60,
         });
         setIsAuth(true);
+        setToken(token);
         navigate("/");
         // window.location.href = "/";
       })
       .catch((err) => {
         if (err.response?.status === 429) {
-          const retryAfter = err.response.headers['retry-after'];
+          const retryAfter = err.response.headers["retry-after"];
           setRateLimitTimeLeft(retryAfter);
-          setError('Too many login attempts');
+          setError("Too many login attempts");
         } else {
           setError(
             err.response.data.message || "An error occurred. Please try again",

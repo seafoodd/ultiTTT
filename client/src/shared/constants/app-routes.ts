@@ -20,8 +20,8 @@ export const APP_ROUTES = {
   Friends: "/friends",
 
    // ==============SETTINGS==============
-  ProfileSettings: "/settings",
-  ProfileSettingsMain: "/settings/profile",
+  Settings: "/settings",
+  ProfileSettings: "/settings/profile",
   AppearanceSettings: "/settings/appearance",
   ChangePasswordSettings: "/settings/change-password",
   ChangeUsernameSettings: "/settings/change-username",

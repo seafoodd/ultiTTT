@@ -1,7 +1,7 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import LoadingCircle from "../LoadingCircle";
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 
 export const ProtectedRouteRequiredType = {
   Auth: "auth",

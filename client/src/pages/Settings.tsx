@@ -4,9 +4,12 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 const settings = [
   { to: "profile", name: "Profile" },
   { to: "appearance", name: "Appearance" },
+  {},
   { to: "change-password", name: "Change password" },
   { to: "change-username", name: "Change username" },
   { to: "change-email", name: "Change email" },
+  {},
+  { to: "subscription", name: "Manage subscription" },
 ];
 
 const Settings = () => {
@@ -32,7 +35,7 @@ const Settings = () => {
                 {setting.name}
               </NavLink>
             ) : (
-              <br key={key} />
+              <br key={key} className='my-1' />
             ),
           )}
         </div>

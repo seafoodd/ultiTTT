@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { debugError } from "@/shared/lib/client/debugUtils";
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 import { Env } from "@/shared/constants/env";
 
 interface SocketContextType {

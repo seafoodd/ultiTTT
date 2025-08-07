@@ -9,10 +9,10 @@ import {
 import Timer from "./Timer";
 import Board from "./Board";
 import { ImCross } from "react-icons/im";
-import { useWebSocket } from "@/shared/provider/websocket-provider";
+import { useWebSocket } from "@/shared/providers/websocket-provider";
 import { handleResign } from "@/shared/lib/client/gameUtils";
 import MoveHistory from "./MoveHistory";
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 
 interface GameViewProps {
   opponentUsername: string;

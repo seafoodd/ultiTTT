@@ -8,7 +8,7 @@ import Axios from "axios";
 import useNotification from "../../shared/hooks/use-notification";
 import { UserData, Socials } from "@/shared/lib/client/interfaces";
 import { fetchUserData } from "@/shared/lib/client/dbUtils";
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 import {Env} from "@/shared/constants/env";
 
 const patterns = {

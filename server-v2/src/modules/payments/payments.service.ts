@@ -32,7 +32,7 @@ export class PaymentsService {
 
         if (user.supporter) {
             throw new BadRequestException(
-                'User already has an active subscription',
+                'You already have an active subscription. Please cancel it in your settings first.',
             );
         }
 

@@ -3,8 +3,8 @@ import { Env } from "../../constants/env";
 import Cookies from "universal-cookie";
 import { AUTH_COOKIE } from "@/shared/constants/cookies";
 
-export const api = axios.create({
-  baseURL: Env.VITE_API_V2_URL,
+export const api = new axios.Axios({
+  baseURL: Env.VITE_API_URL,
   withCredentials: true,
 });
 

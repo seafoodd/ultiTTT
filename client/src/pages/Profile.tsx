@@ -6,8 +6,8 @@ import { FaEdit, FaUserMinus, FaUserPlus } from "react-icons/fa";
 import Button from "../shared/ui/Button";
 import Modal from "../shared/ui/Modal";
 import ChallengeModal from "../components/ChallengeModal";
-import { useWebSocket } from "@/shared/provider/websocket-provider";
-import { useStore } from "@/shared/provider/store-provider";
+import { useWebSocket } from "@/shared/providers/websocket-provider";
+import { useStore } from "@/shared/providers/store-provider";
 import LoadingCircle from "../components/LoadingCircle";
 import { IoClose } from "react-icons/io5";
 import { IoMdCheckmark } from "react-icons/io";
@@ -21,7 +21,7 @@ import ProfileStats from "../components/account/ProfileStats";
 import Socials from "../components/Socials";
 import { UserData } from "@/shared/lib/client/interfaces";
 import { fetchUserData } from "@/shared/lib/client/dbUtils";
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 import { useClientSeo } from "@/shared/hooks/use-client-seo";
 import { APP_ROUTES } from "@/shared/constants/app-routes";
 
@@ -239,7 +239,7 @@ const Profile = () => {
                     asChild
                     className="bg-color-neutral-700 px-6 py-2 hover:bg-color-neutral-600"
                   >
-                    <Link to={APP_ROUTES.ProfileSettings}>
+                    <Link to={APP_ROUTES.Settings}>
                       <FaEdit size={18} />
                       Edit
                     </Link>

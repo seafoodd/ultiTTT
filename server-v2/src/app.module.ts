@@ -8,6 +8,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { UserModule } from './modules/user/user.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
+import { AccountModule } from '@/modules/account/account.module';
 
 @Module({
     imports: [
@@ -29,6 +30,7 @@ import { SubscriptionModule } from './modules/subscription/subscription.module';
         WebhooksModule,
         UserModule,
         SubscriptionModule,
+        AccountModule
     ],
     providers: [
         {
