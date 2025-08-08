@@ -12,7 +12,7 @@ type Account = {
 
 export const useGetAccount = (token: string | null) => {
   return useQuery<Account, AxiosError>({
-    queryKey: ["account"],
+    queryKey: ["account", token],
     queryFn: async () => {
       const response = await api.get(`account`);
       return response.data;

@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   const { mutateAsync: guestLogin, error: guestLoginError } = useGuestLogin();
-  const { data, isSuccess, isError, error } = useGetAccount(token);
+  const { data, isSuccess, isError, error, isLoading } = useGetAccount(token);
 
   const logOut = () => {
     cookies.remove("token", { path: "/" });
@@ -77,11 +77,12 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
   }, [token]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || isLoading) return;
+    if (isLoading) setCurrentUser(null);
 
     if (isSuccess && data) {
       setCurrentUser(data);
-      console.log(data);
+      console.log(token, data);
       if (data.role !== "guest") {
         setIsAuth(true);
       }
@@ -95,11 +96,19 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
       setIsAuth(false);
       setAuthLoading(false);
     }
-  }, [isSuccess, isError, data, error, token]);
+  }, [isSuccess, isError, data, error]);
 
   return (
     <AuthContext.Provider
-      value={{ authLoading, isAuth, token, logOut, setIsAuth, setToken, currentUser }}
+      value={{
+        authLoading,
+        isAuth,
+        token,
+        logOut,
+        setIsAuth,
+        setToken,
+        currentUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

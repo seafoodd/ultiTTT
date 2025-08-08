@@ -46,7 +46,7 @@ export class AuthService {
         );
 
         const token = this.jwtService.sign(
-            { identifier: user.username, t: 'verify-email' },
+            { email: user.email, t: 'verify-email' },
             { expiresIn: '24h' },
         );
 

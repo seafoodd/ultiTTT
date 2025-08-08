@@ -31,6 +31,7 @@ import { LayoutWithFooter } from "@/components/layout/LayoutWithFooter";
 import { LayoutWithoutFooter } from "@/components/layout/LayoutWithoutFooter";
 import { ReactQueryProvider } from "@/shared/providers/query-client-provider";
 import NotFound from "@/pages/NotFound";
+import SubscriptionSettings from "@/components/account/SubscriptionSettings";
 
 const router = createBrowserRouter(
   [
@@ -92,6 +93,7 @@ const router = createBrowserRouter(
             { path: "change-password", element: <ChangePasswordSettings /> },
             { path: "change-username", element: <ChangeUsernameSettings /> },
             { path: "change-email", element: <ChangeEmailSettings /> },
+            { path: "subscription", element: <SubscriptionSettings /> },
           ],
         },
         {

@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import Axios from "axios";
 import useNotification from "../shared/hooks/use-notification";
 import LoadingCircle from "../components/LoadingCircle";
 import Cookies from "universal-cookie";
 import { useAuth } from "@/shared/providers/auth-provider";
 import { useClientSeo } from "@/shared/hooks/use-client-seo";
-import { Env } from "@/shared/constants/env";
+import { useConfirmEmail } from "@/shared/api/mutations/auth";
 
 const Confirmation = () => {
   useClientSeo({
@@ -18,36 +17,35 @@ const Confirmation = () => {
   const { showError, showSuccess } = useNotification();
   const navigate = useNavigate();
   const cookies = new Cookies();
-  const { setIsAuth } = useAuth();
+  const { setIsAuth, setToken } = useAuth();
+
+  const { mutateAsync: confirmEmail, error: confirmEmailError, isPending } =
+    useConfirmEmail();
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || isPending) return;
 
-    Axios.post(
-      `${Env.VITE_API_V2_URL}/auth/confirm-email`,
-      {},
-      {
-        headers: {
-          Authorization: token,
-        },
-      },
-    )
+    confirmEmail(token)
       .then((res) => {
         showSuccess(res.data.message);
-        cookies.set("token", res.data.token, {
+        const token = res.data.token;
+        cookies.set("token", token, {
           path: "/",
           sameSite: "lax",
           secure: true,
           maxAge: 365 * 24 * 60 * 60,
         });
         setIsAuth(true);
+        setToken(token);
         navigate("/");
       })
-      .catch((e) => {
-        showError(e.response.data.message);
-        navigate("/");
-      });
-  }, [token]);
+  }, []);
+
+  useEffect(() => {
+    if(confirmEmailError){
+      showError(confirmEmailError.response?.data?.message ?? "Internal Server Error")
+    }
+  }, [confirmEmailError]);
 
   return <LoadingCircle />;
 };

@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { countries } from "countries-list";
 import LoadingCircle from "../LoadingCircle";
-import Button from "../../shared/ui/Button";
+import Button from "@/shared/ui/Button";
 import { FaEdit } from "react-icons/fa";
 import Axios from "axios";
-import useNotification from "../../shared/hooks/use-notification";
+import useNotification from "@/shared/hooks/use-notification";
 import { UserData, Socials } from "@/shared/lib/client/interfaces";
 import { fetchUserData } from "@/shared/lib/client/dbUtils";
 import { useAuth } from "@/shared/providers/auth-provider";
-import {Env} from "@/shared/constants/env";
+import { Env } from "@/shared/constants/env";
 
 const patterns = {
   youtube:
@@ -46,7 +46,7 @@ const ProfileSettings = () => {
       token,
       setUserData,
       setError,
-      setLoading
+      setLoading,
     ).catch((err) => {
       console.log(err);
     });
@@ -81,7 +81,7 @@ const ProfileSettings = () => {
     Object.entries(socials).forEach(([platform, value]) => {
       if (value && !patterns[platform as keyof typeof patterns].test(value)) {
         showError(
-          `Invalid ${platform} ${platform === "discord" ? "username" : "URL"}`
+          `Invalid ${platform} ${platform === "discord" ? "username" : "URL"}`,
         );
         newErrorFields.push(platform);
       }
@@ -122,7 +122,7 @@ const ProfileSettings = () => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <div className="text-start text-3xl font-medium mb-4">Edit profile</div>
+      <h2 className="text-start text-3xl font-medium mb-4">Edit profile</h2>
 
       <div className="flex flex-col items-start sm:flex-row gap-2 mb-3">
         <div className="text-start w-40 font-medium">Username</div>
@@ -202,7 +202,7 @@ const ProfileSettings = () => {
                 }`}
               />
             </div>
-          )
+          ),
         )}
       </div>
 

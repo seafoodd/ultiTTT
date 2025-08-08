@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { CoreModule } from '@/core/core.module';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
@@ -18,7 +18,7 @@ import { AccountModule } from '@/modules/account/account.module';
         ThrottlerModule.forRoot({
             throttlers: [
                 {
-                    ttl: 60000,
+                    ttl: seconds(3),
                     limit: 10,
                 },
             ],
