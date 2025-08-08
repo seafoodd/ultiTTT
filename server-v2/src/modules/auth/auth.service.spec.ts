@@ -49,7 +49,7 @@ describe('AuthService', () => {
                 'hashedpassword',
             );
             expect(jwtServiceMock.sign).toHaveBeenCalledWith(
-                { identifier: 'testuser', t: 'verify-email' },
+                { email: 'test@example.com', t: 'verify-email' },
                 { expiresIn: '24h' },
             );
             expect(emailServiceMock.sendVerificationEmail).toHaveBeenCalledWith(

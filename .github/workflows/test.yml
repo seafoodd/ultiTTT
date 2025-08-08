@@ -1,4 +1,4 @@
-name: Run Tests
+name: Run Backend Tests
 
 on:
   push:
@@ -9,6 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server-v2
 
     steps:
       - name: Checkout code
