@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Button from "../shared/ui/Button";
 import { useNavigate } from "react-router-dom";
-import { useWebSocket } from "../shared/provider/websocket-provider";
+import { useWebSocket } from "@/shared/providers/websocket-provider";
 
 interface ChallengeModalProps {
   username: string;

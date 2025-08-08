@@ -1,4 +1,4 @@
-import { useNotifications } from "../provider/notification-provider";
+import { useNotifications } from "@/shared/providers/notification-provider";
 
 const useNotification = () => {
   const { addNotification } = useNotifications();

@@ -6,7 +6,7 @@ import {
   BiSignal4,
   BiSignal5,
 } from "react-icons/bi";
-import { useWebSocket } from "../shared/provider/websocket-provider";
+import { useWebSocket } from "@/shared/providers/websocket-provider";
 
 interface PingDisplayProps {
   className?: string;

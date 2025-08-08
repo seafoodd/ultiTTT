@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useStore } from "@/shared/provider/store-provider";
+import { useStore } from "@/shared/providers/store-provider";
 import { GrStatusGoodSmall } from "react-icons/gr";
 import Button from "../shared/ui/Button";
 import { IoClose } from "react-icons/io5";

@@ -19,7 +19,8 @@ const MoveHistory: React.FC<{
       if (moveRef) {
         moveRef.scrollIntoView({
           behavior: "smooth",
-          block: "start",
+          inline: "start",
+          block: "nearest",
         });
       }
     }

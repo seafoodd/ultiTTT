@@ -12,8 +12,8 @@ COPY . .
 
 RUN npm install -g prisma
 
-RUN prisma generate
-
 COPY prisma/schema.prisma ./prisma/
+
+RUN prisma generate
 
 EXPOSE 5000

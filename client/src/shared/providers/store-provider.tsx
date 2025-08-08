@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import Axios from "axios";
 import { useWebSocket } from "./websocket-provider";
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 import { Env } from "@/shared/constants/env";
 
 interface StoreContextProps {

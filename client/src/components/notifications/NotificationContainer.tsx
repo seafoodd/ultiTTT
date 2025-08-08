@@ -1,7 +1,7 @@
 import React from "react";
 import { RxCross2 } from "react-icons/rx";
 import { Notification } from "@/shared/lib/client/interfaces";
-import { useWebSocket } from "../../shared/provider/websocket-provider";
+import { useWebSocket } from "@/shared/providers/websocket-provider";
 
 interface NotificationContainerProps {
   notifications: Notification[];

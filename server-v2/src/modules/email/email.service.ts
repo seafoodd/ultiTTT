@@ -1,58 +1,127 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { EnvConfig } from '@/core/config/env.config';
+import * as path from 'path';
+import * as fs from 'fs';
+import validator from 'validator';
 
 interface BrevoEmailResponse {
-  messageId: string;
+    messageId: string;
 }
 
 @Injectable()
 export class EmailService {
-  private readonly senderEmail: string;
-  private readonly apiKey: string;
-  private readonly baseUrl: string;
+    private _disposableDomains: Set<string>;
+    private readonly _senderEmail: string;
+    private readonly _brevoApiKey: string;
+    private readonly _rapidApiKey: string;
+    private readonly _baseUrl: string;
 
-  private readonly logger = new Logger(EmailService.name);
+    private readonly _logger = new Logger(EmailService.name);
 
-  constructor(private readonly envConfig: EnvConfig) {
-    this.senderEmail = this.envConfig.getEnvVarOrThrow('BREVO_SENDER_EMAIL');
-    this.apiKey = this.envConfig.getEnvVarOrThrow('BREVO_API_KEY');
+    constructor(private readonly envConfig: EnvConfig) {
+        this._senderEmail =
+            this.envConfig.getEnvVarOrThrow('BREVO_SENDER_EMAIL');
+        this._brevoApiKey = this.envConfig.getEnvVarOrThrow('BREVO_API_KEY');
+        this._rapidApiKey = this.envConfig.getEnvVarOrThrow('RAPIDAPI_KEY');
 
-    this.baseUrl = this.envConfig.isDevelopment
-      ? 'http://localhost:5173'
-      : envConfig.getEnvVarOrThrow('DOMAIN_URL');
-  }
+        this._baseUrl = this.envConfig.isDevelopment
+            ? 'http://localhost:5173'
+            : envConfig.getEnvVarOrThrow('DOMAIN_URL');
 
-  async sendVerificationEmail(
-    username: string,
-    email: string,
-    token: string,
-  ): Promise<void> {
-    const emailHtml = this.getStylizedEmailMessage(username, token);
+        const filePath = path.join(
+            process.cwd(),
+            'data',
+            'disposable-domains.txt',
+        );
+        const content = fs.readFileSync(filePath, 'utf-8');
 
-    const response = await axios.post<BrevoEmailResponse>(
-      'https://api.brevo.com/v3/smtp/email',
-      {
-        sender: { email: this.senderEmail, name: 'ultiTTT' },
-        to: [{ email, name: username }],
-        subject: 'Confirm your ultiTTT account',
-        htmlContent: emailHtml,
-      },
-      {
-        headers: {
-          'api-key': this.apiKey,
-          'Content-Type': 'application/json',
-        },
-      },
-    );
+        this._disposableDomains = new Set(
+            content
+                .split('\n')
+                .map((d) => d.trim().toLowerCase())
+                .filter(Boolean),
+        );
+    }
 
-    this.logger.log(`Email sent: ${response.data.messageId || 'success'}`);
-  }
 
-  private getStylizedEmailMessage(username: string, token: string): string {
-    const confirmUrl = `${this.baseUrl}/confirmation?token=${token}`;
+    private async _rapidApiCheck(emailDomain: string): Promise<boolean> {
+        const options = {
+            method: 'GET',
+            url: 'https://mailcheck.p.rapidapi.com/',
+            params: {
+                domain: emailDomain,
+            },
+            headers: {
+                'x-rapidapi-key': this._rapidApiKey,
+                'x-rapidapi-host': 'mailcheck.p.rapidapi.com',
+            },
+        };
 
-    return `
+        const response = await axios.request(options);
+
+        const { disposable, valid } = response.data ?? {};
+
+        if (typeof disposable !== 'boolean' || typeof valid !== 'boolean') {
+            throw new Error('Unexpected API response structure');
+        }
+
+        return !disposable && valid;
+    }
+
+    async isEmailValid(email: string): Promise<boolean> {
+        if (!validator.isEmail(email)) {
+            return false;
+        }
+
+        if (this.envConfig.isDevelopment) {
+            return true; // do not check in development
+        }
+
+        const domain = email.split('@')[1]?.toLowerCase() ?? '';
+
+        let isValid = true;
+
+        isValid &&= await this._rapidApiCheck(domain);
+        isValid &&= !this._disposableDomains.has(domain);
+
+        return isValid;
+    }
+
+    async sendVerificationEmail(
+        username: string,
+        email: string,
+        token: string,
+    ): Promise<void> {
+        const emailHtml = this._getStylizedEmailMessage(username, token);
+
+        const url = 'https://api.brevo.com/v3/smtp/email';
+        const data = {
+            sender: { email: this._senderEmail, name: 'ultiTTT' },
+            to: [{ email, name: username }],
+            subject: 'Confirm your ultiTTT account',
+            htmlContent: emailHtml,
+        };
+        const config = {
+            headers: {
+                'api-key': this._brevoApiKey,
+                'Content-Type': 'application/json',
+            },
+        };
+
+        const response = await axios.post<BrevoEmailResponse>(
+            url,
+            data,
+            config,
+        );
+
+        this._logger.log(`Email sent: ${response.data.messageId || 'success'}`);
+    }
+
+    private _getStylizedEmailMessage(username: string, token: string): string {
+        const confirmUrl = `${this._baseUrl}/confirmation?token=${token}`;
+
+        return `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #19181A;">
         <h2 style="color: #F5F2FF; text-align: center;">Welcome, ${username}!</h2>
         <p style="color: #F5F2FF; font-size: 16px;">Thank you for signing up for ultiTTT. Please confirm your email by clicking the button below:</p>
@@ -66,5 +135,5 @@ export class EmailService {
         <p style="color: #ACAAB3; font-size: 12px; text-align: center;">If you didn't sign up for ultiTTT, please ignore this email.</p>
       </div>
     `;
-  }
+    }
 }

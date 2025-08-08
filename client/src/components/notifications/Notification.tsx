@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { CgClose } from "react-icons/cg";
-import { useWebSocket } from "../../shared/provider/websocket-provider";
+import { useWebSocket } from "@/shared/providers/websocket-provider";
 import useNotification from "../../shared/hooks/use-notification";
 
 const Notification = () => {

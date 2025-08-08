@@ -17,18 +17,21 @@ import SignUp from "./pages/SignUp";
 import Settings from "./pages/Settings";
 import { Root } from "react-dom/client";
 import ProtectedRoute from "./components/routing/ProtectedRoute";
-import { WebsocketSocketProvider } from "./shared/provider/websocket-provider";
-import { StoreProvider } from "./shared/provider/store-provider";
+import { WebsocketSocketProvider } from "@/shared/providers/websocket-provider";
+import { StoreProvider } from "@/shared/providers/store-provider";
 import ProfileSettings from "./components/account/ProfileSettings";
 import ChangeEmailSettings from "./components/account/ChangeEmailSettings";
 import AppearanceSettings from "./components/account/AppearanceSettings";
 import ChangeUsernameSettings from "./components/account/ChangeUsernameSettings";
 import ChangePasswordSettings from "./components/account/ChangePasswordSettings";
-import { NotificationProvider } from "./shared/provider/notification-provider";
+import { NotificationProvider } from "@/shared/providers/notification-provider";
 import Confirmation from "./pages/Confirmation";
-import { AuthProvider } from "./shared/provider/auth-provider";
+import { AuthProvider } from "@/shared/providers/auth-provider";
 import { LayoutWithFooter } from "@/components/layout/LayoutWithFooter";
 import { LayoutWithoutFooter } from "@/components/layout/LayoutWithoutFooter";
+import { ReactQueryProvider } from "@/shared/providers/query-client-provider";
+import NotFound from "@/pages/NotFound";
+import SubscriptionSettings from "@/components/account/SubscriptionSettings";
 
 const router = createBrowserRouter(
   [
@@ -90,7 +93,12 @@ const router = createBrowserRouter(
             { path: "change-password", element: <ChangePasswordSettings /> },
             { path: "change-username", element: <ChangeUsernameSettings /> },
             { path: "change-email", element: <ChangeEmailSettings /> },
+            { path: "subscription", element: <SubscriptionSettings /> },
           ],
+        },
+        {
+          path: "*",
+          element: <NotFound />,
         },
       ],
     },
@@ -116,15 +124,17 @@ if (rootElement) {
   }
 
   root.render(
-    <AuthProvider>
-      <WebsocketSocketProvider>
-        <NotificationProvider>
-          <StoreProvider>
-            <RouterProvider router={router} />
-          </StoreProvider>
-        </NotificationProvider>
-      </WebsocketSocketProvider>
-    </AuthProvider>,
+    <ReactQueryProvider>
+      <AuthProvider>
+        <WebsocketSocketProvider>
+          <NotificationProvider>
+            <StoreProvider>
+              <RouterProvider router={router} />
+            </StoreProvider>
+          </NotificationProvider>
+        </WebsocketSocketProvider>
+      </AuthProvider>
+    </ReactQueryProvider>,
   );
 }
 

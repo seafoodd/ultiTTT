@@ -7,11 +7,12 @@ import { FaUser } from "react-icons/fa6";
 import { FaCog, FaSignOutAlt } from "react-icons/fa";
 import HeaderSearch from "../search/HeaderSearch";
 import { MdPeopleAlt } from "react-icons/md";
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 import { Link } from "react-router-dom";
+import LoadingCircle from "@/components/LoadingCircle";
 
 const Header = () => {
-  const { currentUser, logOut, isAuth } = useAuth();
+  const { currentUser, logOut, isAuth, authLoading } = useAuth();
   const [currentMenu, setCurrentMenu] = useState<string>("");
 
   return (
@@ -55,46 +56,49 @@ const Header = () => {
           currentMenu={currentMenu}
           setCurrentMenu={setCurrentMenu}
         />
-        {isAuth && (
-          <Link className="z-50 mr-1.5" to="/friends">
-            <MdPeopleAlt className="" href="/friends" size={26} />
-          </Link>
-        )}
-        {isAuth ? (
-          <div className="flex justify-center h-full items-center">
-            {/*<NavItem href="/friends" text="friends" />*/}
-            <Dropdown
-              currentMenu={currentMenu}
-              setCurrentMenu={setCurrentMenu}
-              trigger={
-                <div className="flex justify-center items-center gap-1 cursor-pointer h-full">
-                  <p className="font-normal truncate max-w-24">
-                    {currentUser?.username}
-                  </p>
-                  <IoPersonCircleOutline size={32} />
-                </div>
-              }
-              options={[
-                {
-                  name: "Profile",
-                  icon: <FaUser />,
-                  href: `/@/${currentUser?.username}`,
-                },
-                {
-                  name: "Settings",
-                  icon: <FaCog />,
-                  href: "/settings",
-                },
-                {
-                  name: "Log Out",
-                  icon: <FaSignOutAlt />,
-                  onClick: () => {
-                    logOut();
+
+        {authLoading ? (
+          <LoadingCircle/>
+        ) : isAuth ? (
+          <>
+            <Link className="z-50 mr-1.5" to="/friends">
+              <MdPeopleAlt className="" href="/friends" size={26} />
+            </Link>
+            <div className="flex justify-center h-full items-center">
+              {/*<NavItem href="/friends" text="friends" />*/}
+              <Dropdown
+                currentMenu={currentMenu}
+                setCurrentMenu={setCurrentMenu}
+                trigger={
+                  <div className="flex justify-center items-center gap-1 cursor-pointer h-full">
+                    <p className="font-normal truncate max-w-24">
+                      {currentUser?.username}
+                    </p>
+                    <IoPersonCircleOutline size={32} />
+                  </div>
+                }
+                options={[
+                  {
+                    name: "Profile",
+                    icon: <FaUser />,
+                    href: `/@/${currentUser?.username}`,
                   },
-                },
-              ]}
-            />
-          </div>
+                  {
+                    name: "Settings",
+                    icon: <FaCog />,
+                    href: "/settings",
+                  },
+                  {
+                    name: "Log Out",
+                    icon: <FaSignOutAlt />,
+                    onClick: () => {
+                      logOut();
+                    },
+                  },
+                ]}
+              />
+            </div>
+          </>
         ) : (
           <div className="flex justify-center gap-4 px-3 md:pr-0 z-50">
             <NavItem

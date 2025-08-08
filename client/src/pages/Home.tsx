@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import verifyToken from "@/shared/lib/client/verifyToken";
-import { useWebSocket } from "@/shared/provider/websocket-provider";
+import { useWebSocket } from "@/shared/providers/websocket-provider";
 import { BiRightArrowAlt } from "react-icons/bi";
 import { playSound } from "@/shared/lib/client/soundUtils";
 import GameTypeButton from "../components/GameTypeButton";
 import LoadingCircle from "../components/LoadingCircle";
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 import { useClientSeo } from "@/shared/hooks/use-client-seo";
 
 const Home = () => {

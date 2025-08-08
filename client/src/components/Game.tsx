@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { getBoardAtMove } from "@/shared/lib/client/gameUtils";
-import { useWebSocket } from "@/shared/provider/websocket-provider";
+import { useWebSocket } from "@/shared/providers/websocket-provider";
 import NotFound from "@/pages/NotFound";
 import WaitingLobby from "./WaitingLobby";
 import LoadingCircle from "./LoadingCircle";
 import { GameView } from "./GameView";
 import { playSound } from "@/shared/lib/client//soundUtils";
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 import { useClientSeo } from "@/shared/hooks/use-client-seo";
 
 interface GameState {
@@ -89,7 +89,7 @@ const Game = () => {
 
   const board = useMemo(
     () => getBoardAtMove(currentMoveIndex, moveHistory),
-    [moveHistory],
+    [moveHistory, currentMoveIndex],
   );
 
   useEffect(() => {

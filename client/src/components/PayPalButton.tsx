@@ -1,4 +1,4 @@
-import { useAuth } from "@/shared/provider/auth-provider";
+import { useAuth } from "@/shared/providers/auth-provider";
 import { useEffect } from "react";
 
 const PayPalButton = () => {

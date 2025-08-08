@@ -1,10 +1,10 @@
 import {
-  Injectable,
-  ConflictException,
-  ForbiddenException,
-  UnauthorizedException,
-  Logger,
-  BadRequestException,
+    Injectable,
+    ConflictException,
+    ForbiddenException,
+    UnauthorizedException,
+    Logger,
+    BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -14,168 +14,144 @@ import { RegisterDto } from '@/modules/auth/dto/register.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
 import { EmailService } from '@/modules/email/email.service';
 import { ResendVerificationEmailDto } from '@/modules/auth/dto/resend-verification-email.dto';
-import { EnvConfig } from '@/core/config/env.config';
-import { DisposableEmailService } from '@/core/disposable-email/disposable-email.service';
 import { isEmailTokenPayload } from './auth.types';
+import { UserService } from '@/modules/user/user.service';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private prisma: PrismaService,
-    private envConfig: EnvConfig,
-    private emailService: EmailService,
-    private jwtService: JwtService,
-    private readonly disposableEmailService: DisposableEmailService,
-  ) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly emailService: EmailService,
+        private readonly jwtService: JwtService,
+        private readonly userService: UserService,
+    ) {}
 
-  private readonly logger = new Logger(AuthService.name);
+    private readonly logger = new Logger(AuthService.name);
 
-  async register(dto: RegisterDto) {
-    const { email, username, password } = dto;
+    async register(dto: RegisterDto) {
+        const { email, username, password } = dto;
 
-    if (
-      this.envConfig.isProduction &&
-      this.disposableEmailService.isDisposable(email)
-    ) {
-      throw new BadRequestException('Invalid email');
+        const isEmailValid = await this.emailService.isEmailValid(email);
+
+        if (!isEmailValid) {
+            throw new BadRequestException('Invalid email');
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = await this.userService.create(
+            username,
+            email,
+            hashedPassword,
+        );
+
+        const token = this.jwtService.sign(
+            { email: user.email, t: 'verify-email' },
+            { expiresIn: '24h' },
+        );
+
+        try {
+            await this.emailService.sendVerificationEmail(
+                username,
+                email,
+                token,
+            );
+        } catch (e) {
+            this.logger.error('Failed to send verification email', e);
+        }
     }
 
-    if (await this.prisma.user.findUnique({ where: { email } })) {
-      throw new ConflictException('Email is already taken');
-    }
-    if (await this.prisma.user.findUnique({ where: { username } })) {
-      throw new ConflictException('Username is already taken');
-    }
+    async login(dto: LoginDto): Promise<{ token: string }> {
+        const { identifier, password, rememberMe } = dto;
 
-    const hashed = await bcrypt.hash(password, 10);
+        const user = await this.userService.get(identifier);
+        if (!user)
+            throw new UnauthorizedException('Invalid username or password');
+        if (!user.verified)
+            throw new ForbiddenException('Please confirm your email');
 
-    await this.prisma.user.create({
-      data: {
-        username,
-        displayName: username,
-        email,
-        password: hashed,
-        socials: { create: {} },
-        perfs: {
-          create: {
-            bullet: { create: {} },
-            blitz: { create: {} },
-            rapid: { create: {} },
-            standard: { create: {} },
-          },
-        },
-        profile: { create: {} },
-      },
-    });
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid)
+            throw new UnauthorizedException('Invalid username or password');
 
-    const token = this.jwtService.sign(
-      { identifier: username, t: 'verify-email' },
-      { expiresIn: '24h' },
-    );
+        const token = this.jwtService.sign(
+            { identifier, role: 'user' },
+            rememberMe ? { expiresIn: '30d' } : undefined,
+        );
 
-    try {
-      await this.emailService.sendVerificationEmail(username, email, token);
-    } catch (e) {
-      this.logger.error('Failed to send verification email', e);
-    }
-  }
-
-  async login(dto: LoginDto): Promise<{ token: string }> {
-    const { identifier, password, rememberMe } = dto;
-
-    const user = await this.prisma.user.findFirst({
-      where: { OR: [{ email: identifier }, { username: identifier }] },
-    });
-    if (!user) throw new UnauthorizedException('Invalid username or password');
-    if (!user.verified)
-      throw new ForbiddenException('Please confirm your email');
-
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid)
-      throw new UnauthorizedException('Invalid username or password');
-
-    const token = this.jwtService.sign(
-      { identifier, role: 'user' },
-      rememberMe ? { expiresIn: '30d' } : undefined,
-    );
-
-    return { token };
-  }
-
-  async resendVerificationEmail(dto: ResendVerificationEmailDto) {
-    const { email } = dto;
-    const user = await this.prisma.user.findFirst({
-      where: { email },
-    });
-
-    if (!user || user.verified) {
-      // silent return to avoid enumeration
-      return;
+        return { token };
     }
 
-    const { username } = user;
+    async resendVerificationEmail(dto: ResendVerificationEmailDto) {
+        const { email } = dto;
+        const user = await this.userService.get(email);
+        if (!user || user.verified) {
+            // silent return to avoid enumeration
+            return;
+        }
 
-    const token = this.jwtService.sign(
-      { identifier: username, t: 'verify-email' },
-      { expiresIn: '24h' },
-    );
+        const token = this.jwtService.sign(
+            { email: user.email, t: 'verify-email' },
+            { expiresIn: '24h' },
+        );
 
-    try {
-      await this.emailService.sendVerificationEmail(
-        user.username,
-        email,
-        token,
-      );
-    } catch (e) {
-      this.logger.error('Failed to send verification email', e);
-    }
-  }
-
-  guestLogin(): { token: string } {
-    const id = nanoid();
-    const token = this.jwtService.sign(
-      { identifier: id, role: 'guest' },
-      {
-        expiresIn: '24h',
-      },
-    );
-    return { token };
-  }
-
-  async confirmEmail(
-    authHeader: string,
-  ): Promise<{ message: string; token: string }> {
-    const token = authHeader.replace(/^Bearer\s+/, '');
-    let payload: unknown;
-    try {
-      payload = this.jwtService.verify(token);
-    } catch (e: unknown) {
-      if (e instanceof TokenExpiredError) {
-        throw new UnauthorizedException('Confirmation link expired');
-      }
-      throw new UnauthorizedException('Invalid confirmation link');
-    }
-    if (!isEmailTokenPayload(payload)) {
-      throw new UnauthorizedException('Invalid confirmation link');
+        try {
+            await this.emailService.sendVerificationEmail(
+                user.username,
+                email,
+                token,
+            );
+        } catch (e) {
+            this.logger.error('Failed to send verification email', e);
+        }
     }
 
-    const dbUser = await this.prisma.user.findFirst({
-      where: {
-        OR: [{ email: payload.identifier }, { username: payload.identifier }],
-      },
-    });
-    if (!dbUser) throw new UnauthorizedException('Invalid confirmation link');
-    if (dbUser.verified) throw new ConflictException('Email already verified');
+    guestLogin(): { token: string } {
+        const id = nanoid();
+        const token = this.jwtService.sign(
+            { identifier: id, role: 'guest' },
+            {
+                expiresIn: '24h',
+            },
+        );
+        return { token };
+    }
 
-    await this.prisma.user.update({
-      where: { username: payload.identifier },
-      data: { verified: true },
-    });
+    async confirmEmail(
+        authHeader: string,
+    ): Promise<{ message: string; token: string }> {
+        const token = authHeader.replace(/^Bearer\s+/, '');
+        let payload: unknown;
+        try {
+            payload = this.jwtService.verify(token);
+        } catch (e: unknown) {
+            if (e instanceof TokenExpiredError) {
+                throw new UnauthorizedException('Confirmation link expired');
+            }
+            throw new UnauthorizedException('Invalid confirmation link');
+        }
+        if (!isEmailTokenPayload(payload)) {
+            throw new UnauthorizedException('Invalid confirmation link');
+        }
 
-    const authToken = this.jwtService.sign({
-      identifier: payload.identifier,
-      role: 'user',
-    });
-    return { message: 'Email successfully verified', token: authToken };
-  }
+        const email = payload.email;
+
+        const dbUser = await this.userService.get(email);
+        if (!dbUser)
+            throw new UnauthorizedException('Invalid confirmation link');
+        if (dbUser.verified)
+            throw new ConflictException('Email already verified');
+
+        await this.prisma.user.update({
+            where: { email },
+            data: { verified: true },
+        });
+
+        const authToken = this.jwtService.sign({
+            identifier: email,
+            role: 'user',
+        });
+
+        return { message: 'Email successfully verified', token: authToken };
+    }
 }
