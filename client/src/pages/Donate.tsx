@@ -17,8 +17,6 @@ const Donate = () => {
 
   const navigate = useNavigate();
 
-  const priceId = "price_1RnjOAFpvYpqnz7jwhDM8CMB";
-
   const stripeKey = Env.VITE_STRIPE_PUBLISHABLE_KEY;
   const stripePromise = loadStripe(stripeKey);
 
@@ -38,7 +36,7 @@ const Donate = () => {
   // const sessionId = searchParams.get("session_id");
 
   const checkout = async () => {
-    const response = await createCheckoutSession(priceId);
+    const response = await createCheckoutSession('supporter_monthly');
     const { sessionId } = response.data;
 
     console.log(sessionId);

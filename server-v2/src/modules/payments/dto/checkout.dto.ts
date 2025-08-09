@@ -3,8 +3,8 @@ import { IsString } from 'class-validator';
 
 export class CheckoutDto {
   @ApiProperty({
-    example: 'price_1RnjOAFpvYpqnz7jwhDM8CMB',
+    example: 'supporter_monthly',
   })
   @IsString()
-  priceId: string;
+  priceName: string;
 }

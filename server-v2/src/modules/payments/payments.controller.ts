@@ -23,7 +23,7 @@ export class PaymentsController {
         const user = req.user;
         const sessionId = await this.paymentsService.checkout(
             user.username,
-            dto.priceId,
+            dto.priceName,
         );
         return { sessionId };
     }

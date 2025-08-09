@@ -26,7 +26,7 @@ export class PaymentsService {
 
     private readonly _logger = new Logger(PaymentsService.name);
 
-    async checkout(username: string, priceId: string): Promise<string> {
+    async checkout(username: string, priceName: string): Promise<string> {
         const user = await this.userService.getOrThrow(username);
         const customerId = await this.getOrCreateCustomer(user);
 
@@ -40,9 +40,18 @@ export class PaymentsService {
             this._domainUrl + '/donate' + '?session_id={CHECKOUT_SESSION_ID}';
         const cancelUrl = this._domainUrl + '/donate';
 
+        const prices = await this.stripe.prices.list({
+            lookup_keys: [priceName],
+            expand: ['data.product'],
+        });
+        const price = prices.data[0];
+        if (!price) {
+            throw new BadRequestException(`No price found for lookup key: ${priceName}`);
+        }
+
         const lineItems = [
             {
-                price: priceId,
+                price: price.id,
                 quantity: 1,
             },
         ];
