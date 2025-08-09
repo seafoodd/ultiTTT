@@ -23,7 +23,7 @@ export const useResumeSubscription = () => {
 
 export const useCreateCheckoutSession = () => {
   return useMutation<AxiosResponse, AxiosError<{ message: string }>, string>({
-    mutationFn: (priceId: string) =>
-      api.post("payments/checkout", { priceId }),
+    mutationFn: (priceName: string) =>
+      api.post("payments/checkout", { priceName }),
   });
 };
