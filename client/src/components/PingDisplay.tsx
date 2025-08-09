@@ -40,7 +40,7 @@ const PingDisplay: React.FC<PingDisplayProps> = ({ className }) => {
       const handleResponse = (error: any) => {
         clearTimeout(timeoutId);
         if (error) {
-          console.log("ping error");
+          console.error("ping error");
           setPing(null);
           return;
         }
@@ -51,7 +51,7 @@ const PingDisplay: React.FC<PingDisplayProps> = ({ className }) => {
       socket.emit("ping", handleResponse);
 
       timeoutId = setTimeout(() => {
-        console.log("ping timeout");
+        console.error("ping timeout");
         setPing(null);
       }, 5000); // 5 seconds timeout
     };

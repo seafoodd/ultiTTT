@@ -9,6 +9,7 @@ import Cookies from "universal-cookie";
 import { useGetAccount } from "@/shared/api/queries/account";
 import { useGuestLogin } from "@/shared/api/mutations/auth";
 import { AUTH_COOKIE } from "@/shared/constants/cookies";
+import { queryClient } from "@/shared/providers/query-client-provider";
 
 interface AuthContextType {
   authLoading: boolean;
@@ -43,7 +44,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   const { mutateAsync: guestLogin, error: guestLoginError } = useGuestLogin();
-  const { data, isSuccess, isError, error, isLoading } = useGetAccount(token);
+  const { data: account, isSuccess, isError, error, isLoading } = useGetAccount(token);
 
   const logOut = () => {
     cookies.remove("token", { path: "/" });
@@ -52,6 +53,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
     cookies.remove("hashedPassword");
     setIsAuth(false);
     setCurrentUser(null);
+    queryClient.clear();
   };
 
   useEffect(() => {
@@ -70,7 +72,6 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
         secure: true,
         maxAge: 24 * 60 * 60,
       });
-      console.log("SETTING NOEW TOKEN COOKEIE", newToken);
       setToken(newToken);
     };
 
@@ -81,10 +82,9 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
     if (!token || isLoading) return;
     if (isLoading) setCurrentUser(null);
 
-    if (isSuccess && data) {
-      setCurrentUser(data);
-      console.log(token, data);
-      if (data.role !== "guest") {
+    if (isSuccess && account) {
+      setCurrentUser(account);
+      if (account.role !== "guest") {
         setIsAuth(true);
       }
       setAuthLoading(false);
@@ -97,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderType> = ({ children }) => {
       setIsAuth(false);
       setAuthLoading(false);
     }
-  }, [isSuccess, isError, data, error]);
+  }, [isSuccess, isError, account, error]);
 
   return (
     <AuthContext.Provider

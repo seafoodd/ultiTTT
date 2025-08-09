@@ -1,12 +1,9 @@
 import { useClientSeo } from "@/shared/hooks/use-client-seo";
 import { Env } from "@/shared/constants/env";
 import { loadStripe } from "@stripe/stripe-js";
-// import { useSearchParams } from "react-router-dom";
 import Button from "@/shared/ui/Button";
 import {
-  // useCancelSubscription,
   useCreateCheckoutSession,
-  // useResumeSubscription,
 } from "@/shared/api/mutations/payments";
 import { AiFillHeart } from "react-icons/ai";
 import { useAuth } from "@/shared/providers/auth-provider";
@@ -20,10 +17,6 @@ const Donate = () => {
   const stripeKey = Env.VITE_STRIPE_PUBLISHABLE_KEY;
   const stripePromise = loadStripe(stripeKey);
 
-  // const { mutate: cancelSubscription, isPending: isCancelSubscriptionPending } =
-  //   useCancelSubscription();
-  // const { mutate: resumeSubscription, isPending: isResumeSubscriptionPending } =
-  //   useResumeSubscription();
   const {
     mutateAsync: createCheckoutSession,
     isPending: isCreateCheckoutPending,
@@ -32,17 +25,13 @@ const Donate = () => {
 
   const { currentUser, isAuth } = useAuth();
 
-  // const [searchParams] = useSearchParams();
-  // const sessionId = searchParams.get("session_id");
-
   const checkout = async () => {
     const response = await createCheckoutSession("supporter_monthly");
     const { sessionId } = response.data;
 
-    console.log(sessionId);
     const stripe = await stripePromise;
     if (!stripe) {
-      console.log("Stripe failed to load");
+      console.error("Stripe failed to load");
       return;
     }
 
@@ -108,23 +97,6 @@ const Donate = () => {
         Payments are processed securely via Stripe. We never store your card
         details.
       </p>
-
-      {/*<div className="mt-8 flex gap-4 justify-center items-center">*/}
-      {/*  <Button*/}
-      {/*    onClick={() => cancelSubscription()}*/}
-      {/*    isLoading={isCancelSubscriptionPending}*/}
-      {/*    className="bg-color-accent-600 p-3 w-24 h-12"*/}
-      {/*  >*/}
-      {/*    CANCEL*/}
-      {/*  </Button>*/}
-      {/*  <Button*/}
-      {/*    onClick={() => resumeSubscription()}*/}
-      {/*    isLoading={isResumeSubscriptionPending}*/}
-      {/*    className="bg-color-accent-600 p-3 w-24 h-12"*/}
-      {/*  >*/}
-      {/*    RESUME*/}
-      {/*  </Button>*/}
-      {/*</div>*/}
     </div>
   );
 };

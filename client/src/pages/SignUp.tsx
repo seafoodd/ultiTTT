@@ -65,7 +65,6 @@ const LogIn = () => {
     })
       .then(() => {
         setRateLimitTimeLeft(60);
-        console.log("Resend verification email");
       })
       .catch((err) => {
         if (err.response?.status === 429) {

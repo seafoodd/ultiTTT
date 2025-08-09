@@ -37,14 +37,6 @@ const Game = () => {
   const { gameId } = useParams();
   const location = useLocation();
   const { token, currentUser } = useAuth();
-  // const [board, setBoard] = useState<
-  //   { subWinner: string; squares: string[] }[]
-  // >(
-  //   Array.from({ length: 9 }, () => ({
-  //     subWinner: "",
-  //     squares: Array(9).fill(""),
-  //   })),
-  // );
   const [timers, setTimers] = useState<{ X: number; O: number }>({
     X: 600 * 1000,
     O: 600 * 1000,
@@ -148,7 +140,6 @@ const Game = () => {
       callback: (ack: string) => void = () => {},
     ) => {
       callback("ACK");
-      console.log(gameState);
       setTurn(gameState.moveHistory.length % 2 === 0 ? "X" : "O");
       setMoveHistory(gameState.moveHistory);
       setCurrentMoveIndex(gameState.moveHistory.length);
@@ -192,7 +183,6 @@ const Game = () => {
       );
 
       if (gameState.t === "move") {
-        console.log("play sound 1", gameState);
         playSound(moveSound);
       }
 
@@ -226,18 +216,12 @@ const Game = () => {
     if (!socket || gameFinished) return;
 
     if (turn !== symbol || board[subBoardIndex].squares[squareIndex] !== "") {
-      console.log(`Not a valid move: ${turn} !== ${symbol}`);
+      console.debug(`Not a valid move: ${turn} !== ${symbol}`);
       return;
     }
 
-    // console.log("play sound 2")
-    // playSound(moveSound);
     socket.emit("makeMove", { gameId, subBoardIndex, squareIndex });
   };
-
-  // useEffect(() => {
-  //   setBoard(getBoardAtMove(currentMoveIndex, moveHistory));
-  // }, [currentMoveIndex, moveHistory]);
 
   if (!gameId || loading) {
     return <LoadingCircle />;

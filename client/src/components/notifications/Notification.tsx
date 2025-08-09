@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CgClose } from "react-icons/cg";
 import { useWebSocket } from "@/shared/providers/websocket-provider";
 import useNotification from "../../shared/hooks/use-notification";
@@ -29,9 +29,7 @@ const Notification = () => {
       callback: (ack: string) => void
     ) => {
       callback("ACK");
-      // setChallenge({ from, gameId, gameType });
       showChallenge(gameType, from, gameId);
-      console.log("challenge", from, gameId, gameType);
     };
     socket.on("receiveChallenge", receiveChallengeListener);
 

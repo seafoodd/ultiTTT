@@ -12,8 +12,11 @@ api.interceptors.request.use((config) => {
   const cookieStore = new Cookies();
   const token = cookieStore.get(AUTH_COOKIE);
 
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", config)
-  if (token && !config.headers?.authorization && !config.headers?.Authorization) {
+  if (
+    token &&
+    !config.headers?.authorization &&
+    !config.headers?.Authorization
+  ) {
     config.headers = config.headers || {};
     config.headers["Authorization"] = `Bearer ${token}`;
   }
