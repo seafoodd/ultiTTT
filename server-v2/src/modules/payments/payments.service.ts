@@ -61,6 +61,7 @@ export class PaymentsService {
             mode: 'subscription',
             payment_method_types: ['card'],
             line_items: lineItems,
+            allow_promotion_codes: true,
             success_url: successUrl,
             cancel_url: cancelUrl,
         };
