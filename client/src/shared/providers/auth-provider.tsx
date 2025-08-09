@@ -23,6 +23,7 @@ interface AuthContextType {
 interface User {
   role: "user" | "guest";
   username: string;
+  identifier?: string;
   email: string;
   displayName: string;
   supporter: boolean;

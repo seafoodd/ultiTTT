@@ -157,16 +157,17 @@ const Game = () => {
       if (gameState.t === "init") {
         setInvitedUsername(gameState.invitedUsername);
 
+        const identifier = currentUser.identifier ?? currentUser.username
+
         const opponent = gameState.players.find(
-          (player) => player.identifier !== currentUser.identifier,
+          (p) => p.identifier !== identifier,
         );
         if (opponent) {
           setOpponentUsername(opponent.username);
         }
         const currentPlayer = gameState.players.find(
-          (p: Player) => p.identifier === currentUser.identifier,
+          (p: Player) => p.identifier === identifier,
         );
-        // console.log("currentPlayer", currentPlayer)
         if (currentPlayer) {
           setSymbol(currentPlayer.symbol);
         }
