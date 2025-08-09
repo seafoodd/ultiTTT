@@ -116,12 +116,11 @@ const Profile = () => {
 
     fetchUserData(username!, token, setUserData, setError, setLoading).catch(
       (err) => {
-        console.log(err);
+        console.error(err);
       },
     );
 
     socket.emit("isUserOnline", username, (online: boolean) => {
-      console.log("online");
       setIsOnline(online);
     });
   }, [username, socket]);

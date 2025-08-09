@@ -60,7 +60,6 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
       }
       const data = await response.json();
 
-      console.log("data", data);
       const games = data.games;
 
       setGameHistory((prevGames: any[]) =>
@@ -78,7 +77,7 @@ const GameHistory: React.FC<{ username: string }> = ({ username }) => {
 
   useEffect(() => {
     fetchGameHistory().catch((e) => {
-      console.log("Error fetching game history", e);
+      console.error("Error fetching game history", e);
     });
   }, [page, username]);
 

@@ -5,10 +5,10 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import Axios from "axios";
 import { useWebSocket } from "./websocket-provider";
 import { useAuth } from "@/shared/providers/auth-provider";
 import { Env } from "@/shared/constants/env";
+import { legacyApi } from "@/shared/api/lib/legacy-api";
 
 interface StoreContextProps {
   friends: string[];
@@ -88,22 +88,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const sendFriendRequest = (username: string, action: "add" | "remove") => {
-    Axios.post(
-      `${Env.VITE_API_URL}/friends/${action}/${username}`,
-      {},
-      {
-        headers: {
-          Authorization: token!,
-        },
-      },
-    )
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((e) => {
-        console.error(e.message);
-      })
-      .finally(fetchFriends);
+    legacyApi.post(`friends/${action}/${username}`).then(fetchFriends);
   };
 
   const checkOnlineStatus = (friends: string[]) => {

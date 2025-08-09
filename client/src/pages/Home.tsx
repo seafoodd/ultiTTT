@@ -71,7 +71,6 @@ const Home = () => {
       socket.off("searchStarted");
 
       socket.on("searchStarted", () => {
-        console.log("search", gameType);
         setCurrentSearching(gameType);
       });
     } catch (e) {

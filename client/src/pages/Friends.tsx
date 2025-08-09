@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useStore } from "@/shared/providers/store-provider";
 import { GrStatusGoodSmall } from "react-icons/gr";
 import Button from "../shared/ui/Button";
@@ -37,9 +37,6 @@ const Friends = () => {
   const [isChallengeModalOpen, setIsChallengeModalOpen] =
     useState<boolean>(false);
   const [challengeUsername, setChallengeUsername] = useState<string>("");
-  useEffect(() => {
-    console.log(onlineFriends);
-  }, [onlineFriends]);
 
   const RequestElement: React.FC<RequestElementProps> = ({
     username,
