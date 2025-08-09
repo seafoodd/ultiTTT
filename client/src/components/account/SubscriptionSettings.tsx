@@ -5,6 +5,9 @@ import {
 import { useGetSubscriptionStatus } from "@/shared/api/queries/payments";
 import Button from "@/shared/ui/Button";
 import LoadingCircle from "@/components/LoadingCircle";
+import { Link } from "react-router-dom";
+import { useCallback } from "react";
+import { cn } from "@/shared/lib/client/cn";
 
 const formatDate = (timestamp: number) => {
   return new Date(timestamp * 1000).toLocaleDateString(undefined, {
@@ -19,26 +22,75 @@ const SubscriptionSettings = () => {
     useCancelSubscription();
   const { mutate: resumeSubscription, isPending: isResumePending } =
     useResumeSubscription();
+  const { data, isPending, error, isRefetching } = useGetSubscriptionStatus();
 
-  const { data, isPending } = useGetSubscriptionStatus();
+  const handleCancel = useCallback(
+    () => cancelSubscription(),
+    [cancelSubscription],
+  );
+  const handleResume = useCallback(
+    () => resumeSubscription(),
+    [resumeSubscription],
+  );
 
-  if (isPending) return <LoadingCircle />;
+  if (isPending || isRefetching) return <LoadingCircle />;
+
+  if (error)
+    return (
+      <div
+        className="text-color-danger-600 p-4 border border-color-danger-600 rounded"
+        aria-live="polite"
+      >
+        Error loading subscription status: {error.message}
+      </div>
+    );
 
   const sub = data.subscription;
-  const item = sub.items.data[0];
+  if (!sub) {
+    return (
+      <div className="flex flex-col gap-2">
+        <h2 className="text-start text-3xl font-medium mb-4">
+          Manage Subscription
+        </h2>
+        <div className="space-y-2 text-md">
+          <div className="flex justify-between">
+            <span className="text-start w-40 font-medium">Status:</span>
+            <span className="text-color-danger-500">
+              No active subscription
+            </span>
+          </div>
+        </div>
+        <Button
+          asChild
+          className="bg-color-accent-500 hover:bg-color-accent-400 w-28 h-10 mt-4"
+        >
+          <Link to="/donate">Donate</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const item = sub.items.data?.[0];
+  if (!item) return <div>No subscription items found.</div>;
+
   const price = (item.price.unit_amount / 100).toFixed(2);
 
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="text-start text-3xl font-medium mb-4">Subscription Settings</h2>
+      <h2 className="text-start text-3xl font-medium mb-4">
+        Manage Subscription
+      </h2>
 
       <div className="space-y-2 text-md">
         <div className="flex justify-between">
           <span className="text-start w-40 font-medium">Status:</span>
           <span
-            className={
-              sub.cancel_at_period_end ? "text-color-danger-500" : "text-color-success-500"
-            }
+            aria-live="polite"
+            className={cn(
+              sub.cancel_at_period_end
+                ? "text-color-danger-500"
+                : "text-color-success-500",
+            )}
           >
             {sub.cancel_at_period_end ? "Cancelling" : "Active"}
           </span>
@@ -53,7 +105,9 @@ const SubscriptionSettings = () => {
 
         {sub.cancel_at_period_end && (
           <div className="flex justify-between">
-            <span className="text-start w-40 font-medium">Cancellation Date:</span>
+            <span className="text-start w-40 font-medium">
+              Cancellation Date:
+            </span>
             <span>{formatDate(sub.cancel_at)}</span>
           </div>
         )}
@@ -62,17 +116,27 @@ const SubscriptionSettings = () => {
       <div className="flex mt-4">
         {sub.cancel_at_period_end ? (
           <Button
-            onClick={() => resumeSubscription()}
+            onClick={handleResume}
             isLoading={isResumePending}
-            className="bg-color-accent-500 hover:bg-color-accent-400 w-28 h-10"
+            disabled={isResumePending}
+            className={cn(
+              "w-28 h-10 bg-color-accent-500",
+              "hover:bg-color-accent-400",
+              "disabled:hover:bg-color-accent-500",
+            )}
           >
             Resume
           </Button>
         ) : (
           <Button
-            onClick={() => cancelSubscription()}
+            onClick={handleCancel}
             isLoading={isCancelPending}
-            className="bg-color-danger-600 hover:bg-color-danger-500 w-28 h-10"
+            disabled={isCancelPending}
+            className={cn(
+              "w-28 h-10 bg-color-danger-600",
+              "hover:bg-color-danger-500",
+              "disabled:hover:bg-color-danger-600",
+            )}
           >
             Cancel
           </Button>
