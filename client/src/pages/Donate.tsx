@@ -36,7 +36,7 @@ const Donate = () => {
   // const sessionId = searchParams.get("session_id");
 
   const checkout = async () => {
-    const response = await createCheckoutSession('supporter_monthly');
+    const response = await createCheckoutSession("supporter_monthly");
     const { sessionId } = response.data;
 
     console.log(sessionId);
@@ -78,7 +78,7 @@ const Donate = () => {
               "Manage subscription"
             ) : (
               <>
-                <AiFillHeart /> Subscribe for $5/month
+                <AiFillHeart /> Subscribe for $3/month
               </>
             )
           ) : (

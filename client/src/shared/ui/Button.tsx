@@ -19,7 +19,7 @@ const Button: React.FC<ButtonProps> = ({
   const Comp = asChild ? Slot : "button";
 
   const commonClasses = cn(
-    "font-medium flex justify-center items-center gap-1 rounded-md h-fit text-[18px] transition-colors text-nowrap",
+    "font-medium flex justify-center items-center gap-1 rounded-md h-fit text-[18px] transition-colors text-nowrap disabled:opacity-50 disabled:cursor-not-allowed",
     className
   );
 
