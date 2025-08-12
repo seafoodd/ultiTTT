@@ -33,7 +33,7 @@
 
 | Layer        | Technology                      |
 | ------------ | ------------------------------- |
-| **Frontend** | Next.js, React, Tailwind CSS    |
+| **Frontend** | Vite, React, Tailwind CSS       |
 | **Realtime** | socket.io (WebSockets)          |
 | **Backend**  | NestJS (modular, feature‑based),|
 |              | Express.js (legacy API)         |
