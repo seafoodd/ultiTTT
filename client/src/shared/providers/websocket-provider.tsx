@@ -5,21 +5,28 @@ import { useAuth } from "@/shared/providers/auth-provider";
 import { Env } from "@/shared/constants/env";
 
 interface SocketContextType {
-  socket: Socket | null;
+  legacySocket: Socket | null;
+  getSocket: (namespace: string) => Socket | null;
 }
 
-const WebsocketSocketContext = createContext<SocketContextType | undefined>(
+export enum Namespace {
+  presence = "presence",
+}
+
+const WebsocketContext = createContext<SocketContextType | undefined>(
   undefined,
 );
 
-export const WebsocketSocketProvider: React.FC<{
+export const WebsocketProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [legacySocket, setLegacySocket] = useState<Socket | null>(null);
   const { token } = useAuth();
+  const socketsRef = React.useRef<Map<string, Socket>>(new Map());
 
   useEffect(() => {
     const apiUrl = Env.VITE_API_URL;
+
     const socketUrl = apiUrl.endsWith("/api")
       ? `${apiUrl.replace("/api", "")}`
       : `${apiUrl}`;
@@ -28,10 +35,7 @@ export const WebsocketSocketProvider: React.FC<{
       auth: {
         token: token,
       },
-      path:
-        Env.VITE_ENV === "development"
-          ? undefined
-          : "/sockets/socket.io",
+      path: Env.VITE_ENV === "development" ? undefined : "/sockets/socket.io",
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
@@ -47,24 +51,78 @@ export const WebsocketSocketProvider: React.FC<{
       debugError(err.code, err.message);
     });
 
-    setSocket(newSocket);
+    setLegacySocket(newSocket);
 
     return () => {
-      newSocket.close();
+      legacySocket?.close();
+      socketsRef.current.forEach((s) => s.close());
+      socketsRef.current.clear();
     };
   }, [token]);
 
+  const getSocket = React.useCallback(
+    (namespace: string) => {
+      if (!token) return null;
+      const apiUrl = Env.VITE_API_V2_URL;
+      const base = apiUrl.endsWith("/api")
+        ? `${apiUrl.replace("/api", "")}`
+        : `${apiUrl}`;
+
+      const existing = socketsRef.current.get(namespace);
+      if (existing) {
+        if (existing.connected) {
+          return existing;
+        }
+
+        try {
+          existing.close();
+        } catch (e) {
+          console.log("socket error", e);
+        }
+        socketsRef.current.delete(namespace);
+      }
+
+      const ns = namespace.startsWith("/") ? namespace : `/${namespace}`;
+
+      const nsSocket = io(`${base}${ns}`, {
+        auth: { token },
+        path: Env.VITE_ENV === "development" ? undefined : "/sockets/socket.io",
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        randomizationFactor: 0.5,
+      });
+
+      nsSocket.on("connect_error", (err) =>
+        console.error(`[${namespace}] connect_error:`, err.message),
+      );
+      nsSocket.on("error", (err: any) => debugError(err.code, err.message));
+
+      socketsRef.current.set(namespace, nsSocket);
+      return nsSocket;
+    },
+    [token],
+  );
+
   return (
-    <WebsocketSocketContext.Provider value={{ socket }}>
+    <WebsocketContext.Provider value={{ legacySocket, getSocket }}>
       {children}
-    </WebsocketSocketContext.Provider>
+    </WebsocketContext.Provider>
   );
 };
 
-export const useWebSocket = () => {
-  const context = useContext(WebsocketSocketContext);
-  if (context === undefined) {
-    throw new Error("useSocket must be used within a SocketProvider");
+export const useLegacySocket = () => {
+  const ctx = useContext(WebsocketContext);
+  if (!ctx) throw new Error("useLegacySocket must be used within a WebsocketProvider");
+  return ctx.legacySocket;
+};
+
+export const useSocket = (namespace: Namespace) => {
+  const ctx = useContext(WebsocketContext);
+  if (!ctx) {
+    throw new Error("useSocket must be used within a WebsocketProvider");
   }
-  return context;
+
+  return ctx.getSocket(namespace);
 };

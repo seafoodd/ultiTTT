@@ -14,8 +14,9 @@ import { RegisterDto } from '@/modules/auth/dto/register.dto';
 import { LoginDto } from '@/modules/auth/dto/login.dto';
 import { EmailService } from '@/modules/email/email.service';
 import { ResendVerificationEmailDto } from '@/modules/auth/dto/resend-verification-email.dto';
-import { isEmailTokenPayload } from './auth.types';
+import { isEmailTokenPayload, UserTokenPayload } from './auth.types';
 import { UserService } from '@/modules/user/user.service';
+import { UserRoles } from '@/shared/enums/user-roles';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,7 @@ export class AuthService {
         private readonly userService: UserService,
     ) {}
 
-    private readonly logger = new Logger(AuthService.name);
+    private readonly _logger = new Logger(AuthService.name);
 
     async register(dto: RegisterDto) {
         const { email, username, password } = dto;
@@ -57,7 +58,7 @@ export class AuthService {
                 token,
             );
         } catch (e) {
-            this.logger.error('Failed to send verification email', e);
+            this._logger.error('Failed to send verification email', e);
         }
     }
 
@@ -74,10 +75,10 @@ export class AuthService {
         if (!isValid)
             throw new UnauthorizedException('Invalid username or password');
 
-        const token = this.jwtService.sign(
-            { identifier, role: 'user' },
-            rememberMe ? { expiresIn: '30d' } : undefined,
-        );
+        const payload: UserTokenPayload = { identifier, role: UserRoles.User };
+        const expiry = rememberMe ? { expiresIn: '30d' } : undefined;
+
+        const token = this.jwtService.sign(payload, expiry);
 
         return { token };
     }
@@ -102,18 +103,21 @@ export class AuthService {
                 token,
             );
         } catch (e) {
-            this.logger.error('Failed to send verification email', e);
+            this._logger.error('Failed to send verification email', e);
         }
     }
 
     guestLogin(): { token: string } {
         const id = nanoid();
-        const token = this.jwtService.sign(
-            { identifier: id, role: 'guest' },
-            {
-                expiresIn: '24h',
-            },
-        );
+
+        const payload: UserTokenPayload = {
+            identifier: id,
+            role: UserRoles.Guest,
+        };
+        const expiry = { expiresIn: '24h' };
+
+        const token = this.jwtService.sign(payload, expiry);
+
         return { token };
     }
 
@@ -147,10 +151,12 @@ export class AuthService {
             data: { verified: true },
         });
 
-        const authToken = this.jwtService.sign({
-            identifier: email,
-            role: 'user',
-        });
+        const jwtPayload: UserTokenPayload = {
+            identifier: dbUser.username,
+            role: UserRoles.User,
+        };
+
+        const authToken = this.jwtService.sign(jwtPayload);
 
         return { message: 'Email successfully verified', token: authToken };
     }

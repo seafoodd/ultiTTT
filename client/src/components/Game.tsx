@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { getBoardAtMove } from "@/shared/lib/client/gameUtils";
-import { useWebSocket } from "@/shared/providers/websocket-provider";
+import { useLegacySocket } from "@/shared/providers/websocket-provider";
 import NotFound from "@/pages/NotFound";
 import WaitingLobby from "./WaitingLobby";
 import LoadingCircle from "./LoadingCircle";
@@ -32,7 +32,7 @@ interface Player {
 
 const Game = () => {
   const [loading, setLoading] = useState<boolean>(true);
-  const { socket } = useWebSocket();
+  const socket = useLegacySocket();
   const [playersJoined, setPlayersJoined] = useState<boolean>(false);
   const { gameId } = useParams();
   const location = useLocation();

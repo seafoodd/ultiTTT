@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import verifyToken from "@/shared/lib/client/verifyToken";
-import { useWebSocket } from "@/shared/providers/websocket-provider";
+import { useLegacySocket } from "@/shared/providers/websocket-provider";
 import { BiRightArrowAlt } from "react-icons/bi";
 import { playSound } from "@/shared/lib/client/soundUtils";
 import GameTypeButton from "../components/GameTypeButton";
@@ -15,7 +15,7 @@ const Home = () => {
   });
 
   const navigate = useNavigate();
-  const { socket } = useWebSocket();
+  const socket = useLegacySocket();
   const { isAuth } = useAuth();
   const [friendlyGameLoading, setFriendlyGameLoading] =
     useState<boolean>(false);
@@ -23,7 +23,7 @@ const Home = () => {
   const gameCodeRef = useRef<HTMLInputElement>(null);
   const [currentSearching, setCurrentSearching] = useState<string>();
   const [notificationSound] = useState(
-    () => new Audio("/sounds/GameFound.mp3")
+    () => new Audio("/sounds/GameFound.mp3"),
   );
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const Home = () => {
 
     const matchFoundListener = (
       gameId: string,
-      callback: (ack: string) => void
+      callback: (ack: string) => void,
     ) => {
       playSound(notificationSound);
       callback("ACK");
@@ -100,7 +100,7 @@ const Home = () => {
           callback("ACK");
           setFriendlyGameLoading(false);
           navigate(`/${gameId}`);
-        }
+        },
       );
     } catch (e) {
       console.error("Failed to join the game:", e);

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Button from "../shared/ui/Button";
 import { useNavigate } from "react-router-dom";
-import { useWebSocket } from "@/shared/providers/websocket-provider";
+import { useLegacySocket } from "@/shared/providers/websocket-provider";
 
 interface ChallengeModalProps {
   username: string;
@@ -10,7 +10,7 @@ interface ChallengeModalProps {
 const ChallengeModal: React.FC<ChallengeModalProps> = ({ username }) => {
   const [gameType, setGameType] = useState<string>("rapid");
   const navigate = useNavigate();
-  const { socket } = useWebSocket();
+  const socket = useLegacySocket();
 
   const sendChallengeRequest = () => {
     if (!socket) return;

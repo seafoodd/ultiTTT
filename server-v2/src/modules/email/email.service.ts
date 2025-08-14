@@ -44,7 +44,6 @@ export class EmailService {
         );
     }
 
-
     private async _rapidApiCheck(emailDomain: string): Promise<boolean> {
         const options = {
             method: 'GET',

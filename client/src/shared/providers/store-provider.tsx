@@ -5,7 +5,7 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { useWebSocket } from "./websocket-provider";
+import { useLegacySocket } from "./websocket-provider";
 import { useAuth } from "@/shared/providers/auth-provider";
 import { Env } from "@/shared/constants/env";
 import { legacyApi } from "@/shared/api/lib/legacy-api";
@@ -38,7 +38,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   >([]);
   const [activeGames, setActiveGames] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const { socket } = useWebSocket();
+  const socket = useLegacySocket();
 
   useEffect(() => {
     if (!isAuth) {

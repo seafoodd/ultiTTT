@@ -6,7 +6,7 @@ import { FaEdit, FaUserMinus, FaUserPlus } from "react-icons/fa";
 import Button from "../shared/ui/Button";
 import Modal from "../shared/ui/Modal";
 import ChallengeModal from "../components/ChallengeModal";
-import { useWebSocket } from "@/shared/providers/websocket-provider";
+import { useLegacySocket } from "@/shared/providers/websocket-provider";
 import { useStore } from "@/shared/providers/store-provider";
 import LoadingCircle from "../components/LoadingCircle";
 import { IoClose } from "react-icons/io5";
@@ -97,7 +97,7 @@ const Profile = () => {
     loading: friendsLoading,
     sendFriendRequest,
   } = useStore();
-  const { socket } = useWebSocket();
+  const socket = useLegacySocket();
   const { isAuth } = useAuth();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);

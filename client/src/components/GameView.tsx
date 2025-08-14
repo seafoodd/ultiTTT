@@ -9,7 +9,7 @@ import {
 import Timer from "./Timer";
 import Board from "./Board";
 import { ImCross } from "react-icons/im";
-import { useWebSocket } from "@/shared/providers/websocket-provider";
+import { useLegacySocket } from "@/shared/providers/websocket-provider";
 import { handleResign } from "@/shared/lib/client/gameUtils";
 import MoveHistory from "./MoveHistory";
 import { useAuth } from "@/shared/providers/auth-provider";
@@ -48,7 +48,7 @@ export const GameView: React.FC<GameViewProps> = ({
   gameFinished,
 }) => {
   const { currentUser } = useAuth();
-  const { socket } = useWebSocket();
+  const socket = useLegacySocket();
 
   return (
     <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-4 sm:w-[640px] lg:h-[640px] -mt-2 sm:mt-8">

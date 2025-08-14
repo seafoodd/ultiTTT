@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { CgClose } from "react-icons/cg";
-import { useWebSocket } from "@/shared/providers/websocket-provider";
+import { useLegacySocket } from "@/shared/providers/websocket-provider";
 import useNotification from "../../shared/hooks/use-notification";
 
 const Notification = () => {
@@ -10,7 +10,7 @@ const Notification = () => {
     gameType: string;
   } | null>(null);
 
-  const { socket } = useWebSocket();
+  const socket = useLegacySocket();
   const { showChallenge } = useNotification();
 
   useEffect(() => {

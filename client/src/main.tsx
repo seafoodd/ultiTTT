@@ -17,7 +17,7 @@ import SignUp from "./pages/SignUp";
 import Settings from "./pages/Settings";
 import { Root } from "react-dom/client";
 import ProtectedRoute from "./components/routing/ProtectedRoute";
-import { WebsocketSocketProvider } from "@/shared/providers/websocket-provider";
+import { WebsocketProvider } from "@/shared/providers/websocket-provider";
 import { StoreProvider } from "@/shared/providers/store-provider";
 import ProfileSettings from "./components/account/ProfileSettings";
 import ChangeEmailSettings from "./components/account/ChangeEmailSettings";
@@ -126,13 +126,13 @@ if (rootElement) {
   root.render(
     <ReactQueryProvider>
       <AuthProvider>
-        <WebsocketSocketProvider>
+        <WebsocketProvider>
           <NotificationProvider>
             <StoreProvider>
               <RouterProvider router={router} />
             </StoreProvider>
           </NotificationProvider>
-        </WebsocketSocketProvider>
+        </WebsocketProvider>
       </AuthProvider>
     </ReactQueryProvider>,
   );

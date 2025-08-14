@@ -9,6 +9,7 @@ import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { UserModule } from './modules/user/user.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { AccountModule } from '@/modules/account/account.module';
+import { PresenceModule } from './modules/presence/presence.module';
 
 @Module({
     imports: [
@@ -30,7 +31,8 @@ import { AccountModule } from '@/modules/account/account.module';
         WebhooksModule,
         UserModule,
         SubscriptionModule,
-        AccountModule
+        AccountModule,
+        PresenceModule
     ],
     providers: [
         {
