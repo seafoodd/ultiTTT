@@ -13,7 +13,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@stripe/stripe-js": "^7.6.1",
     "@tanstack/react-query": "^5.81.5",
-    "axios": "^1.8.4",
+    "axios": "^1.13.5",
     "clsx": "^2.1.1",
     "countries-list": "^3.1.1",
     "dotenv": "^16.4.7",
